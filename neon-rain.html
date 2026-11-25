@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#05010f">
+  <meta name="description" content="NEON RAIN — an interactive fictional cyberpunk night market rendered in canvas.">
+  <title>NEON RAIN — District 9 Night Market</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #05010f;
+      --deep: #1a0433;
+      --magenta: #ff2a6d;
+      --cyan: #05d9e8;
+      --yellow: #f9f002;
+      --paper: #e9f7ff;
+      --muted: rgba(217, 231, 255, 0.56);
+      --line: rgba(5, 217, 232, 0.24);
+      --safe-x: max(22px, env(safe-area-inset-left));
+      --safe-y: max(20px, env(safe-area-inset-top));
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --condensed: "Arial Narrow", "Liberation Sans Narrow", "DejaVu Sans Condensed", Impact, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--ink);
+    }
+
+    body {
+      color: var(--paper);
+      font-family: var(--condensed);
+      -webkit-font-smoothing: antialiased;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    button { font: inherit; }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      isolation: isolate;
+      overflow: hidden;
+      background: var(--ink);
+    }
+
+    #scene {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      touch-action: none;
+      outline: none;
+    }
+
+    #scene:focus-visible {
+      outline: 1px solid rgba(5, 217, 232, 0.72);
+      outline-offset: -6px;
+    }
+
+    .atmosphere,
+    .scanlines,
+    .vignette {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .atmosphere {
+      background:
+        radial-gradient(circle at 16% 57%, rgba(255, 42, 109, 0.08), transparent 30%),
+        radial-gradient(circle at 82% 48%, rgba(5, 217, 232, 0.07), transparent 28%),
+        linear-gradient(180deg, rgba(5, 1, 15, 0.05), transparent 42%, rgba(5, 1, 15, 0.22));
+      mix-blend-mode: screen;
+    }
+
+    .scanlines {
+      opacity: 0.2;
+      background: repeating-linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.018) 0,
+        rgba(255, 255, 255, 0.018) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+    }
+
+    .vignette {
+      background:
+        radial-gradient(ellipse at center, transparent 44%, rgba(2, 0, 8, 0.34) 76%, rgba(2, 0, 8, 0.78) 100%),
+        linear-gradient(90deg, rgba(2, 0, 8, 0.24), transparent 16%, transparent 84%, rgba(2, 0, 8, 0.24));
+    }
+
+    .hud {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      font-family: var(--mono);
+      text-transform: uppercase;
+    }
+
+    .corner {
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      opacity: 0.54;
+      border-color: var(--cyan);
+      border-style: solid;
+    }
+
+    .corner.tl { top: 12px; left: 12px; border-width: 1px 0 0 1px; }
+    .corner.tr { top: 12px; right: 12px; border-width: 1px 1px 0 0; }
+    .corner.bl { bottom: 47px; left: 12px; border-width: 0 0 1px 1px; }
+    .corner.br { bottom: 47px; right: 12px; border-width: 0 1px 1px 0; }
+
+    .masthead {
+      position: absolute;
+      top: calc(var(--safe-y) + 13px);
+      left: calc(var(--safe-x) + 13px);
+      max-width: min(620px, 62vw);
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 7px;
+      color: var(--cyan);
+      font-size: clamp(8px, 0.62vw, 10px);
+      letter-spacing: 0.34em;
+      text-shadow: 0 0 12px rgba(5, 217, 232, 0.62);
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 24px;
+      height: 1px;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--condensed);
+      font-size: clamp(38px, 5.2vw, 78px);
+      font-stretch: condensed;
+      font-weight: 900;
+      line-height: 0.8;
+      letter-spacing: -0.045em;
+      text-transform: uppercase;
+      filter: drop-shadow(0 0 18px rgba(255, 42, 109, 0.12));
+    }
+
+    .title-main {
+      display: block;
+      color: #fff4fb;
+      text-shadow:
+        -2px 0 0 rgba(255, 42, 109, 0.9),
+        2px 0 0 rgba(5, 217, 232, 0.86),
+        0 0 24px rgba(255, 42, 109, 0.2);
+    }
+
+    .title-sub {
+      display: block;
+      margin-top: 12px;
+      color: var(--yellow);
+      font-family: var(--mono);
+      font-size: clamp(9px, 0.86vw, 13px);
+      font-weight: 700;
+      letter-spacing: 0.31em;
+      line-height: 1.3;
+      text-shadow:
+        -1px 0 0 rgba(255, 42, 109, 0.72),
+        1px 0 0 rgba(5, 217, 232, 0.7),
+        0 0 14px rgba(249, 240, 2, 0.22);
+    }
+
+    .telemetry {
+      position: absolute;
+      top: calc(var(--safe-y) + 13px);
+      right: calc(var(--safe-x) + 13px);
+      display: grid;
+      grid-template-columns: auto auto;
+      gap: 8px 26px;
+      min-width: 260px;
+      padding: 10px 0 9px 16px;
+      border-left: 1px solid var(--line);
+      background: linear-gradient(90deg, rgba(5, 1, 15, 0.26), transparent);
+    }
+
+    .readout {
+      display: grid;
+      gap: 3px;
+    }
+
+    .readout.right { text-align: right; }
+
+    .micro-label {
+      color: var(--muted);
+      font-size: clamp(7px, 0.55vw, 9px);
+      letter-spacing: 0.24em;
+    }
+
+    .readout strong,
+    .readout time {
+      color: var(--paper);
+      font-size: clamp(12px, 1vw, 15px);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.12em;
+      text-shadow: -1px 0 rgba(255, 42, 109, 0.5), 1px 0 rgba(5, 217, 232, 0.5);
+    }
+
+    #weather { color: var(--cyan); }
+
+    .signal {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-top: 5px;
+      border-top: 1px solid rgba(5, 217, 232, 0.12);
+    }
+
+    .signal-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 13px;
+    }
+
+    .signal-bars i {
+      display: block;
+      width: 4px;
+      height: var(--h, 8px);
+      background: var(--cyan);
+      box-shadow: 0 0 7px rgba(5, 217, 232, 0.62);
+      transform-origin: bottom;
+      animation: signal-pulse 1.8s ease-in-out infinite alternate;
+      animation-delay: calc(var(--i) * -0.23s);
+    }
+
+    .signal-bars i:nth-child(5) { background: var(--yellow); box-shadow: 0 0 7px rgba(249, 240, 2, 0.5); }
+
+    #signal-value {
+      margin-left: auto;
+      color: var(--cyan);
+      font-size: 9px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.12em;
+    }
+
+    @keyframes signal-pulse {
+      from { transform: scaleY(0.64); opacity: 0.56; }
+      to { transform: scaleY(1); opacity: 1; }
+    }
+
+    .controls {
+      position: absolute;
+      right: calc(var(--safe-x) + 13px);
+      bottom: calc(var(--safe-y) + 61px);
+      display: flex;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .control {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 34px;
+      padding: 0 12px;
+      border: 1px solid rgba(5, 217, 232, 0.27);
+      border-radius: 2px;
+      color: var(--paper);
+      background: rgba(5, 1, 15, 0.62);
+      box-shadow: inset 0 0 18px rgba(5, 217, 232, 0.035), 0 8px 24px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+    }
+
+    .control:hover,
+    .control:focus-visible {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(5, 1, 15, 0.84);
+      outline: none;
+    }
+
+    .control[aria-pressed="true"] {
+      border-color: rgba(255, 42, 109, 0.58);
+      color: #ff89ac;
+    }
+
+    .control-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    #audio-toggle .control-dot { background: var(--yellow); box-shadow: 0 0 8px var(--yellow); }
+    #audio-toggle[aria-pressed="true"] .control-dot { background: var(--magenta); box-shadow: 0 0 8px var(--magenta); }
+
+    .hint {
+      position: absolute;
+      left: calc(var(--safe-x) + 13px);
+      bottom: calc(var(--safe-y) + 68px);
+      color: rgba(233, 247, 255, 0.46);
+      font-size: clamp(7px, 0.58vw, 9px);
+      letter-spacing: 0.19em;
+      line-height: 1.8;
+    }
+
+    .hint b { color: var(--cyan); font-weight: 500; }
+
+    .fps {
+      position: absolute;
+      right: calc(var(--safe-x) + 14px);
+      bottom: calc(var(--safe-y) + 103px);
+      color: rgba(233, 247, 255, 0.36);
+      font-size: 8px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.16em;
+    }
+
+    .ticker {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 36px;
+      overflow: hidden;
+      border-top: 1px solid rgba(5, 217, 232, 0.27);
+      background: rgba(3, 1, 10, 0.82);
+      box-shadow: 0 -12px 34px rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      font-family: var(--mono);
+      font-size: clamp(8px, 0.68vw, 10px);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .ticker-label {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      width: 118px;
+      padding-left: 22px;
+      border-right: 1px solid rgba(255, 42, 109, 0.48);
+      color: var(--ink);
+      background: var(--magenta);
+      box-shadow: 0 0 18px rgba(255, 42, 109, 0.25);
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+    }
+
+    .ticker-window {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 118px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+      -webkit-mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent);
+    }
+
+    .ticker-track {
+      display: flex;
+      flex: none;
+      width: max-content;
+      animation: ticker-scroll 46s linear infinite;
+      will-change: transform;
+    }
+
+    .ticker-group {
+      display: flex;
+      flex: none;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .ticker-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding-right: 54px;
+      color: rgba(233, 247, 255, 0.72);
+    }
+
+    .ticker-item::before {
+      content: "//";
+      color: var(--yellow);
+      text-shadow: 0 0 8px rgba(249, 240, 2, 0.5);
+    }
+
+    .ticker-item em {
+      color: var(--cyan);
+      font-style: normal;
+    }
+
+    @keyframes ticker-scroll {
+      to { transform: translateX(-50%); }
+    }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    @media (max-width: 700px) {
+      :root { --safe-x: 15px; --safe-y: 15px; }
+      .masthead { max-width: 76vw; }
+      h1 { font-size: clamp(36px, 10.5vw, 58px); }
+      .title-sub { margin-top: 10px; font-size: 8px; letter-spacing: 0.22em; }
+      .telemetry {
+        top: auto;
+        right: 15px;
+        bottom: 126px;
+        min-width: 208px;
+        grid-template-columns: auto auto;
+        gap: 7px 18px;
+        padding-left: 10px;
+      }
+      .readout.right { display: grid; text-align: right; }
+      .signal { grid-column: 1 / -1; }
+      .controls { right: 15px; bottom: 57px; gap: 6px; }
+      .control { min-height: 32px; padding: 0 9px; font-size: 8px; letter-spacing: 0.09em; }
+      .hint { bottom: 61px; max-width: 42vw; font-size: 7px; }
+      .fps { display: none; }
+      .ticker { height: 32px; }
+      .ticker-label { width: 88px; padding-left: 13px; font-size: 8px; }
+      .ticker-window { left: 88px; }
+      .corner.bl, .corner.br { bottom: 42px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ticker-track { animation-duration: 90s; }
+      .signal-bars i { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <main id="app">
+    <canvas id="scene" tabindex="0" aria-label="Interactive cyberpunk night market. Move the pointer to shift the camera. Click or press Enter for lightning."></canvas>
+    <div class="atmosphere" aria-hidden="true"></div>
+    <div class="scanlines" aria-hidden="true"></div>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <div class="hud">
+      <span class="corner tl" aria-hidden="true"></span>
+      <span class="corner tr" aria-hidden="true"></span>
+      <span class="corner bl" aria-hidden="true"></span>
+      <span class="corner br" aria-hidden="true"></span>
+
+      <header class="masthead">
+        <p class="eyebrow">Fictional sector / live feed 09</p>
+        <h1><span class="title-main">NEON RAIN</span><span class="title-sub">— District 9 Night Market</span></h1>
+      </header>
+
+      <aside class="telemetry" aria-label="District telemetry">
+        <div class="readout">
+          <span class="micro-label">District time</span>
+          <time id="clock" datetime="23:47:09">23:47:09</time>
+        </div>
+        <div class="readout right">
+          <span class="micro-label">Street weather</span>
+          <strong id="weather">11°C / acid rain</strong>
+        </div>
+        <div class="signal">
+          <span class="micro-label">Signal</span>
+          <span class="signal-bars" id="signal-bars" aria-hidden="true">
+            <i style="--i:0;--h:5px"></i><i style="--i:1;--h:8px"></i><i style="--i:2;--h:11px"></i><i style="--i:3;--h:9px"></i><i style="--i:4;--h:13px"></i>
+          </span>
+          <span id="signal-value">91%</span>
+        </div>
+      </aside>
+
+      <div class="hint"><b>Move</b> / parallax camera<br><b>Click sky</b> / lightning + thunder</div>
+      <div class="fps">RENDER <span id="fps">60</span> FPS</div>
+
+      <div class="controls" role="group" aria-label="Scene controls">
+        <button class="control" id="rain-toggle" type="button" aria-pressed="false">
+          <span class="control-dot" aria-hidden="true"></span><span id="rain-label">Rain / heavy</span>
+        </button>
+        <button class="control" id="audio-toggle" type="button" aria-pressed="false">
+          <span class="control-dot" aria-hidden="true"></span><span id="audio-label">Audio / on</span>
+        </button>
+      </div>
+
+      <div class="ticker" aria-label="Fictional District 9 news ticker">
+        <div class="ticker-label">D9 Wire</div>
+        <div class="ticker-window">
+          <div class="ticker-track" id="ticker-track">
+            <div class="ticker-group">
+              <span class="ticker-item">Curfew extended after <em>mirror eels</em> breach the floodgate</span>
+              <span class="ticker-item">Night market vendors report <em>memory noodles</em> selling out</span>
+              <span class="ticker-item">Transit line 9 delayed by a rogue delivery drone</span>
+              <span class="ticker-item">Weather desk: acid rain until dawn, umbrellas not insured</span>
+              <span class="ticker-item">Lost courier android answers only to <em>Kiko</em></span>
+              <span class="ticker-item">District signal holding at ninety-one percent</span>
+            </div>
+            <div class="ticker-group" aria-hidden="true">
+              <span class="ticker-item">Curfew extended after <em>mirror eels</em> breach the floodgate</span>
+              <span class="ticker-item">Night market vendors report <em>memory noodles</em> selling out</span>
+              <span class="ticker-item">Transit line 9 delayed by a rogue delivery drone</span>
+              <span class="ticker-item">Weather desk: acid rain until dawn, umbrellas not insured</span>
+              <span class="ticker-item">Lost courier android answers only to <em>Kiko</em></span>
+              <span class="ticker-item">District signal holding at ninety-one percent</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sr-only" id="event-status" role="status" aria-live="polite">Standby</div>
+    </div>
+  </main>
+  <script>
+    (() => {
+      "use strict";
+
+      const canvas = document.getElementById("scene");
+      const ctx = canvas.getContext("2d", { alpha: false });
+      const ui = {
+        clock: document.getElementById("clock"),
+        weather: document.getElementById("weather"),
+        signalBars: document.getElementById("signal-bars"),
+        signalValue: document.getElementById("signal-value"),
+        rainToggle: document.getElementById("rain-toggle"),
+        rainLabel: document.getElementById("rain-label"),
+        audioToggle: document.getElementById("audio-toggle"),
+        audioLabel: document.getElementById("audio-label"),
+        fps: document.getElementById("fps"),
+        eventStatus: document.getElementById("event-status")
+      };
+
+      const C = {
+        ink: "#05010f",
+        deep: "#1a0433",
+        magenta: "#ff2a6d",
+        cyan: "#05d9e8",
+        yellow: "#f9f002",
+        paper: "#e9f7ff"
+      };
+
+      const MAX_RAIN = 1100;
+      const MAX_SPLASH = 280;
+      const state = {
+        w: 0,
+        h: 0,
+        dpr: 1,
+        horizon: 0,
+        reflectH: 0,
+        time: 0,
+        last: performance.now(),
+        pointerX: 0,
+        pointerY: 0,
+        targetX: 0,
+        targetY: 0,
+        camX: 0,
+        camY: 0,
+        layers: [],
+        signs: [],
+        rain: [],
+        splashes: [],
+        rainActive: 0,
+        rainTarget: 0,
+        heavyRain: true,
+        muted: false,
+        lightningStart: -100,
+        boltSeed: 1,
+        buzz: 0,
+        fps: 60,
+        fpsFrames: 0,
+        fpsAt: performance.now(),
+        audio: null,
+        ready: false
+      };
+
+      let streetCanvas = null;
+      let reflectionCanvas = null;
+      let reflectionCtx = null;
+      let reflectionScale = 0.5;
+      let splashCursor = 0;
+      let resizeTimer = 0;
+      let statusTimer = 0;
+
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+      const lerp = (a, b, amount) => a + (b - a) * amount;
+      const rand = (min, max) => min + Math.random() * (max - min);
+
+      function mulberry32(seed) {
+        return function random() {
+          let value = seed += 0x6D2B79F5;
+          value = Math.imul(value ^ value >>> 15, value | 1);
+          value ^= value + Math.imul(value ^ value >>> 7, value | 61);
+          return ((value ^ value >>> 14) >>> 0) / 4294967296;
+        };
+      }
+
+      function makeCanvas(width, height) {
+        const surface = document.createElement("canvas");
+        surface.width = Math.max(1, Math.round(width));
+        surface.height = Math.max(1, Math.round(height));
+        return surface;
+      }
+
+      function resetDrop(drop, initial = false) {
+        const depth = Math.random();
+        drop.depth = depth;
+        drop.x = rand(-state.w * 0.25, state.w * 1.25);
+        drop.y = initial ? rand(-state.h * 0.15, state.h) : rand(-state.h * 0.35, -12);
+        drop.speed = rand(650, 1080) + depth * 520;
+        drop.length = rand(11, 23) + depth * 19;
+        drop.alpha = rand(0.13, 0.34) + depth * 0.2;
+        drop.groundY = state.horizon + state.reflectH * (0.08 + depth * 0.92);
+      }
+
+      function seedParticlePools() {
+        if (!state.rain.length) {
+          for (let i = 0; i < MAX_RAIN; i++) {
+            const drop = {};
+            resetDrop(drop, true);
+            state.rain.push(drop);
+          }
+        } else {
+          for (const drop of state.rain) resetDrop(drop, true);
+        }
+
+        if (!state.splashes.length) {
+          for (let i = 0; i < MAX_SPLASH; i++) {
+            state.splashes.push({ active: false, x: 0, y: 0, vx: 0, vy: 0, life: 0, maxLife: 1, size: 1 });
+          }
+        } else {
+          for (const splash of state.splashes) splash.active = false;
+        }
+      }
+
+      function spawnSplash(x, y, depth) {
+        const splash = state.splashes[splashCursor];
+        splashCursor = (splashCursor + 1) % MAX_SPLASH;
+        splash.active = true;
+        splash.x = x;
+        splash.y = y;
+        splash.vx = rand(-34, 34) * (0.35 + depth);
+        splash.vy = -rand(34, 92) * (0.35 + depth);
+        splash.life = rand(0.22, 0.46);
+        splash.maxLife = splash.life;
+        splash.size = rand(0.7, 1.8) * (0.45 + depth);
+      }
+
+
+      function hash(value) {
+        const result = Math.sin(value * 127.1 + 311.7) * 43758.5453123;
+        return result - Math.floor(result);
+      }
+
+      function drawSky(target) {
+        const { w, h, horizon } = state;
+        const sky = target.createLinearGradient(0, 0, 0, horizon);
+        sky.addColorStop(0, C.ink);
+        sky.addColorStop(0.52, "#0b0220");
+        sky.addColorStop(1, C.deep);
+        target.fillStyle = sky;
+        target.fillRect(0, 0, w, horizon + 2);
+
+        const magentaGlow = target.createRadialGradient(w * 0.15, horizon * 0.72, 0, w * 0.15, horizon * 0.72, w * 0.38);
+        magentaGlow.addColorStop(0, "rgba(255,42,109,0.14)");
+        magentaGlow.addColorStop(0.45, "rgba(255,42,109,0.045)");
+        magentaGlow.addColorStop(1, "rgba(255,42,109,0)");
+        target.fillStyle = magentaGlow;
+        target.fillRect(0, 0, w, horizon);
+
+        const cyanGlow = target.createRadialGradient(w * 0.82, horizon * 0.58, 0, w * 0.82, horizon * 0.58, w * 0.34);
+        cyanGlow.addColorStop(0, "rgba(5,217,232,0.12)");
+        cyanGlow.addColorStop(0.5, "rgba(5,217,232,0.035)");
+        cyanGlow.addColorStop(1, "rgba(5,217,232,0)");
+        target.fillStyle = cyanGlow;
+        target.fillRect(0, 0, w, horizon);
+
+        target.fillStyle = "rgba(210,225,255,0.42)";
+        for (let i = 0; i < 72; i++) {
+          const x = hash(i + 4) * w;
+          const y = hash(i + 93) * horizon * 0.56;
+          const size = hash(i + 211) > 0.91 ? 1.4 : 0.7;
+          target.globalAlpha = 0.16 + hash(i + 19) * 0.36;
+          target.fillRect(x, y, size, size);
+        }
+        target.globalAlpha = 1;
+
+        const haze = target.createLinearGradient(0, horizon * 0.68, 0, horizon);
+        haze.addColorStop(0, "rgba(83,28,119,0)");
+        haze.addColorStop(0.7, "rgba(116,38,145,0.09)");
+        haze.addColorStop(1, "rgba(255,42,109,0.07)");
+        target.fillStyle = haze;
+        target.fillRect(0, horizon * 0.62, w, horizon * 0.38);
+      }
+
+      function buildLayers() {
+        state.layers.length = 0;
+        const pad = 190;
+        const configs = [
+          { parallax: 0.11, color: "#180d31", min: 0.1, max: 0.27, width: [34, 82], gap: [3, 14], windows: 0.17, glow: "#9876c9", edgeOnly: false },
+          { parallax: 0.24, color: "#110923", min: 0.17, max: 0.42, width: [48, 112], gap: [5, 20], windows: 0.23, glow: "#8c68c5", edgeOnly: false },
+          { parallax: 0.43, color: "#0a0618", min: 0.24, max: 0.57, width: [62, 145], gap: [7, 25], windows: 0.29, glow: "#d36aa7", edgeOnly: false },
+          { parallax: 0.72, color: "#04020b", min: 0.34, max: 0.78, width: [82, 178], gap: [10, 34], windows: 0.2, glow: "#e2589b", edgeOnly: true }
+        ];
+
+        configs.forEach((config, index) => {
+          const surface = makeCanvas(state.w + pad * 2, state.horizon + 70);
+          const layerCtx = surface.getContext("2d");
+          const random = mulberry32(9137 + index * 771);
+          const baseline = state.horizon + (index === 3 ? 35 : 9);
+          const buildings = [];
+          let x = -pad;
+
+          while (x < state.w + pad) {
+            const width = config.width[0] + random() * (config.width[1] - config.width[0]);
+            const height = state.horizon * (config.min + random() * (config.max - config.min));
+            const center = x + width * 0.5;
+            const inCenter = center > state.w * 0.25 && center < state.w * 0.75;
+            if (!config.edgeOnly || !inCenter) {
+              const top = baseline - height;
+              buildings.push({ x, y: top, width, height });
+              layerCtx.fillStyle = config.color;
+              layerCtx.fillRect(x, top, width, height + 60);
+
+              if (random() > 0.48) {
+                const roofWidth = width * (0.25 + random() * 0.28);
+                layerCtx.fillRect(x + width * 0.5 - roofWidth * 0.5, top - rand(5, 18), roofWidth, 20);
+              }
+              if (random() > 0.66) {
+                layerCtx.fillRect(x + width * 0.68, top - rand(20, 54), 2, 56);
+                layerCtx.fillStyle = index > 1 ? "rgba(255,42,109,0.68)" : "rgba(151,104,194,0.42)";
+                layerCtx.fillRect(x + width * 0.68 - 1, top - rand(22, 55), 4, 3);
+              }
+
+              const cellX = index < 2 ? 11 : 14;
+              const cellY = index < 2 ? 15 : 19;
+              const cols = Math.max(1, Math.floor((width - 12) / cellX));
+              const rows = Math.max(1, Math.floor((height - 15) / cellY));
+              for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                  if (random() > config.windows) continue;
+                  const wx = x + 7 + col * cellX;
+                  const wy = top + 11 + row * cellY;
+                  const warm = random() > 0.78;
+                  const bright = random() > 0.68;
+                  layerCtx.fillStyle = warm
+                    ? (bright ? "rgba(249,240,2,0.78)" : "rgba(210,166,67,0.42)")
+                    : (bright ? config.glow : "rgba(116,93,159,0.32)");
+                  layerCtx.fillRect(wx, wy, index < 2 ? 3 : 4, index < 2 ? 5 : 6);
+                  if (bright && index > 0) {
+                    layerCtx.globalAlpha = 0.12;
+                    layerCtx.fillRect(wx - 2, wy - 2, 8, 10);
+                    layerCtx.globalAlpha = 1;
+                  }
+                }
+              }
+            }
+            x += width + config.gap[0] + random() * (config.gap[1] - config.gap[0]);
+          }
+
+          if (index >= 2) {
+            layerCtx.strokeStyle = index === 3 ? "rgba(83,58,105,0.42)" : "rgba(111,62,128,0.34)";
+            layerCtx.lineWidth = 1;
+            const wireY = state.horizon * (index === 3 ? 0.28 : 0.38);
+            layerCtx.beginPath();
+            layerCtx.moveTo(0, wireY + 30);
+            layerCtx.bezierCurveTo(state.w * 0.3, wireY - 25, state.w * 0.67, wireY + 42, state.w + pad * 2, wireY - 4);
+            layerCtx.stroke();
+            for (let lamp = 0; lamp < 7; lamp++) {
+              const lx = state.w * (0.08 + lamp * 0.14) + pad;
+              const ly = wireY + Math.sin(lamp / 6 * Math.PI) * 12;
+              layerCtx.fillStyle = lamp % 2 ? "rgba(5,217,232,0.68)" : "rgba(255,42,109,0.62)";
+              layerCtx.fillRect(lx, ly, 3, 5);
+            }
+          }
+
+          const twinkles = [];
+          const limit = index === 0 ? 8 : 16;
+          for (let i = 0; i < limit && buildings.length; i++) {
+            const building = buildings[Math.floor(random() * buildings.length)];
+            twinkles.push({
+              x: building.x + rand(6, Math.max(7, building.width - 8)),
+              y: building.y + rand(10, Math.max(11, building.height - 10)),
+              phase: random() * Math.PI * 2,
+              rate: rand(1.2, 3.4),
+              warm: random() > 0.76
+            });
+          }
+
+          const lightSurface = makeCanvas(surface.width, surface.height);
+          const lightCtx = lightSurface.getContext("2d");
+          lightCtx.drawImage(surface, 0, 0);
+          lightCtx.globalCompositeOperation = "source-atop";
+          lightCtx.fillStyle = "rgba(143,183,255,0.55)";
+          lightCtx.fillRect(0, 0, surface.width, surface.height);
+
+          state.layers.push({ canvas: surface, light: lightSurface, pad, parallax: config.parallax, twinkles, index });
+        });
+      }
+
+      function drawLayers(target, flash = 0) {
+        for (const layer of state.layers) {
+          const x = -layer.pad + state.camX * layer.parallax;
+          const y = state.camY * layer.parallax * 0.3;
+          target.drawImage(layer.canvas, x, y);
+          if (flash > 0) {
+            target.save();
+            target.globalCompositeOperation = "screen";
+            target.globalAlpha = flash * 0.64;
+            target.drawImage(layer.light, x, y);
+            target.restore();
+          }
+
+          target.save();
+          for (const light of layer.twinkles) {
+            const pulse = Math.sin(state.time * light.rate + light.phase);
+            if (pulse < 0.72) continue;
+            target.globalAlpha = (pulse - 0.72) * 1.7;
+            target.fillStyle = light.warm ? C.yellow : (layer.index > 1 ? C.magenta : "#b795e6");
+            target.fillRect(light.x + x, light.y + y, layer.index < 2 ? 3 : 4, layer.index < 2 ? 5 : 6);
+          }
+          target.restore();
+        }
+      }
+
+      function buildStreet() {
+        streetCanvas = makeCanvas(state.w, state.reflectH);
+        const street = streetCanvas.getContext("2d");
+        const { w, reflectH } = state;
+        const road = street.createLinearGradient(0, 0, 0, reflectH);
+        road.addColorStop(0, "#160b25");
+        road.addColorStop(0.2, "#0d0719");
+        road.addColorStop(1, "#030208");
+        street.fillStyle = road;
+        street.fillRect(0, 0, w, reflectH);
+
+        street.fillStyle = "rgba(3,1,9,0.9)";
+        street.beginPath();
+        street.moveTo(0, 0);
+        street.lineTo(w * 0.27, 0);
+        street.lineTo(w * 0.05, reflectH);
+        street.lineTo(0, reflectH);
+        street.closePath();
+        street.fill();
+        street.beginPath();
+        street.moveTo(w, 0);
+        street.lineTo(w * 0.73, 0);
+        street.lineTo(w * 0.95, reflectH);
+        street.lineTo(w, reflectH);
+        street.closePath();
+        street.fill();
+
+        street.fillStyle = "rgba(121,77,148,0.23)";
+        street.fillRect(0, 0, w, 2);
+        street.fillStyle = "rgba(5,217,232,0.13)";
+        street.fillRect(w * 0.27, 0, w * 0.46, 1);
+
+        const vanishX = w * 0.5;
+        street.fillStyle = "rgba(249,240,2,0.16)";
+        for (let i = 0; i < 5; i++) {
+          const nearY = reflectH * (0.18 + i * 0.19);
+          const farY = nearY - reflectH * 0.09;
+          const nearWidth = 2 + i * 2.8;
+          const farWidth = 1 + i * 0.6;
+          street.beginPath();
+          street.moveTo(vanishX - farWidth, farY);
+          street.lineTo(vanishX + farWidth, farY);
+          street.lineTo(vanishX + nearWidth, nearY);
+          street.lineTo(vanishX - nearWidth, nearY);
+          street.closePath();
+          street.fill();
+        }
+
+        for (let i = 0; i < 24; i++) {
+          const px = hash(i + 401) * w;
+          const py = Math.pow(hash(i + 811), 1.5) * reflectH;
+          const radius = 12 + hash(i + 52) * 74 * (0.3 + py / reflectH);
+          const puddle = street.createRadialGradient(px, py, 0, px, py, radius);
+          const tint = i % 3 === 0 ? "5,217,232" : (i % 3 === 1 ? "255,42,109" : "128,88,173");
+          puddle.addColorStop(0, `rgba(${tint},${0.045 + py / reflectH * 0.035})`);
+          puddle.addColorStop(0.6, `rgba(${tint},0.022)`);
+          puddle.addColorStop(1, `rgba(${tint},0)`);
+          street.fillStyle = puddle;
+          street.beginPath();
+          street.ellipse(px, py, radius * 1.8, radius * 0.24, 0, 0, Math.PI * 2);
+          street.fill();
+        }
+
+        street.strokeStyle = "rgba(141,107,169,0.1)";
+        street.lineWidth = 1;
+        for (let i = 0; i < 18; i++) {
+          const y = hash(i + 71) * reflectH;
+          const x = hash(i + 23) * w;
+          street.beginPath();
+          street.moveTo(x, y);
+          street.lineTo(x + 18 + hash(i + 8) * 80, y + hash(i + 3) * 5);
+          street.stroke();
+        }
+      }
+
+      function buildReflectionSurface() {
+        reflectionScale = state.w > 1600 ? 0.4 : 0.5;
+        reflectionCanvas = makeCanvas(state.w * reflectionScale, state.horizon * reflectionScale);
+        reflectionCtx = reflectionCanvas.getContext("2d");
+        reflectionCtx.imageSmoothingEnabled = true;
+      }
+
+      function resize() {
+        state.w = Math.max(1, window.innerWidth);
+        state.h = Math.max(1, window.innerHeight);
+        const pixelBudget = 3_600_000;
+        state.dpr = Math.min(window.devicePixelRatio || 1, 1.5, Math.max(0.65, Math.sqrt(pixelBudget / (state.w * state.h))));
+        canvas.width = Math.round(state.w * state.dpr);
+        canvas.height = Math.round(state.h * state.dpr);
+        ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+        ctx.imageSmoothingEnabled = true;
+        state.horizon = state.h * (state.w < 700 ? 0.63 : 0.655);
+        state.reflectH = state.h - state.horizon;
+        const baseRain = clamp(Math.round(state.w * state.h / 1850), 250, 900);
+        state.rainTarget = Math.round(baseRain * (state.heavyRain ? 1 : 0.42));
+        state.rainActive = state.rainTarget;
+        seedParticlePools();
+        buildStreet();
+        buildLayers();
+        buildSigns();
+        buildReflectionSurface();
+        updateControlUI();
+      }
+
+      const GLYPHS = [
+        [[0.18, 0.18, 0.82, 0.18], [0.5, 0.18, 0.5, 0.84]],
+        [[0.2, 0.2, 0.8, 0.2], [0.2, 0.2, 0.48, 0.52], [0.28, 0.52, 0.82, 0.52]],
+        [[0.18, 0.18, 0.82, 0.18], [0.24, 0.18, 0.24, 0.82], [0.24, 0.5, 0.72, 0.5]],
+        [[0.2, 0.18, 0.8, 0.18], [0.72, 0.18, 0.72, 0.82], [0.28, 0.82, 0.72, 0.82]],
+        [[0.2, 0.18, 0.5, 0.5], [0.5, 0.5, 0.82, 0.18], [0.34, 0.5, 0.34, 0.84], [0.62, 0.5, 0.62, 0.84]],
+        [[0.18, 0.5, 0.82, 0.5], [0.5, 0.18, 0.5, 0.84], [0.28, 0.22, 0.72, 0.22]],
+        [[0.18, 0.2, 0.82, 0.2], [0.3, 0.2, 0.3, 0.82], [0.3, 0.82, 0.74, 0.82]],
+        [[0.18, 0.2, 0.82, 0.2], [0.68, 0.2, 0.4, 0.82], [0.3, 0.52, 0.72, 0.52]],
+        [[0.2, 0.18, 0.8, 0.82], [0.8, 0.18, 0.2, 0.82]],
+        [[0.2, 0.2, 0.8, 0.2], [0.5, 0.2, 0.22, 0.82], [0.5, 0.2, 0.78, 0.82]],
+        [[0.2, 0.2, 0.2, 0.82], [0.2, 0.2, 0.74, 0.42], [0.36, 0.42, 0.82, 0.42]],
+        [[0.2, 0.2, 0.8, 0.2], [0.3, 0.2, 0.3, 0.52], [0.3, 0.52, 0.72, 0.52], [0.58, 0.52, 0.58, 0.84]],
+        [[0.18, 0.18, 0.5, 0.5], [0.5, 0.5, 0.82, 0.18], [0.5, 0.5, 0.5, 0.84]],
+        [[0.18, 0.5, 0.82, 0.5], [0.5, 0.18, 0.5, 0.82], [0.28, 0.82, 0.72, 0.82]],
+        [[0.2, 0.18, 0.8, 0.18], [0.5, 0.18, 0.5, 0.5], [0.28, 0.5, 0.72, 0.5], [0.5, 0.5, 0.5, 0.84]],
+        [[0.2, 0.2, 0.8, 0.2], [0.22, 0.2, 0.52, 0.5], [0.52, 0.5, 0.82, 0.2], [0.52, 0.5, 0.52, 0.84]]
+      ];
+
+      function drawGlyph(target, glyph, x, y, size, color) {
+        target.save();
+        target.strokeStyle = color;
+        target.lineWidth = Math.max(1.4, size * 0.075);
+        target.lineCap = "square";
+        target.lineJoin = "miter";
+        target.shadowColor = color;
+        target.shadowBlur = size * 0.22;
+        target.beginPath();
+        for (const segment of glyph) {
+          target.moveTo(x + segment[0] * size, y + segment[1] * size);
+          target.lineTo(x + segment[2] * size, y + segment[3] * size);
+        }
+        target.stroke();
+        target.restore();
+      }
+
+      function buildSigns() {
+        const definitions = [
+          { x: 0.135, y: 0.265, width: 0.072, height: 0.355, color: C.magenta, text: "ネオンヤミ", layer: 2 },
+          { x: 0.805, y: 0.195, width: 0.067, height: 0.335, color: C.cyan, text: "サイバー九", layer: 2 },
+          { x: 0.565, y: 0.365, width: 0.052, height: 0.255, color: C.yellow, text: "イチバノ", layer: 3 }
+        ];
+
+        state.signs = definitions.map((definition, index) => {
+          const width = clamp(state.w * definition.width, 52, 104);
+          const height = clamp(state.h * definition.height, 156, 330);
+          const surface = makeCanvas(width * 2, height * 2);
+          const signCtx = surface.getContext("2d");
+          signCtx.scale(2, 2);
+
+          const panel = signCtx.createLinearGradient(0, 0, width, height);
+          panel.addColorStop(0, "rgba(8,2,19,0.92)");
+          panel.addColorStop(0.5, "rgba(18,4,32,0.78)");
+          panel.addColorStop(1, "rgba(4,1,12,0.94)");
+          signCtx.fillStyle = panel;
+          signCtx.fillRect(0, 0, width, height);
+
+          signCtx.strokeStyle = definition.color;
+          signCtx.lineWidth = 1.2;
+          signCtx.shadowColor = definition.color;
+          signCtx.shadowBlur = 12;
+          signCtx.strokeRect(3.5, 3.5, width - 7, height - 7);
+          signCtx.shadowBlur = 0;
+          signCtx.strokeStyle = "rgba(255,255,255,0.18)";
+          signCtx.strokeRect(8.5, 8.5, width - 17, height - 17);
+
+          signCtx.fillStyle = definition.color;
+          signCtx.fillRect(3, 3, width - 6, 4);
+          signCtx.fillRect(3, height - 7, width - 6, 4);
+          signCtx.fillRect(3, 3, 4, height - 6);
+          signCtx.fillRect(width - 7, 3, 4, height - 6);
+
+          signCtx.font = `700 ${Math.max(6, width * 0.09)}px monospace`;
+          signCtx.textAlign = "center";
+          signCtx.fillStyle = definition.color;
+          signCtx.fillText(index === 1 ? "HOLO//09" : (index === 2 ? "開" : "夜市"), width * 0.5, 20);
+          signCtx.fillStyle = "rgba(233,247,255,0.52)";
+          signCtx.font = `500 ${Math.max(5, width * 0.065)}px monospace`;
+          signCtx.fillText(`D9-${index + 11}`, width * 0.5, height - 15);
+
+          const top = 32;
+          const bottom = height - 30;
+          const slot = (bottom - top) / definition.text.length;
+          const glyphSize = Math.min(width * 0.56, slot * 0.7);
+          for (let i = 0; i < definition.text.length; i++) {
+            const glyph = GLYPHS[definition.text.charCodeAt(i) % GLYPHS.length];
+            const gx = width * 0.5 - glyphSize * 0.5;
+            const gy = top + i * slot + (slot - glyphSize) * 0.5;
+            drawGlyph(signCtx, glyph, gx, gy, glyphSize, definition.color);
+          }
+
+          signCtx.fillStyle = "rgba(0,0,0,0.2)";
+          for (let y = 9; y < height - 9; y += 4) signCtx.fillRect(9, y, width - 18, 1);
+
+          return {
+            x: state.w * definition.x - width * 0.5,
+            y: state.h * definition.y,
+            width,
+            height,
+            color: definition.color,
+            layer: definition.layer,
+            canvas: surface,
+            phase: index * 2.17,
+            failureAt: state.time + rand(1.1, 4.8),
+            failureStart: -100,
+            brightness: 1,
+            jitter: 0,
+            dropout: false
+          };
+        });
+      }
+
+      function updateSigns() {
+        state.buzz = 0;
+        for (const sign of state.signs) {
+          if (state.time >= sign.failureAt) {
+            sign.failureStart = state.time;
+            sign.failureAt = state.time + rand(2.7, 7.4);
+          }
+
+          const elapsed = state.time - sign.failureStart;
+          let brightness = 0.88 + Math.sin(state.time * 5.1 + sign.phase) * 0.055 + Math.sin(state.time * 17.7 + sign.phase) * 0.018;
+          let jitter = Math.sin(state.time * 91 + sign.phase) * 0.38;
+          let dropout = false;
+
+          if (elapsed >= 0 && elapsed < 0.56) {
+            if (elapsed < 0.055) brightness *= 1.18;
+            else if (elapsed < 0.086) brightness *= 0.08;
+            else if (elapsed < 0.158) brightness = 0;
+            else if (elapsed < 0.208) brightness *= 0.42;
+            else if (elapsed < 0.282) brightness *= 0.035;
+            else if (elapsed < 0.385) brightness *= 1.08;
+            else if (elapsed < 0.475) brightness *= 0.18;
+            else brightness *= 0.82;
+            jitter += Math.sin(state.time * 173 + sign.phase) * 1.7;
+            state.buzz = Math.max(state.buzz, 0.35 + Math.abs(Math.sin(state.time * 127)) * 0.65);
+            dropout = brightness < 0.12;
+          }
+
+          sign.brightness = brightness;
+          sign.jitter = jitter;
+          sign.dropout = dropout;
+        }
+      }
+
+      function drawSigns(target, flash = 0) {
+        for (const sign of state.signs) {
+          const layer = state.layers[sign.layer];
+          const x = sign.x + state.camX * layer.parallax + sign.jitter;
+          const y = sign.y + state.camY * layer.parallax * 0.3;
+          const strength = clamp(sign.brightness + flash * 0.3, 0, 1.35);
+
+          target.save();
+          target.globalCompositeOperation = "screen";
+          const halo = target.createRadialGradient(x + sign.width * 0.5, y + sign.height * 0.48, 0, x + sign.width * 0.5, y + sign.height * 0.48, sign.height * 0.62);
+          halo.addColorStop(0, sign.color + "24");
+          halo.addColorStop(0.42, sign.color + "0e");
+          halo.addColorStop(1, sign.color + "00");
+          target.fillStyle = halo;
+          target.fillRect(x - sign.height * 0.5, y - sign.height * 0.25, sign.width + sign.height, sign.height * 1.5);
+
+          target.globalAlpha = strength * 0.26;
+          target.drawImage(sign.canvas, x - 2.4, y, sign.width, sign.height);
+          target.drawImage(sign.canvas, x + 2.4, y, sign.width, sign.height);
+          target.globalAlpha = strength;
+          target.shadowColor = sign.color;
+          target.shadowBlur = sign.dropout ? 0 : 15;
+          target.drawImage(sign.canvas, x, y, sign.width, sign.height);
+          target.restore();
+        }
+      }
+
+      function lightningAmount() {
+        const elapsed = state.time - state.lightningStart;
+        if (elapsed < 0 || elapsed > 1.25) return 0;
+        if (elapsed < 0.085) return 1;
+        if (elapsed < 0.155) return 0.06;
+        if (elapsed < 0.31) return 0.72;
+        if (elapsed < 0.42) return 0.12;
+        return Math.max(0, (1 - (elapsed - 0.42) / 0.83) * 0.24);
+      }
+
+      function drawLightningBolt(target) {
+        const elapsed = state.time - state.lightningStart;
+        if (elapsed < 0 || elapsed > 0.28) return;
+        const startX = state.w * (0.22 + hash(state.boltSeed) * 0.56);
+        const points = 11;
+        target.save();
+        target.globalCompositeOperation = "screen";
+        target.strokeStyle = "rgba(225,242,255,0.96)";
+        target.lineWidth = 2.2;
+        target.shadowColor = "#b8d9ff";
+        target.shadowBlur = 18;
+        target.beginPath();
+        target.moveTo(startX, -10);
+        for (let i = 1; i <= points; i++) {
+          const progress = i / points;
+          const x = startX + Math.sin(i * 4.7 + state.boltSeed) * (1 - progress) * 42 + (hash(i + state.boltSeed * 3) - 0.5) * 38;
+          const y = progress * state.horizon * 0.92;
+          target.lineTo(x, y);
+        }
+        target.stroke();
+        target.lineWidth = 7;
+        target.globalAlpha = 0.15;
+        target.stroke();
+        target.restore();
+      }
+
+      function drawWorld(target, flash) {
+        drawSky(target);
+        if (flash > 0) {
+          target.fillStyle = `rgba(164,195,255,${flash * 0.16})`;
+          target.fillRect(0, 0, state.w, state.horizon);
+        }
+        drawLayers(target, flash);
+        drawLightningBolt(target);
+        drawSigns(target, flash);
+      }
+
+      function renderReflection(flash) {
+        if (!reflectionCtx) return;
+        reflectionCtx.setTransform(reflectionScale, 0, 0, reflectionScale, 0, 0);
+        reflectionCtx.clearRect(0, 0, state.w, state.horizon);
+        drawWorld(reflectionCtx, flash);
+        reflectionCtx.setTransform(1, 0, 0, 1, 0, 0);
+      }
+
+      function renderStreet(flash) {
+        const { w, h, horizon, reflectH } = state;
+        ctx.drawImage(streetCanvas, 0, horizon, w, reflectH);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, horizon, w, reflectH);
+        ctx.clip();
+
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        ctx.globalAlpha = 0.3 + flash * 0.28;
+        ctx.filter = `blur(${w < 700 ? 1.4 : 2.3}px)`;
+        ctx.translate(state.camX * 0.1, h);
+        ctx.scale(1, -1);
+        ctx.drawImage(reflectionCanvas, 0, 0, reflectionCanvas.width, reflectionCanvas.height, 0, 0, w, reflectH);
+        ctx.restore();
+
+        const bands = w < 700 ? 16 : 24;
+        const bandHeight = reflectH / bands;
+        const sourceRatio = horizon / reflectH;
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        for (let i = 0; i < bands; i++) {
+          const y = horizon + i * bandHeight;
+          const sourceY = clamp(horizon - (y + bandHeight - horizon) * sourceRatio, 0, horizon - bandHeight * sourceRatio);
+          const sourceHeight = Math.max(1, bandHeight * sourceRatio);
+          const ripple = Math.sin(state.time * (1.8 + i * 0.025) + i * 0.82) * (1.4 + i * 0.16);
+          const breakup = Math.sin(state.time * 3.1 + i * 1.73) * 0.5 + 0.5;
+          ctx.globalAlpha = (0.075 + breakup * 0.11) * (1 - i / bands * 0.34) + flash * 0.06;
+          ctx.drawImage(
+            reflectionCanvas,
+            0,
+            sourceY * reflectionScale,
+            reflectionCanvas.width,
+            sourceHeight * reflectionScale,
+            ripple,
+            y,
+            w,
+            bandHeight * 1.16
+          );
+        }
+        ctx.restore();
+
+        for (const sign of state.signs) {
+          const layer = state.layers[sign.layer];
+          const x = sign.x + sign.width * 0.5 + state.camX * layer.parallax;
+          const smear = ctx.createLinearGradient(0, horizon, 0, h);
+          smear.addColorStop(0, sign.color + "38");
+          smear.addColorStop(0.28, sign.color + "18");
+          smear.addColorStop(1, sign.color + "00");
+          ctx.save();
+          ctx.globalCompositeOperation = "screen";
+          ctx.globalAlpha = clamp(sign.brightness * 0.5 + flash * 0.25, 0, 1);
+          ctx.fillStyle = smear;
+          const width = sign.width * (0.65 + Math.sin(state.time * 2.2 + sign.phase) * 0.08);
+          ctx.fillRect(x - width * 0.5, horizon, width, reflectH * 0.92);
+          ctx.restore();
+        }
+
+        const sheen = ctx.createLinearGradient(0, horizon, w, h);
+        sheen.addColorStop(0, "rgba(5,217,232,0)");
+        sheen.addColorStop(0.45, "rgba(5,217,232,0.028)");
+        sheen.addColorStop(0.52, "rgba(255,42,109,0.018)");
+        sheen.addColorStop(1, "rgba(255,42,109,0)");
+        ctx.fillStyle = sheen;
+        ctx.fillRect(0, horizon, w, reflectH);
+        ctx.restore();
+      }
+
+      function updateRain(dt) {
+        state.rainActive = lerp(state.rainActive, state.rainTarget, Math.min(1, dt * 3.2));
+        const active = Math.round(state.rainActive);
+        const wind = -105 + Math.sin(state.time * 0.23) * 18;
+
+        for (let i = 0; i < active; i++) {
+          const drop = state.rain[i];
+          drop.y += drop.speed * dt;
+          drop.x += (wind * (0.45 + drop.depth * 0.75) + Math.sin(state.time * 0.8 + drop.depth * 9) * 9) * dt;
+          if (drop.y >= drop.groundY) {
+            if (Math.random() < 0.72) spawnSplash(drop.x, drop.groundY, drop.depth);
+            resetDrop(drop);
+          } else if (drop.x < -state.w * 0.35 || drop.x > state.w * 1.35) {
+            resetDrop(drop);
+          }
+        }
+
+        for (const splash of state.splashes) {
+          if (!splash.active) continue;
+          splash.life -= dt;
+          if (splash.life <= 0) {
+            splash.active = false;
+            continue;
+          }
+          splash.x += splash.vx * dt;
+          splash.y += splash.vy * dt;
+          splash.vy += 290 * dt;
+        }
+      }
+
+      function drawRain() {
+        const active = Math.round(state.rainActive);
+        const tailX = 11 + Math.sin(state.time * 0.23) * 2;
+        const groups = [
+          { min: 0, max: 0.34, color: "rgba(112,190,219,0.25)", width: 0.65 },
+          { min: 0.34, max: 0.68, color: "rgba(169,220,241,0.36)", width: 0.95 },
+          { min: 0.68, max: 1.01, color: "rgba(220,244,255,0.48)", width: 1.25 }
+        ];
+
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        ctx.lineCap = "round";
+        for (const group of groups) {
+          ctx.beginPath();
+          for (let i = 0; i < active; i++) {
+            const drop = state.rain[i];
+            if (drop.depth < group.min || drop.depth >= group.max) continue;
+            const tail = drop.length * (0.72 + drop.depth * 0.45);
+            ctx.moveTo(drop.x, drop.y);
+            ctx.lineTo(drop.x + tailX * (0.55 + drop.depth), drop.y - tail);
+          }
+          ctx.strokeStyle = group.color;
+          ctx.lineWidth = group.width;
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawSplashes() {
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "rgba(183,229,249,0.52)";
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        for (const splash of state.splashes) {
+          if (!splash.active) continue;
+          const fade = splash.life / splash.maxLife;
+          ctx.globalAlpha = fade * 0.7;
+          ctx.moveTo(splash.x - splash.vx * 0.026, splash.y - splash.vy * 0.026);
+          ctx.lineTo(splash.x, splash.y);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = "rgba(123,204,231,0.38)";
+        ctx.lineWidth = 0.7;
+        for (const splash of state.splashes) {
+          if (!splash.active) continue;
+          const age = 1 - splash.life / splash.maxLife;
+          const radius = splash.size * (1.5 + age * 8);
+          ctx.globalAlpha = (1 - age) * 0.5;
+          ctx.beginPath();
+          ctx.ellipse(splash.x, splash.y + splash.size * 0.4, radius, radius * 0.22, 0, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function ensureAudio() {
+        if (state.audio) {
+          if (state.audio.context.state === "suspended" && !state.muted) state.audio.context.resume().catch(() => {});
+          return;
+        }
+
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+
+        try {
+          const context = new AudioContextClass();
+          const master = context.createGain();
+          master.gain.value = state.muted ? 0 : 0.55;
+          master.connect(context.destination);
+
+          const noiseBuffer = context.createBuffer(1, context.sampleRate * 2, context.sampleRate);
+          const samples = noiseBuffer.getChannelData(0);
+          let brown = 0;
+          for (let i = 0; i < samples.length; i++) {
+            const white = Math.random() * 2 - 1;
+            brown = (brown + 0.02 * white) / 1.02;
+            samples[i] = white * 0.38 + brown * 2.8;
+          }
+
+          const rainSource = context.createBufferSource();
+          rainSource.buffer = noiseBuffer;
+          rainSource.loop = true;
+          const rainFilter = context.createBiquadFilter();
+          rainFilter.type = "lowpass";
+          rainFilter.frequency.value = 1350;
+          const rainGain = context.createGain();
+          rainGain.gain.value = state.heavyRain ? 0.052 : 0.022;
+          rainSource.connect(rainFilter);
+          rainFilter.connect(rainGain);
+          rainGain.connect(master);
+          rainSource.start();
+
+          const buzzOscillator = context.createOscillator();
+          buzzOscillator.type = "sawtooth";
+          buzzOscillator.frequency.value = 82;
+          const buzzFilter = context.createBiquadFilter();
+          buzzFilter.type = "lowpass";
+          buzzFilter.frequency.value = 240;
+          const buzzGain = context.createGain();
+          buzzGain.gain.value = 0.0001;
+          buzzOscillator.connect(buzzFilter);
+          buzzFilter.connect(buzzGain);
+          buzzGain.connect(master);
+          buzzOscillator.start();
+
+          state.audio = { context, master, rainGain, buzzGain, noiseBuffer, lastUpdate: -1 };
+          context.resume().catch(() => {});
+        } catch (error) {
+          state.audio = null;
+        }
+      }
+
+      function updateAudioLevels(force = false) {
+        if (!state.audio) return;
+        if (!force && state.time - state.audio.lastUpdate < 0.055) return;
+        const { context, master, rainGain, buzzGain } = state.audio;
+        const now = context.currentTime;
+        master.gain.setTargetAtTime(state.muted ? 0 : 0.55, now, 0.045);
+        rainGain.gain.setTargetAtTime(state.heavyRain ? 0.052 : 0.022, now, 0.18);
+        buzzGain.gain.setTargetAtTime(state.muted ? 0.0001 : 0.0007 + state.buzz * 0.024, now, 0.018);
+        state.audio.lastUpdate = state.time;
+      }
+
+      function playThunder() {
+        if (!state.audio || state.muted) return;
+        const { context, master, noiseBuffer } = state.audio;
+        const source = context.createBufferSource();
+        source.buffer = noiseBuffer;
+        source.playbackRate.value = rand(0.68, 0.88);
+        const lowpass = context.createBiquadFilter();
+        lowpass.type = "lowpass";
+        lowpass.frequency.setValueAtTime(260, context.currentTime);
+        lowpass.frequency.exponentialRampToValueAtTime(72, context.currentTime + 2.4);
+        const rumble = context.createGain();
+        const now = context.currentTime;
+        rumble.gain.setValueAtTime(0.0001, now);
+        rumble.gain.exponentialRampToValueAtTime(0.92, now + 0.055);
+        rumble.gain.exponentialRampToValueAtTime(0.28, now + 0.42);
+        rumble.gain.exponentialRampToValueAtTime(0.0001, now + 2.9);
+        source.connect(lowpass);
+        lowpass.connect(rumble);
+        rumble.connect(master);
+        source.start(now);
+        source.stop(now + 3);
+      }
+
+      function showStatus(message, duration = 1200) {
+        ui.eventStatus.textContent = message;
+        window.clearTimeout(statusTimer);
+        statusTimer = window.setTimeout(() => {
+          ui.eventStatus.textContent = "Standby";
+        }, duration);
+      }
+
+      function triggerLightning() {
+        state.lightningStart = state.time;
+        state.boltSeed = Math.floor(rand(1, 10000));
+        ensureAudio();
+        window.setTimeout(playThunder, 130 + Math.random() * 240);
+        showStatus("Lightning / thunder", 1350);
+      }
+
+      function toggleRain() {
+        state.heavyRain = !state.heavyRain;
+        const baseRain = clamp(Math.round(state.w * state.h / 1850), 250, 900);
+        state.rainTarget = Math.round(baseRain * (state.heavyRain ? 1 : 0.42));
+        updateControlUI();
+        updateAudioLevels(true);
+        showStatus(state.heavyRain ? "Rain intensity / heavy" : "Rain intensity / light");
+      }
+
+      function toggleMute() {
+        state.muted = !state.muted;
+        ensureAudio();
+        updateControlUI();
+        updateAudioLevels(true);
+        showStatus(state.muted ? "Audio muted" : "Audio enabled");
+      }
+
+      function updateControlUI() {
+        ui.rainToggle.setAttribute("aria-pressed", String(!state.heavyRain));
+        ui.rainLabel.textContent = state.heavyRain ? "Rain / heavy" : "Rain / light";
+        ui.audioToggle.setAttribute("aria-pressed", String(state.muted));
+        ui.audioLabel.textContent = state.muted ? "Audio / muted" : "Audio / on";
+        document.body.dataset.rain = state.heavyRain ? "heavy" : "light";
+        document.body.dataset.audio = state.muted ? "muted" : "on";
+      }
+
+      function updateCamera(dt) {
+        const ease = 1 - Math.exp(-dt * 3.4);
+        state.camX = lerp(state.camX, state.targetX, ease);
+        state.camY = lerp(state.camY, state.targetY, ease);
+      }
+
+      canvas.addEventListener("click", triggerLightning);
+      canvas.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          triggerLightning();
+        }
+      });
+
+      ui.rainToggle.addEventListener("click", toggleRain);
+      ui.audioToggle.addEventListener("click", toggleMute);
+
+      window.addEventListener("pointermove", (event) => {
+        state.targetX = (0.5 - event.clientX / state.w) * 2 * 48;
+        state.targetY = (0.5 - event.clientY / state.h) * 2 * 15;
+      }, { passive: true });
+
+      window.addEventListener("pointerout", (event) => {
+        if (!event.relatedTarget) {
+          state.targetX = 0;
+          state.targetY = 0;
+        }
+      });
+
+      window.addEventListener("keydown", (event) => {
+        if (event.target instanceof HTMLButtonElement) return;
+        if (event.key.toLowerCase() === "r") toggleRain();
+        if (event.key.toLowerCase() === "m") toggleMute();
+      });
+
+      window.addEventListener("resize", () => {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(resize, 120);
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        state.last = performance.now();
+        if (!state.audio) return;
+        if (document.hidden) {
+          state.audio.context.suspend().catch(() => {});
+        } else if (!state.muted) {
+          state.audio.context.resume().catch(() => {});
+        }
+      });
+
+      let lastHudUpdate = 0;
+      let lastSignalUpdate = 0;
+
+      function updateHud(now, force = false) {
+        if (!force && now - lastHudUpdate < 180) return;
+        lastHudUpdate = now;
+        const date = new Date();
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        const seconds = String(date.getSeconds()).padStart(2, "0");
+        const timeText = `${hours}:${minutes}:${seconds}`;
+        ui.clock.textContent = timeText;
+        ui.clock.setAttribute("datetime", timeText);
+
+        if (force || now - lastSignalUpdate > 950) {
+          lastSignalUpdate = now;
+          const signal = Math.round(rand(87, 97));
+          ui.signalValue.textContent = `${signal}%`;
+          const bars = ui.signalBars.children;
+          for (let i = 0; i < bars.length; i++) {
+            bars[i].style.setProperty("--h", `${Math.round(4 + hash(i + signal) * 9)}px`);
+          }
+        }
+      }
+
+      function updateFps(now) {
+        state.fpsFrames++;
+        const elapsed = now - state.fpsAt;
+        if (elapsed < 700) return;
+        state.fps = Math.round(state.fpsFrames * 1000 / elapsed);
+        state.fpsFrames = 0;
+        state.fpsAt = now;
+        ui.fps.textContent = String(state.fps);
+        document.body.dataset.fps = String(state.fps);
+      }
+
+      function frame(now) {
+        const dt = Math.min(0.05, Math.max(0.001, (now - state.last) / 1000));
+        state.last = now;
+        state.time += dt;
+
+        updateCamera(dt);
+        updateSigns();
+        updateRain(dt);
+        updateHud(now);
+        updateAudioLevels();
+
+        const flash = lightningAmount();
+        ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
+        ctx.filter = "none";
+        drawWorld(ctx, flash);
+        renderReflection(flash);
+        renderStreet(flash);
+        drawRain();
+        drawSplashes();
+        updateFps(now);
+
+        if (!state.ready) {
+          state.ready = true;
+          document.body.dataset.ready = "true";
+          canvas.dataset.layers = String(state.layers.length);
+          canvas.dataset.rainPool = String(MAX_RAIN);
+          canvas.dataset.splashPool = String(MAX_SPLASH);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      window.__NEON_RAIN__ = {
+        getStats() {
+          return {
+            ready: state.ready,
+            fps: state.fps,
+            width: state.w,
+            height: state.h,
+            layers: state.layers.length,
+            signs: state.signs.length,
+            rainActive: Math.round(state.rainActive),
+            rainPool: MAX_RAIN,
+            splashPool: MAX_SPLASH,
+            audio: state.audio ? state.audio.context.state : "not-started",
+            muted: state.muted,
+            rain: state.heavyRain ? "heavy" : "light"
+          };
+        },
+        triggerLightning,
+        toggleRain,
+        toggleMute
+      };
+
+      resize();
+      updateHud(performance.now(), true);
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>

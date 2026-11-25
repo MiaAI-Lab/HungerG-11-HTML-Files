@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="A quiet, interactive particle study of NGC 7741 Meridian.">
+  <title>NGC 7741 Meridian — Observatory</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --black: #000000;
+      --ink: #c5cbd5;
+      --muted: #6d7787;
+      --amber: #ffd9a0;
+      --line: rgba(183, 195, 216, 0.16);
+      --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--black);
+    }
+
+    body {
+      color: var(--ink);
+      font-family: var(--serif);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      user-select: none;
+    }
+
+    button,
+    canvas { -webkit-tap-highlight-color: transparent; }
+
+    #universe {
+      position: fixed;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #000000;
+      cursor: grab;
+      touch-action: none;
+      animation: field-reveal 2.8s ease-out both;
+    }
+
+    #universe.dragging { cursor: grabbing; }
+
+    .hud {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      opacity: 0;
+      animation: hud-reveal 2.4s ease-out forwards;
+    }
+
+    .masthead {
+      position: absolute;
+      top: max(38px, env(safe-area-inset-top));
+      left: max(42px, env(safe-area-inset-left));
+      max-width: min(720px, calc(100vw - 170px));
+    }
+
+    .designation {
+      margin: 0 0 17px;
+      color: var(--muted);
+      font: 500 9px/1.4 var(--mono);
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      color: #e2e3e5;
+      font: 400 clamp(42px, 5.2vw, 78px)/0.98 var(--serif);
+      letter-spacing: -0.035em;
+      text-shadow: 0 2px 28px rgba(0, 0, 0, 0.72);
+    }
+
+    h1 em {
+      color: var(--amber);
+      font-weight: 400;
+      text-shadow: 0 0 25px rgba(255, 190, 112, 0.23), 0 2px 20px #000000;
+    }
+
+    .classification {
+      margin: 17px 0 0;
+      color: #858d9b;
+      font: italic 400 clamp(14px, 1.25vw, 18px)/1.55 var(--serif);
+      letter-spacing: 0.015em;
+      text-shadow: 0 1px 16px #000000;
+    }
+
+    .compass {
+      position: absolute;
+      top: max(31px, env(safe-area-inset-top));
+      right: max(31px, env(safe-area-inset-right));
+      width: 94px;
+      height: 94px;
+      opacity: 0.8;
+      filter: drop-shadow(0 2px 9px #000000);
+    }
+
+    .compass text {
+      fill: #6d7787;
+      font: 8px var(--mono);
+      letter-spacing: 0.08em;
+      text-anchor: middle;
+    }
+
+    .compass .ring,
+    .compass .tick,
+    .compass .crosshair { stroke: #596374; }
+
+    .compass .needle { fill: #ffd9a0; }
+    .compass .needle-dim { fill: #394252; }
+
+    .controls {
+      position: absolute;
+      top: 50%;
+      right: max(25px, env(safe-area-inset-right));
+      display: grid;
+      gap: 12px;
+      transform: translateY(-50%);
+      pointer-events: auto;
+    }
+
+    .control {
+      position: relative;
+      display: grid;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      place-items: center;
+      color: #aab2bf;
+      background: rgba(18, 22, 30, 0.24);
+      border: 1px solid rgba(186, 198, 219, 0.17);
+      border-radius: 50%;
+      outline: none;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035), 0 8px 25px rgba(0, 0, 0, 0.24);
+      transition: transform 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    .control::after {
+      position: absolute;
+      inset: 4px;
+      border: 1px solid transparent;
+      border-radius: inherit;
+      content: "";
+      transition: border-color 180ms ease;
+    }
+
+    .control svg {
+      width: 18px;
+      height: 18px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.35;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .control:hover,
+    .control:focus-visible {
+      color: var(--amber);
+      background: rgba(45, 37, 29, 0.3);
+      border-color: rgba(255, 217, 160, 0.72);
+      box-shadow: 0 0 0 1px rgba(255, 205, 139, 0.08), 0 0 22px rgba(255, 183, 99, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transform: scale(1.12);
+    }
+
+    .control:focus-visible::after { border-color: rgba(255, 217, 160, 0.35); }
+    .control:active { transform: scale(1.04); }
+    .control:disabled { opacity: 0.3; cursor: default; transform: none; }
+    .control.is-paused { color: var(--amber); border-color: rgba(255, 217, 160, 0.38); }
+
+    .stats {
+      position: absolute;
+      bottom: max(31px, env(safe-area-inset-bottom));
+      left: max(42px, env(safe-area-inset-left));
+      display: flex;
+      max-width: calc(100vw - 125px);
+      margin: 0;
+      gap: clamp(24px, 3.1vw, 50px);
+      font-family: var(--mono);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat { min-width: 66px; }
+
+    .stat dt {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font: 500 8px/1.2 var(--mono);
+      letter-spacing: 0.19em;
+      text-transform: uppercase;
+    }
+
+    .stat dd {
+      margin: 0;
+      color: #b9c0cc;
+      font: 400 13px/1.2 var(--mono);
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      text-shadow: 0 1px 12px #000000;
+    }
+
+    .stat:first-child dd { color: #d7dbe2; }
+
+    .instrument-note {
+      position: absolute;
+      right: max(27px, env(safe-area-inset-right));
+      bottom: max(32px, env(safe-area-inset-bottom));
+      color: #505a6a;
+      font: 8px/1.5 var(--mono);
+      letter-spacing: 0.17em;
+      text-align: right;
+      text-transform: uppercase;
+    }
+
+    .interaction-hint {
+      position: absolute;
+      bottom: max(35px, env(safe-area-inset-bottom));
+      left: 50%;
+      color: #586272;
+      font: 8px/1.4 var(--mono);
+      letter-spacing: 0.15em;
+      text-align: center;
+      text-transform: uppercase;
+      transform: translateX(-50%);
+      transition: opacity 900ms ease;
+      white-space: nowrap;
+    }
+
+    .interaction-hint.dismissed { opacity: 0; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    [hidden] { display: none !important; }
+
+    @keyframes hud-reveal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes field-reveal {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @media (max-width: 760px) {
+      .masthead {
+        top: max(25px, env(safe-area-inset-top));
+        left: max(23px, env(safe-area-inset-left));
+        max-width: calc(100vw - 125px);
+      }
+
+      .designation { margin-bottom: 12px; font-size: 8px; letter-spacing: 0.26em; }
+      h1 { font-size: clamp(36px, 10vw, 54px); line-height: 1.02; }
+      .classification { max-width: 270px; margin-top: 12px; font-size: 13px; }
+      .compass { top: max(20px, env(safe-area-inset-top)); right: max(18px, env(safe-area-inset-right)); width: 76px; height: 76px; }
+      .controls { right: max(15px, env(safe-area-inset-right)); gap: 10px; }
+      .control { width: 40px; height: 40px; }
+      .stats { left: max(23px, env(safe-area-inset-left)); bottom: max(23px, env(safe-area-inset-bottom)); flex-wrap: wrap; gap: 18px 25px; max-width: calc(100vw - 92px); }
+      .stat { min-width: 59px; }
+      .stat dt { margin-bottom: 6px; font-size: 7px; }
+      .stat dd { font-size: 11px; }
+      .instrument-note { display: none; }
+      .interaction-hint { bottom: 118px; font-size: 7px; letter-spacing: 0.11em; }
+    }
+
+    @media (max-height: 570px) and (min-width: 761px) {
+      .masthead { top: 24px; left: 30px; }
+      h1 { font-size: 46px; }
+      .classification { margin-top: 10px; font-size: 14px; }
+      .stats { bottom: 22px; left: 30px; }
+      .interaction-hint { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #universe,
+      .hud { animation: none; opacity: 1; }
+      .control,
+      .control::after,
+      .interaction-hint { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="universe" role="img" aria-label="An interactive, rotating spiral galaxy in a black observatory field" aria-describedby="classification"></canvas>
+
+  <div class="hud">
+    <header class="masthead">
+      <p class="designation">Deep field / Instrument 07</p>
+      <h1>NGC 7741 <em>Meridian</em></h1>
+      <p class="classification" id="classification">Intermediate spiral galaxy · Pegasus constellation</p>
+    </header>
+
+    <svg class="compass" viewBox="0 0 100 100" aria-hidden="true">
+      <circle class="ring" cx="50" cy="50" r="31" fill="none" stroke-width="0.6" opacity="0.55"></circle>
+      <circle class="ring" cx="50" cy="50" r="23" fill="none" stroke-width="0.5" opacity="0.25"></circle>
+      <path class="crosshair" d="M50 13v8M50 79v8M13 50h8M79 50h8" fill="none" stroke-width="0.7"></path>
+      <path class="tick" d="M50 20v4M50 76v4M20 50h4M76 50h4M29 29l3 3M68 68l3 3M29 71l3-3M68 32l3-3" fill="none" stroke-width="0.7"></path>
+      <text x="50" y="9">N</text>
+      <text x="50" y="98">S</text>
+      <text x="7" y="53">W</text>
+      <text x="93" y="53">E</text>
+      <g id="compassNeedle">
+        <path class="needle" d="M50 26l4.2 25L50 47l-4.2 4z"></path>
+        <path class="needle-dim" d="M50 74l-4.2-25L50 53l4.2-4z"></path>
+      </g>
+      <circle cx="50" cy="50" r="1.6" fill="#ffd9a0"></circle>
+    </svg>
+
+    <nav class="controls" aria-label="Galaxy view controls">
+      <button class="control" id="zoomIn" type="button" aria-label="Zoom in" title="Zoom in">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.25"></circle><path d="m15.2 15.2 4.3 4.3M7.5 10.5h6M10.5 7.5v6"></path></svg>
+      </button>
+      <button class="control" id="zoomOut" type="button" aria-label="Zoom out" title="Zoom out">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.25"></circle><path d="m15.2 15.2 4.3 4.3M7.5 10.5h6"></path></svg>
+      </button>
+      <button class="control" id="pauseButton" type="button" aria-label="Pause rotation" aria-pressed="false" title="Pause rotation">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <g id="pauseGlyph"><path d="M8.5 6.5v11M15.5 6.5v11"></path></g>
+          <g id="playGlyph" hidden><path d="m9 6 9 6-9 6z"></path></g>
+        </svg>
+      </button>
+      <button class="control" id="resetButton" type="button" aria-label="Reset view" title="Reset view">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.2 9a7.4 7.4 0 1 1-.1 5.5M5.2 9V4.8M5.2 9h4.2"></path></svg>
+      </button>
+    </nav>
+
+    <dl class="stats" aria-label="Galaxy measurements">
+      <div class="stat"><dt>Particles</dt><dd id="particleValue">0</dd></div>
+      <div class="stat"><dt>Distance</dt><dd><span id="distanceValue">0.0</span> Mly</dd></div>
+      <div class="stat"><dt>Diameter</dt><dd><span id="diameterValue">0.0</span> kly</dd></div>
+      <div class="stat"><dt>Tilt</dt><dd id="tiltValue">58.0°</dd></div>
+      <div class="stat"><dt>Zoom</dt><dd id="zoomValue">1.00×</dd></div>
+    </dl>
+
+    <p class="interaction-hint" id="interactionHint">Drag to orient · Scroll to approach · Space to pause</p>
+    <p class="instrument-note">Epoch J2000.0<br>Live celestial plate</p>
+    <p class="sr-only" id="status" aria-live="polite"></p>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const canvas = document.getElementById('universe');
+      const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+      const backdropCanvas = document.createElement('canvas');
+      const backdropCtx = backdropCanvas.getContext('2d');
+      const vignetteCanvas = document.createElement('canvas');
+      const vignetteCtx = vignetteCanvas.getContext('2d');
+      const galaxyCanvas = document.createElement('canvas');
+      const galaxyCtx = galaxyCanvas.getContext('2d', { alpha: true, desynchronized: true });
+
+      const ui = {
+        particle: document.getElementById('particleValue'),
+        distance: document.getElementById('distanceValue'),
+        diameter: document.getElementById('diameterValue'),
+        tilt: document.getElementById('tiltValue'),
+        zoom: document.getElementById('zoomValue'),
+        needle: document.getElementById('compassNeedle'),
+        zoomIn: document.getElementById('zoomIn'),
+        zoomOut: document.getElementById('zoomOut'),
+        pause: document.getElementById('pauseButton'),
+        pauseGlyph: document.getElementById('pauseGlyph'),
+        playGlyph: document.getElementById('playGlyph'),
+        reset: document.getElementById('resetButton'),
+        hint: document.getElementById('interactionHint'),
+        status: document.getElementById('status')
+      };
+
+      const TAU = Math.PI * 2;
+      const DEG = Math.PI / 180;
+      const DEFAULT_YAW = -22 * DEG;
+      const DEFAULT_TILT = 58 * DEG;
+      const MIN_TILT = 8 * DEG;
+      const MAX_TILT = 82 * DEG;
+      const MIN_ZOOM = 0.35;
+      const MAX_ZOOM = 6;
+      const SPIRAL_A = 0.075;
+      const SPIRAL_B = 0.28;
+      const MEAN_RADIUS = 0.32;
+      const DISK_THICKNESS = 0.06;
+      const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+      const mix = (a, b, t) => a + (b - a) * t;
+      const wrapAngle = angle => Math.atan2(Math.sin(angle), Math.cos(angle));
+      const rgbCss = (rgb, alpha = 1) => `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`;
+
+      function hexToRgb(hex) {
+        const value = Number.parseInt(hex.slice(1), 16);
+        return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+      }
+
+      function mixRgb(a, b, t) {
+        return [
+          Math.round(mix(a[0], b[0], t)),
+          Math.round(mix(a[1], b[1], t)),
+          Math.round(mix(a[2], b[2], t))
+        ];
+      }
+
+      function createRandom(seed) {
+        return function random() {
+          let t = seed += 0x6D2B79F5;
+          t = Math.imul(t ^ t >>> 15, t | 1);
+          t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+          return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+      }
+
+      function createGaussian(random) {
+        let spare = null;
+        return function gaussian() {
+          if (spare !== null) {
+            const value = spare;
+            spare = null;
+            return value;
+          }
+          let u = 0;
+          let v = 0;
+          while (u === 0) u = random();
+          while (v === 0) v = random();
+          const magnitude = Math.sqrt(-2 * Math.log(u));
+          spare = magnitude * Math.sin(TAU * v);
+          return magnitude * Math.cos(TAU * v);
+        };
+      }
+
+      function makeCanvas(width, height) {
+        const surface = document.createElement('canvas');
+        surface.width = Math.max(1, Math.round(width));
+        surface.height = Math.max(1, Math.round(height));
+        return surface;
+      }
+
+      const warmWhite = hexToRgb('#FFEBBE');
+      const warmGold = hexToRgb('#FFCD82');
+      const blueWhite = hexToRgb('#CDD7FF');
+      const blueDeep = hexToRgb('#91C3FF');
+      const dustMauve = hexToRgb('#AA7882');
+      const dustRed = hexToRgb('#D25058');
+
+      const palette = Array.from({ length: 36 }, (_, index) => {
+        if (index <= 5) return mixRgb(warmWhite, warmGold, index / 5);
+        if (index <= 20) return mixRgb(blueWhite, blueDeep, (index - 6) / 14);
+        if (index <= 28) return mixRgb(blueDeep, dustMauve, (index - 20) / 8);
+        return mixRgb(dustMauve, dustRed, (index - 28) / 7);
+      });
+
+      const spriteCache = new Map();
+
+      function getParticleSprite(colorId) {
+        const color = palette[colorId];
+        const key = color.join(',');
+        if (spriteCache.has(key)) return spriteCache.get(key);
+
+        const sprite = makeCanvas(32, 32);
+        const spriteCtx = sprite.getContext('2d');
+        const glow = spriteCtx.createRadialGradient(16, 16, 0, 16, 16, 16);
+        glow.addColorStop(0, rgbCss(color, 1));
+        glow.addColorStop(0.16, rgbCss(color, 0.96));
+        glow.addColorStop(0.4, rgbCss(color, 0.3));
+        glow.addColorStop(0.72, rgbCss(color, 0.065));
+        glow.addColorStop(1, rgbCss(color, 0));
+        spriteCtx.fillStyle = glow;
+        spriteCtx.fillRect(0, 0, 32, 32);
+        spriteCache.set(key, sprite);
+        return sprite;
+      }
+
+      function makeSoftSprite(color, size = 160) {
+        const sprite = makeCanvas(size, size);
+        const spriteCtx = sprite.getContext('2d');
+        const c = size / 2;
+        const glow = spriteCtx.createRadialGradient(c, c, 0, c, c, c);
+        glow.addColorStop(0, rgbCss(color, 0.92));
+        glow.addColorStop(0.2, rgbCss(color, 0.58));
+        glow.addColorStop(0.48, rgbCss(color, 0.2));
+        glow.addColorStop(0.76, rgbCss(color, 0.045));
+        glow.addColorStop(1, rgbCss(color, 0));
+        spriteCtx.fillStyle = glow;
+        spriteCtx.fillRect(0, 0, size, size);
+        return sprite;
+      }
+
+      const dustSprites = [
+        makeSoftSprite(hexToRgb('#F3B38D')),
+        makeSoftSprite(hexToRgb('#4567B8')),
+        makeSoftSprite(hexToRgb('#743547'))
+      ];
+      const coreSprite = makeSoftSprite(hexToRgb('#FFD39A'), 256);
+
+      let W = 1;
+      let H = 1;
+      let dpr = 1;
+      let baseScale = 1;
+      let centerX = 0;
+      let centerY = 0;
+      let reducedMotion = motionQuery.matches;
+      let particleTotal = reducedMotion ? 14000 : 42000;
+      let paused = reducedMotion;
+      let simulationTime = 0;
+      let yaw = DEFAULT_YAW;
+      let targetYaw = DEFAULT_YAW;
+      let tilt = DEFAULT_TILT;
+      let targetTilt = DEFAULT_TILT;
+      let zoom = 1;
+      let targetZoom = 1;
+      let particles = [];
+      let particleGroups = [];
+      let dustNodes = [];
+      let needsRender = true;
+      let resizeQueued = false;
+      let lastFrame = performance.now();
+      let statsStarted = performance.now();
+      let statsAnimating = !reducedMotion;
+      const pointers = new Map();
+      let pinchDistance = 0;
+      let pinchStartZoom = 1;
+
+      const backgroundGalaxies = [
+        [0.07, 0.18, 0.052, 0.31, -0.42, 0],
+        [0.27, 0.1, 0.038, 0.43, 0.24, 1],
+        [0.7, 0.13, 0.061, 0.28, -0.18, 0],
+        [0.91, 0.25, 0.044, 0.38, 0.58, 1],
+        [0.14, 0.49, 0.057, 0.25, 0.15, 1],
+        [0.84, 0.53, 0.07, 0.32, -0.5, 0],
+        [0.24, 0.76, 0.04, 0.4, -0.31, 0],
+        [0.67, 0.8, 0.055, 0.27, 0.37, 1],
+        [0.93, 0.86, 0.035, 0.46, -0.12, 0],
+        [0.43, 0.3, 0.03, 0.35, 0.72, 1],
+        [0.56, 0.91, 0.048, 0.3, -0.62, 0],
+        [0.035, 0.88, 0.062, 0.24, 0.28, 1]
+      ];
+
+      function buildBackdrop() {
+        backdropCanvas.width = canvas.width;
+        backdropCanvas.height = canvas.height;
+        backdropCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        backdropCtx.globalAlpha = 1;
+        backdropCtx.globalCompositeOperation = 'source-over';
+        backdropCtx.fillStyle = '#000000';
+        backdropCtx.fillRect(0, 0, W, H);
+
+        const random = createRandom(0x4E474C415859 + W * 7 + H * 13);
+        const starCount = Math.round(clamp(W * H / 2200, 190, 720));
+        for (let i = 0; i < starCount; i++) {
+          const x = random() * W;
+          const y = random() * H;
+          const radius = 0.22 + Math.pow(random(), 3) * 1.05;
+          const alpha = 0.045 + Math.pow(random(), 2) * 0.25;
+          const tone = random();
+          backdropCtx.fillStyle = tone < 0.72
+            ? `rgba(190,202,224,${alpha})`
+            : `rgba(232,216,190,${alpha * 0.82})`;
+          backdropCtx.beginPath();
+          backdropCtx.arc(x, y, radius, 0, TAU);
+          backdropCtx.fill();
+        }
+
+        const shortSide = Math.min(W, H);
+        backdropCtx.globalCompositeOperation = 'lighter';
+        for (const galaxy of backgroundGalaxies) {
+          const [nx, ny, radiusFactor, flatten, rotation, tone] = galaxy;
+          const radius = shortSide * radiusFactor;
+          backdropCtx.save();
+          backdropCtx.translate(nx * W, ny * H);
+          backdropCtx.rotate(rotation);
+          backdropCtx.scale(1, flatten);
+          const glow = backdropCtx.createRadialGradient(0, 0, 0, 0, 0, radius);
+          const color = tone === 0 ? '174,187,214' : '204,183,170';
+          glow.addColorStop(0, `rgba(${color},0.13)`);
+          glow.addColorStop(0.16, `rgba(${color},0.085)`);
+          glow.addColorStop(0.46, `rgba(${color},0.026)`);
+          glow.addColorStop(0.76, `rgba(${color},0.006)`);
+          glow.addColorStop(1, `rgba(${color},0)`);
+          backdropCtx.fillStyle = glow;
+          backdropCtx.beginPath();
+          backdropCtx.arc(0, 0, radius, 0, TAU);
+          backdropCtx.fill();
+          backdropCtx.restore();
+        }
+        backdropCtx.globalCompositeOperation = 'source-over';
+      }
+
+      function buildVignette() {
+        vignetteCanvas.width = canvas.width;
+        vignetteCanvas.height = canvas.height;
+        vignetteCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        vignetteCtx.clearRect(0, 0, W, H);
+        const radius = Math.hypot(W, H) * 0.57;
+        const shade = vignetteCtx.createRadialGradient(W * 0.5, H * 0.5, Math.min(W, H) * 0.18, W * 0.5, H * 0.5, radius);
+        shade.addColorStop(0, 'rgba(0,0,0,0)');
+        shade.addColorStop(0.52, 'rgba(0,0,0,0.025)');
+        shade.addColorStop(0.76, 'rgba(0,0,0,0.26)');
+        shade.addColorStop(1, 'rgba(0,0,0,0.88)');
+        vignetteCtx.fillStyle = shade;
+        vignetteCtx.fillRect(0, 0, W, H);
+      }
+
+      function resizeScene() {
+        W = Math.max(1, window.innerWidth);
+        H = Math.max(1, window.innerHeight);
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = true;
+        baseScale = Math.min(W, H) * 0.43;
+        centerX = W * 0.52;
+        centerY = H * (W <= 760 ? 0.53 : 0.51);
+        buildBackdrop();
+        buildVignette();
+        needsRender = true;
+        updateStats(performance.now());
+      }
+
+      function queueResize() {
+        if (resizeQueued) return;
+        resizeQueued = true;
+        requestAnimationFrame(() => {
+          resizeQueued = false;
+          resizeScene();
+        });
+      }
+
+      function restartStats() {
+        statsStarted = performance.now();
+        statsAnimating = !reducedMotion;
+        updateStats(statsStarted);
+      }
+
+      function updateStats(now) {
+        const progress = reducedMotion || !statsAnimating
+          ? 1
+          : clamp((now - statsStarted) / 3200, 0, 1);
+        const eased = 1 - Math.pow(1 - progress, 4);
+        ui.particle.textContent = Math.round(particleTotal * eased).toLocaleString('en-US');
+        ui.distance.textContent = (41.2 * eased).toFixed(1);
+        ui.diameter.textContent = (57 * eased).toFixed(1);
+        ui.tilt.textContent = `${(tilt / DEG).toFixed(1)}°`;
+        ui.zoom.textContent = `${zoom.toFixed(2)}×`;
+        ui.needle.setAttribute('transform', `rotate(${(yaw / DEG).toFixed(2)} 50 50)`);
+        if (progress >= 1) statsAnimating = false;
+      }
+
+      function updateControlState() {
+        ui.zoomIn.disabled = targetZoom >= MAX_ZOOM - 0.0001;
+        ui.zoomOut.disabled = targetZoom <= MIN_ZOOM + 0.0001;
+        ui.pause.classList.toggle('is-paused', paused);
+        ui.pause.setAttribute('aria-pressed', String(paused));
+        ui.pause.setAttribute('aria-label', paused ? 'Resume rotation' : 'Pause rotation');
+        ui.pause.title = paused ? 'Resume rotation' : 'Pause rotation';
+        ui.pauseGlyph.style.display = paused ? 'none' : 'block';
+        ui.playGlyph.style.display = paused ? 'block' : 'none';
+      }
+
+      function sampleRadius(random) {
+        let radius;
+        do {
+          radius = -MEAN_RADIUS * Math.log(1 - random());
+        } while (radius > 1);
+        return radius;
+      }
+
+      function colorForRadius(radius, bulge = false) {
+        if (bulge) return clamp(Math.floor(radius / 0.22 * 6), 0, 5);
+        return clamp(Math.floor(radius * palette.length), 0, palette.length - 1);
+      }
+
+      function buildParticles() {
+        const random = createRandom(0x4E4743373431 + particleTotal);
+        const gaussian = createGaussian(random);
+        const bulgeCount = Math.round(particleTotal * 0.18);
+        const armCount = particleTotal - bulgeCount;
+        particles = [];
+
+        for (let i = 0; i < bulgeCount; i++) {
+          let x;
+          let y;
+          let z;
+          let sphericalRadius;
+          do {
+            x = gaussian() * 0.075;
+            y = gaussian() * 0.075;
+            z = gaussian() * 0.075;
+            sphericalRadius = Math.hypot(x, y, z);
+          } while (sphericalRadius > 0.24);
+
+          const radius = Math.hypot(x, y);
+          const brightnessBin = clamp(Math.round((0.48 + random() * 0.46) * 12), 5, 12);
+          const colorId = colorForRadius(radius, true);
+          particles.push({
+            radius,
+            angle: Math.atan2(y, x),
+            height: z,
+            size: 0.72 + random() * 0.92,
+            brightness: (brightnessBin + 0.5) / 13,
+            colorId,
+            omega: 0.35 / (0.25 + radius),
+            groupKey: colorId * 16 + brightnessBin
+          });
+        }
+
+        for (let i = 0; i < armCount; i++) {
+          const radius = sampleRadius(random);
+          const arm = i & 1;
+          const angularScatter = 0.045 + 0.34 * Math.pow(radius, 1.25);
+          const spineAngle = Math.log(radius / SPIRAL_A) / SPIRAL_B + arm * Math.PI;
+          const angle = spineAngle + gaussian() * angularScatter;
+          const height = gaussian() * DISK_THICKNESS * radius;
+          const hot = i % 17 === 0;
+          const rawBrightness = hot
+            ? 1
+            : (0.27 + Math.pow(random(), 0.7) * 0.61) * (1 - radius * 0.22);
+          const brightnessBin = hot ? 15 : clamp(Math.round(rawBrightness * 12), 3, 12);
+          const colorId = hot ? 7 : colorForRadius(radius);
+          particles.push({
+            radius,
+            angle,
+            height,
+            size: hot ? 3.4 + random() * 2.2 : 0.64 + random() * 0.94,
+            brightness: hot ? 1 : (brightnessBin + 0.5) / 13,
+            colorId,
+            omega: 0.35 / (0.25 + radius),
+            groupKey: colorId * 16 + brightnessBin
+          });
+        }
+
+        particles.sort((a, b) => a.groupKey - b.groupKey);
+        particleGroups = [];
+        let start = 0;
+        while (start < particles.length) {
+          const first = particles[start];
+          let end = start + 1;
+          while (end < particles.length && particles[end].groupKey === first.groupKey) end++;
+          particleGroups.push({
+            start,
+            end,
+            alpha: first.brightness,
+            sprite: getParticleSprite(first.colorId)
+          });
+          start = end;
+        }
+        needsRender = true;
+      }
+
+      function buildDustNodes() {
+        const random = createRandom(0x4E4542554C41);
+        const gaussian = createGaussian(random);
+        dustNodes = [];
+        for (let i = 0; i < 90; i++) {
+          const radius = sampleRadius(random);
+          const arm = i & 1;
+          const angle = Math.log(radius / SPIRAL_A) / SPIRAL_B
+            + arm * Math.PI
+            + gaussian() * (0.08 + radius * 0.1);
+          dustNodes.push({
+            radius,
+            angle,
+            height: gaussian() * DISK_THICKNESS * radius * 0.35,
+            size: 0.22 + radius * 0.28,
+            alpha: 0.06 + random() * 0.03,
+            sprite: radius < 0.2 ? 0 : radius < 0.68 ? 1 : 2,
+            omega: 0.35 / (0.25 + radius)
+          });
+        }
+      }
+
+      function drawParticles() {
+        const cosYaw = Math.cos(yaw);
+        const sinYaw = Math.sin(yaw);
+        const cosTilt = Math.cos(tilt);
+        const sinTilt = Math.sin(tilt);
+        const scale = baseScale * zoom;
+        const pointScale = 0.78 + zoom * 0.38;
+
+        ctx.globalCompositeOperation = 'lighter';
+        for (const group of particleGroups) {
+          ctx.globalAlpha = group.alpha;
+          const sprite = group.sprite;
+          for (let i = group.start; i < group.end; i++) {
+            const particle = particles[i];
+            const angle = particle.angle + particle.omega * simulationTime;
+            const diskX = particle.radius * Math.cos(angle);
+            const diskY = particle.radius * Math.sin(angle);
+            const yawX = diskX * cosYaw - diskY * sinYaw;
+            const yawY = diskX * sinYaw + diskY * cosYaw;
+            const screenX = centerX + yawX * scale;
+            const screenY = centerY + (yawY * cosTilt - particle.height * sinTilt) * scale;
+            if (screenX < -12 || screenX > W + 12 || screenY < -12 || screenY > H + 12) continue;
+
+            const depth = yawY * sinTilt + particle.height * cosTilt;
+            const size = particle.size * pointScale * clamp(0.9 + depth * 0.13, 0.76, 1.08);
+            ctx.drawImage(sprite, screenX - size * 0.5, screenY - size * 0.5, size, size);
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawDust() {
+        const cosYaw = Math.cos(yaw);
+        const sinYaw = Math.sin(yaw);
+        const cosTilt = Math.cos(tilt);
+        const sinTilt = Math.sin(tilt);
+        const scale = baseScale * zoom;
+        ctx.globalCompositeOperation = 'lighter';
+
+        for (const node of dustNodes) {
+          const angle = node.angle + node.omega * simulationTime;
+          const diskX = node.radius * Math.cos(angle);
+          const diskY = node.radius * Math.sin(angle);
+          const yawX = diskX * cosYaw - diskY * sinYaw;
+          const yawY = diskX * sinYaw + diskY * cosYaw;
+          const screenX = centerX + yawX * scale;
+          const screenY = centerY + (yawY * cosTilt - node.height * sinTilt) * scale;
+          const tangentX = SPIRAL_B * diskX - diskY;
+          const tangentY = SPIRAL_B * diskY + diskX;
+          const yawTangentX = tangentX * cosYaw - tangentY * sinYaw;
+          const yawTangentY = tangentX * sinYaw + tangentY * cosYaw;
+          const rotation = Math.atan2(yawTangentY * cosTilt, yawTangentX);
+          const width = scale * node.size;
+          const height = width * Math.max(0.2, cosTilt) * 0.92;
+
+          ctx.save();
+          ctx.translate(screenX, screenY);
+          ctx.rotate(rotation);
+          ctx.globalAlpha = node.alpha;
+          ctx.drawImage(dustSprites[node.sprite], -width * 0.5, -height * 0.5, width, height);
+          ctx.restore();
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function drawCoreGlow() {
+        const scale = baseScale * zoom;
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.globalAlpha = 0.34;
+        const warmSize = scale * 0.7;
+        ctx.drawImage(coreSprite, centerX - warmSize * 0.5, centerY - warmSize * 0.5, warmSize, warmSize);
+        ctx.globalAlpha = 0.2;
+        const hotSize = scale * 0.2;
+        ctx.drawImage(coreSprite, centerX - hotSize * 0.5, centerY - hotSize * 0.5, hotSize, hotSize);
+        ctx.globalAlpha = 1;
+      }
+
+      function render() {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.drawImage(backdropCanvas, 0, 0, W, H);
+        drawParticles();
+        drawDust();
+        drawCoreGlow();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = 1;
+        ctx.drawImage(vignetteCanvas, 0, 0, W, H);
+      }
+
+      function animate(now) {
+        const dt = clamp((now - lastFrame) / 1000, 0, 0.05);
+        lastFrame = now;
+        if (!paused) {
+          simulationTime += dt;
+          needsRender = true;
+        }
+
+        const easing = 1 - Math.exp(-dt * 12);
+        const yawDelta = wrapAngle(targetYaw - yaw);
+        const tiltDelta = targetTilt - tilt;
+        const zoomDelta = targetZoom - zoom;
+        yaw += yawDelta * easing;
+        tilt += tiltDelta * easing;
+        zoom += zoomDelta * easing;
+
+        if (Math.abs(yawDelta) > 0.00001 || Math.abs(tiltDelta) > 0.00001 || Math.abs(zoomDelta) > 0.00001) {
+          needsRender = true;
+        }
+
+        updateStats(now);
+        if (needsRender) {
+          render();
+          needsRender = false;
+        }
+        requestAnimationFrame(animate);
+      }
+
+      function dismissHint() {
+        ui.hint.classList.add('dismissed');
+      }
+
+      function setZoom(value) {
+        targetZoom = clamp(value, MIN_ZOOM, MAX_ZOOM);
+        needsRender = true;
+        updateControlState();
+        dismissHint();
+      }
+
+      function zoomBy(factor) {
+        setZoom(targetZoom * factor);
+      }
+
+      function togglePause() {
+        paused = !paused;
+        needsRender = true;
+        updateControlState();
+        ui.status.textContent = paused ? 'Galaxy rotation paused.' : 'Galaxy rotation resumed.';
+        dismissHint();
+      }
+
+      function resetView() {
+        targetYaw = yaw + wrapAngle(DEFAULT_YAW - yaw);
+        targetTilt = DEFAULT_TILT;
+        targetZoom = 1;
+        simulationTime = 0;
+        needsRender = true;
+        updateControlState();
+        ui.status.textContent = 'View returned to the default oblique angle.';
+        dismissHint();
+      }
+
+      function distanceBetweenPointers() {
+        const values = Array.from(pointers.values());
+        if (values.length < 2) return 0;
+        return Math.hypot(values[0].x - values[1].x, values[0].y - values[1].y);
+      }
+
+      function onPointerDown(event) {
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+        canvas.setPointerCapture(event.pointerId);
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        if (pointers.size === 2) {
+          pinchDistance = distanceBetweenPointers();
+          pinchStartZoom = targetZoom;
+        }
+        canvas.classList.add('dragging');
+        dismissHint();
+      }
+
+      function onPointerMove(event) {
+        const previous = pointers.get(event.pointerId);
+        if (!previous) return;
+        const dx = event.clientX - previous.x;
+        const dy = event.clientY - previous.y;
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+        if (pointers.size === 1) {
+          targetYaw += dx * 0.006;
+          targetTilt = clamp(targetTilt + dy * 0.005, MIN_TILT, MAX_TILT);
+        } else if (pointers.size >= 2) {
+          const distance = distanceBetweenPointers();
+          if (pinchDistance > 0) setZoom(pinchStartZoom * distance / pinchDistance);
+        }
+        needsRender = true;
+      }
+
+      function onPointerUp(event) {
+        pointers.delete(event.pointerId);
+        if (pointers.size < 2) {
+          pinchDistance = 0;
+          pinchStartZoom = targetZoom;
+        }
+        if (pointers.size === 0) canvas.classList.remove('dragging');
+      }
+
+      function onWheel(event) {
+        event.preventDefault();
+        const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? H : 1);
+        setZoom(targetZoom * Math.exp(-delta * 0.0012));
+      }
+
+      function onKeyDown(event) {
+        if (event.code !== 'Space' || event.repeat) return;
+        if (event.target instanceof Element && event.target.closest('button, input, select, textarea, a')) return;
+        event.preventDefault();
+        togglePause();
+      }
+
+      function onMotionChange(event) {
+        if (event.matches === reducedMotion) return;
+        reducedMotion = event.matches;
+        particleTotal = reducedMotion ? 14000 : 42000;
+        if (reducedMotion) paused = true;
+        simulationTime = 0;
+        buildParticles();
+        canvas.dataset.particleCount = String(particleTotal);
+        restartStats();
+        updateControlState();
+        needsRender = true;
+        ui.status.textContent = reducedMotion
+          ? 'Reduced motion enabled. Rotation is paused.'
+          : 'Full particle field restored. Rotation remains paused.';
+      }
+
+      ui.zoomIn.addEventListener('click', () => zoomBy(1.25));
+      ui.zoomOut.addEventListener('click', () => zoomBy(0.8));
+      ui.pause.addEventListener('click', togglePause);
+      ui.reset.addEventListener('click', resetView);
+      canvas.addEventListener('pointerdown', onPointerDown);
+      canvas.addEventListener('pointermove', onPointerMove);
+      canvas.addEventListener('pointerup', onPointerUp);
+      canvas.addEventListener('pointercancel', onPointerUp);
+      canvas.addEventListener('wheel', onWheel, { passive: false });
+      window.addEventListener('keydown', onKeyDown);
+      window.addEventListener('resize', queueResize);
+      window.addEventListener('blur', () => {
+        pointers.clear();
+        pinchDistance = 0;
+        canvas.classList.remove('dragging');
+      });
+      document.addEventListener('visibilitychange', () => {
+        lastFrame = performance.now();
+      });
+
+      if (motionQuery.addEventListener) motionQuery.addEventListener('change', onMotionChange);
+      else motionQuery.addListener(onMotionChange);
+
+      if (window.matchMedia('(pointer: coarse)').matches) {
+        ui.hint.textContent = 'Drag to orient · Pinch to approach';
+      }
+
+      buildParticles();
+      buildDustNodes();
+      resizeScene();
+      restartStats();
+      updateControlState();
+      canvas.dataset.ready = 'true';
+      canvas.dataset.particleCount = String(particleTotal);
+      canvas.dataset.dustCount = String(dustNodes.length);
+      canvas.dataset.spriteCount = String(spriteCache.size);
+      canvas.dataset.dpr = String(dpr);
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>

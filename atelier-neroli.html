@@ -1,0 +1,2021 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Atelier Néroli — Eau de Parfum No. 5, Blue Hour. A weightless floral fragrance composed for the minute between daylight and dream.">
+  <meta name="theme-color" content="#eadff5">
+  <title>Atelier Néroli — Blue Hour · Eau de Parfum No. 5</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #2d2838;
+      --ink-soft: #625a70;
+      --paper: rgba(255, 253, 250, 0.58);
+      --line: rgba(72, 58, 88, 0.16);
+      --serif: "Didot", "Bodoni 72", "Bodoni MT", "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --note-hue: 0deg;
+      --ease: cubic-bezier(.22, .61, .36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      background: #f4eef3;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      overflow-x: hidden;
+      color: var(--ink);
+      background: #f4eef3;
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      isolation: isolate;
+    }
+
+    body.modal-open { overflow: hidden; }
+
+    ::selection {
+      color: #30273b;
+      background: rgba(205, 184, 255, 0.72);
+    }
+
+    a { color: inherit; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+
+    :focus-visible {
+      outline: 2px solid #6f5b86;
+      outline-offset: 5px;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 100;
+      padding: 12px 18px;
+      color: #fff;
+      background: #30273b;
+      border-radius: 999px;
+      transform: translateY(-160%);
+      transition: transform .2s ease;
+    }
+
+    .skip-link:focus { transform: translateY(0); }
+
+    .svg-sprite {
+      position: absolute;
+      width: 0;
+      height: 0;
+      overflow: hidden;
+    }
+
+    .atmosphere {
+      position: fixed;
+      inset: -22vmax;
+      z-index: 0;
+      overflow: hidden;
+      background: linear-gradient(135deg, #e8dcff 0%, #ffddd0 46%, #dcf5ed 100%);
+      filter: hue-rotate(var(--note-hue)) saturate(.88);
+      transition: filter 1.8s var(--ease);
+      will-change: filter;
+    }
+
+    .aurora {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(72px);
+      mix-blend-mode: screen;
+      opacity: .84;
+      will-change: transform;
+    }
+
+    .aurora-lavender {
+      width: 58vmax;
+      height: 58vmax;
+      left: -10vmax;
+      top: -18vmax;
+      background: #cdb8ff;
+      animation: morph-one 29s ease-in-out infinite alternate;
+    }
+
+    .aurora-apricot {
+      width: 54vmax;
+      height: 54vmax;
+      right: -13vmax;
+      top: -8vmax;
+      background: #ffcfa8;
+      animation: morph-two 34s ease-in-out infinite alternate;
+    }
+
+    .aurora-seafoam {
+      width: 64vmax;
+      height: 64vmax;
+      left: 15vmax;
+      bottom: -30vmax;
+      background: #b6f0e0;
+      animation: morph-three 38s ease-in-out infinite alternate;
+    }
+
+    .aurora-pink {
+      width: 48vmax;
+      height: 48vmax;
+      right: 5vmax;
+      bottom: -18vmax;
+      background: #ffd9e8;
+      animation: morph-four 31s ease-in-out infinite alternate;
+    }
+
+    @keyframes morph-one {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(13vmax, 8vmax, 0) scale(1.14) rotate(18deg); }
+      100% { transform: translate3d(4vmax, 18vmax, 0) scale(.92) rotate(-12deg); }
+    }
+
+    @keyframes morph-two {
+      0% { transform: translate3d(0, 0, 0) scale(.95); }
+      50% { transform: translate3d(-15vmax, 12vmax, 0) scale(1.18) rotate(-24deg); }
+      100% { transform: translate3d(-3vmax, 22vmax, 0) scale(1.04) rotate(12deg); }
+    }
+
+    @keyframes morph-three {
+      0% { transform: translate3d(0, 0, 0) scale(1.06); }
+      50% { transform: translate3d(-12vmax, -11vmax, 0) scale(.9) rotate(16deg); }
+      100% { transform: translate3d(9vmax, -4vmax, 0) scale(1.16) rotate(-18deg); }
+    }
+
+    @keyframes morph-four {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(-11vmax, -15vmax, 0) scale(1.17) rotate(28deg); }
+      100% { transform: translate3d(7vmax, -7vmax, 0) scale(.94) rotate(-10deg); }
+    }
+
+    .mood-wash {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 1.8s var(--ease);
+    }
+
+    .mood-top {
+      background:
+        radial-gradient(circle at 18% 25%, rgba(255, 240, 173, .74), transparent 34%),
+        radial-gradient(circle at 78% 65%, rgba(178, 241, 210, .72), transparent 38%);
+    }
+
+    .mood-heart {
+      background:
+        radial-gradient(circle at 28% 28%, rgba(255, 236, 242, .8), transparent 38%),
+        radial-gradient(circle at 72% 66%, rgba(227, 210, 255, .7), transparent 36%);
+    }
+
+    .mood-base {
+      background:
+        radial-gradient(circle at 25% 30%, rgba(255, 210, 185, .66), transparent 38%),
+        radial-gradient(circle at 74% 62%, rgba(190, 174, 225, .7), transparent 40%);
+    }
+
+    body[data-mood="top"] .mood-top,
+    body[data-mood="heart"] .mood-heart,
+    body[data-mood="base"] .mood-base { opacity: 1; }
+
+    .grain {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      opacity: .16;
+      pointer-events: none;
+      mix-blend-mode: soft-light;
+    }
+
+    #mist-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .scroll-progress {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 45;
+      height: 2px;
+      background: linear-gradient(90deg, #cdb8ff, #ffcfa8, #b6f0e0);
+      transform: scaleX(0);
+      transform-origin: left;
+      opacity: .72;
+    }
+
+    .site-header {
+      position: relative;
+      z-index: 8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 26px clamp(20px, 4.5vw, 72px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      font-family: var(--serif);
+      font-size: 25px;
+      font-weight: 400;
+      letter-spacing: -.08em;
+    }
+
+    .brand-name {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+    }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: clamp(18px, 3vw, 42px);
+    }
+
+    .site-nav a {
+      position: relative;
+      padding: 6px 0;
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .site-nav a::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 1px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform .45s var(--ease);
+    }
+
+    .site-nav a:hover::after,
+    .site-nav a:focus-visible::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    main, footer { position: relative; z-index: 3; }
+
+    .hero {
+      position: relative;
+      display: grid;
+      grid-template-rows: auto minmax(470px, 1fr) auto;
+      min-height: max(790px, 100svh);
+      padding: 0 clamp(20px, 5vw, 80px) 30px;
+      overflow: hidden;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 4;
+      padding-top: clamp(8px, 2.5vh, 28px);
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: .34em;
+      line-height: 1.6;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      margin: 12px 0 0;
+      font-family: var(--serif);
+      font-size: clamp(4.4rem, 11.2vw, 10.4rem);
+      font-weight: 200;
+      letter-spacing: -.062em;
+      line-height: .88;
+      white-space: nowrap;
+    }
+
+    .hero-title em {
+      font-weight: 200;
+      letter-spacing: -.075em;
+    }
+
+    .hero-subtitle {
+      margin: 20px auto 0;
+      max-width: 360px;
+      color: var(--ink-soft);
+      font-family: var(--serif);
+      font-size: clamp(15px, 1.3vw, 19px);
+      font-style: italic;
+      font-weight: 400;
+      line-height: 1.45;
+    }
+
+    .hero-stage {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 470px;
+    }
+
+    .bottle-float {
+      position: absolute;
+      top: 52%;
+      left: 50%;
+      z-index: 3;
+      width: clamp(232px, 27vw, 386px);
+      transform: translate(-50%, -48%);
+      animation: bottle-hover 10s ease-in-out infinite;
+      will-change: transform;
+    }
+
+    .bottle-float svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+      filter: drop-shadow(0 28px 26px rgba(76, 55, 92, .13));
+    }
+
+    @keyframes bottle-hover {
+      0%, 100% { transform: translate(-50%, -48%) translateY(0) rotate(-.7deg); }
+      50% { transform: translate(-50%, -48%) translateY(-13px) rotate(.8deg); }
+    }
+
+    .vertical-note {
+      position: absolute;
+      top: 48%;
+      z-index: 4;
+      margin: 0;
+      color: rgba(63, 52, 78, .72);
+      font-size: 8px;
+      letter-spacing: .3em;
+      line-height: 1.8;
+      text-transform: uppercase;
+      writing-mode: vertical-rl;
+    }
+
+    .vertical-note-left { left: 0; transform: translateY(-50%) rotate(180deg); }
+    .vertical-note-right { right: 0; transform: translateY(-50%); }
+
+    .botanical {
+      position: absolute;
+      z-index: 2;
+      width: var(--size, 92px);
+      transform: translate3d(var(--px, 0px), var(--py, 0px), 0);
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .botanical svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      animation: botanical-float var(--duration, 15s) ease-in-out var(--delay, 0s) infinite alternate;
+      filter: drop-shadow(0 9px 12px rgba(78, 58, 86, .09));
+    }
+
+    @keyframes botanical-float {
+      from { transform: translateY(0) rotate(var(--rotation, -8deg)); }
+      to { transform: translateY(-22px) rotate(calc(var(--rotation, -8deg) + 13deg)); }
+    }
+
+    .botanical-one { left: 8%; top: 17%; --size: clamp(66px, 7vw, 108px); --rotation: -18deg; }
+    .botanical-two { right: 8%; top: 13%; --size: clamp(74px, 8vw, 122px); --rotation: 13deg; --duration: 18s; --delay: -4s; }
+    .botanical-three { left: 13%; bottom: 10%; --size: clamp(62px, 6.8vw, 102px); --rotation: 22deg; --duration: 17s; --delay: -7s; }
+    .botanical-four { right: 13%; bottom: 8%; --size: clamp(54px, 5.4vw, 84px); --rotation: -12deg; --duration: 14s; --delay: -2s; }
+    .botanical-five { left: 28%; top: 9%; --size: clamp(35px, 3.2vw, 50px); --rotation: 10deg; --duration: 19s; --delay: -9s; opacity: .72; }
+    .botanical-six { right: 27%; bottom: 18%; --size: clamp(38px, 3.6vw, 58px); --rotation: -20deg; --duration: 16s; --delay: -5s; opacity: .68; }
+
+    #drift-field {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .drift-particle {
+      position: absolute;
+      top: 106%;
+      width: var(--particle-size, 25px);
+      height: var(--particle-size, 25px);
+      opacity: 0;
+      animation: particle-rise var(--duration, 17s) linear var(--delay, 0s) infinite;
+      will-change: transform, opacity;
+    }
+
+    .drift-particle svg { display: block; width: 100%; height: 100%; }
+
+    @keyframes particle-rise {
+      0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+      12% { opacity: .54; }
+      82% { opacity: .42; }
+      100% { transform: translate3d(var(--sway, 35px), -122vh, 0) rotate(var(--spin, 160deg)); opacity: 0; }
+    }
+
+    .note-status {
+      position: absolute;
+      right: 0;
+      bottom: 6px;
+      left: 0;
+      z-index: 5;
+      margin: 0;
+      color: rgba(61, 49, 77, .76);
+      font-family: var(--serif);
+      font-size: 13px;
+      font-style: italic;
+      text-align: center;
+      transition: opacity .35s ease;
+    }
+
+    .note-controls {
+      position: relative;
+      z-index: 6;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(12px, 2.4vw, 34px);
+      width: min(100%, 980px);
+      margin: 0 auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .note-family {
+      min-width: 0;
+      text-align: center;
+    }
+
+    .note-family-label {
+      display: block;
+      margin-bottom: 10px;
+      color: rgba(67, 55, 82, .68);
+      font-size: 8px;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+    }
+
+    .note-pills {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 7px;
+    }
+
+    .note-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 36px;
+      padding: 9px 13px;
+      border: 1px solid rgba(255, 255, 255, .65);
+      border-radius: 999px;
+      background: rgba(255, 252, 250, .32);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 5px 18px rgba(68, 51, 86, .04);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      font-size: 10px;
+      letter-spacing: .06em;
+      cursor: pointer;
+      transition: background .5s ease, border-color .5s ease, transform .5s var(--ease), box-shadow .5s ease;
+    }
+
+    .note-pill::before {
+      content: "";
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--dot, #a992d3);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--dot, #a992d3) 15%, transparent);
+    }
+
+    .note-pill:hover,
+    .note-pill:focus-visible,
+    .note-pill[aria-pressed="true"] {
+      border-color: rgba(255, 255, 255, .95);
+      background: rgba(255, 253, 251, .64);
+      box-shadow: inset 0 1px 0 #fff, 0 9px 24px rgba(68, 51, 86, .09);
+      transform: translateY(-2px);
+    }
+
+    .note-pill:active { transform: translateY(0) scale(.98); }
+
+    .scroll-cue {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      z-index: 5;
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      color: rgba(59, 48, 73, .58);
+      font-size: 7px;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .scroll-cue span:last-child {
+      width: 1px;
+      height: 26px;
+      background: linear-gradient(rgba(59, 48, 73, .55), transparent);
+      animation: cue-breathe 2.8s ease-in-out infinite;
+    }
+
+    @keyframes cue-breathe {
+      0%, 100% { transform: scaleY(.65); transform-origin: top; opacity: .45; }
+      50% { transform: scaleY(1); transform-origin: top; opacity: .9; }
+    }
+
+    .section-shell {
+      width: min(1240px, calc(100% - clamp(40px, 9vw, 144px)));
+      margin-inline: auto;
+    }
+
+    .story-section {
+      display: grid;
+      grid-template-columns: minmax(150px, .33fr) minmax(0, 1fr);
+      gap: clamp(30px, 7vw, 110px);
+      align-items: start;
+      min-height: 88vh;
+      padding-block: clamp(100px, 15vh, 180px);
+      border-top: 1px solid var(--line);
+    }
+
+    .section-kicker {
+      display: grid;
+      gap: 13px;
+      margin: 0;
+      color: rgba(65, 52, 80, .65);
+      font-size: 9px;
+      letter-spacing: .26em;
+      line-height: 1.8;
+      text-transform: uppercase;
+    }
+
+    .section-kicker .number {
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 31px;
+      font-weight: 200;
+      letter-spacing: -.05em;
+    }
+
+    .story-copy {
+      max-width: 980px;
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(2rem, 4.7vw, 4.35rem);
+      font-style: italic;
+      font-weight: 200;
+      letter-spacing: -.035em;
+      line-height: 1.16;
+    }
+
+    .story-copy .soft-word { color: #74628b; }
+
+    .story-signature {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 42px;
+      color: var(--ink-soft);
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+
+    .story-signature::before {
+      content: "";
+      width: 44px;
+      height: 1px;
+      background: currentColor;
+      opacity: .5;
+    }
+    .scroll-cue {
+      right: clamp(20px, 5vw, 80px);
+      left: auto;
+      transform: none;
+    }
+
+    .pyramid-section {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(300px, .92fr);
+      gap: clamp(50px, 8vw, 120px);
+      align-items: center;
+      padding-block: clamp(100px, 14vh, 170px);
+      border-top: 1px solid var(--line);
+    }
+
+    .pyramid-card {
+      position: relative;
+      padding: clamp(20px, 3vw, 42px);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .58);
+      border-radius: clamp(24px, 3vw, 38px);
+      background: linear-gradient(145deg, rgba(255, 255, 255, .3), rgba(255, 255, 255, .08));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .62), 0 24px 70px rgba(79, 55, 93, .06);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .pyramid-card::before {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      top: -120px;
+      right: -90px;
+      border-radius: 50%;
+      background: rgba(255, 217, 232, .42);
+      filter: blur(38px);
+      pointer-events: none;
+    }
+
+    .pyramid-heading {
+      position: relative;
+      margin: 0 0 20px;
+      font-family: var(--serif);
+      font-size: clamp(30px, 3.5vw, 50px);
+      font-weight: 200;
+      letter-spacing: -.045em;
+      line-height: 1;
+    }
+
+    .pyramid-heading em { font-weight: 200; }
+
+    .pyramid-diagram {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .pyramid-line {
+      fill: none;
+      stroke: rgba(72, 55, 91, .58);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset 2.1s var(--ease);
+    }
+
+    .pyramid-diagram.in-view .pyramid-line { stroke-dashoffset: 0; }
+    .pyramid-diagram.in-view .pyramid-line:nth-child(2) { transition-delay: .28s; }
+    .pyramid-diagram.in-view .pyramid-line:nth-child(3) { transition-delay: .52s; }
+
+    .pyramid-node {
+      fill: #f8f2f7;
+      stroke: rgba(72, 55, 91, .62);
+      stroke-width: 1;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .pyramid-svg-label {
+      fill: rgba(62, 48, 78, .72);
+      font-family: var(--sans);
+      font-size: 9px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+    }
+
+    .pyramid-caption {
+      position: relative;
+      margin: 20px 0 0;
+      color: var(--ink-soft);
+      font-family: var(--serif);
+      font-size: 14px;
+      font-style: italic;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .pyramid-legend {
+      display: grid;
+      gap: 0;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .pyramid-legend li {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 22px;
+      padding-block: 27px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .pyramid-legend li:first-child { border-top: 1px solid var(--line); }
+
+    .legend-number {
+      padding-top: 4px;
+      color: rgba(66, 52, 82, .52);
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 200;
+    }
+
+    .legend-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 8px;
+      letter-spacing: .27em;
+      text-transform: uppercase;
+    }
+
+    .legend-notes {
+      display: block;
+      margin-bottom: 8px;
+      font-family: var(--serif);
+      font-size: clamp(23px, 2.5vw, 34px);
+      font-weight: 200;
+      letter-spacing: -.025em;
+    }
+
+    .legend-description {
+      display: block;
+      max-width: 390px;
+      color: var(--ink-soft);
+      font-size: 12px;
+      font-weight: 300;
+      line-height: 1.75;
+    }
+
+    .reviews-section {
+      padding-block: clamp(100px, 14vh, 165px);
+      border-top: 1px solid var(--line);
+    }
+
+    .section-heading-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 30px;
+      margin-bottom: clamp(38px, 6vw, 72px);
+    }
+
+    .section-title {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(2.8rem, 6.4vw, 6rem);
+      font-weight: 200;
+      letter-spacing: -.055em;
+      line-height: .94;
+    }
+
+    .section-title em { font-weight: 200; }
+
+    .section-aside {
+      max-width: 260px;
+      margin: 0 0 4px;
+      color: var(--ink-soft);
+      font-family: var(--serif);
+      font-size: 15px;
+      font-style: italic;
+      line-height: 1.5;
+      text-align: right;
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(16px, 2.3vw, 30px);
+    }
+
+    .review-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 310px;
+      padding: clamp(25px, 3vw, 38px);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .62);
+      border-radius: clamp(22px, 2.5vw, 32px);
+      background: linear-gradient(145deg, rgba(255, 255, 255, .34), rgba(255, 255, 255, .1));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .68), 0 20px 50px rgba(69, 48, 86, .05);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: transform .8s var(--ease), box-shadow .8s var(--ease);
+    }
+
+    .review-card:hover {
+      transform: translateY(-7px);
+      box-shadow: inset 0 1px 0 #fff, 0 28px 60px rgba(69, 48, 86, .09);
+    }
+
+    .review-card::after {
+      content: "";
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      right: -65px;
+      bottom: -70px;
+      border-radius: 50%;
+      background: var(--review-glow, rgba(205, 184, 255, .28));
+      filter: blur(22px);
+    }
+
+    .review-mark {
+      color: rgba(75, 58, 92, .48);
+      font-family: var(--serif);
+      font-size: 39px;
+      font-weight: 200;
+      line-height: .8;
+    }
+
+    .review-quote {
+      position: relative;
+      z-index: 1;
+      margin: 22px 0 34px;
+      font-family: var(--serif);
+      font-size: clamp(1.45rem, 2.1vw, 2rem);
+      font-style: italic;
+      font-weight: 200;
+      letter-spacing: -.02em;
+      line-height: 1.3;
+    }
+
+    .review-author {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 5px;
+      margin: 0;
+      font-size: 8px;
+      letter-spacing: .2em;
+      line-height: 1.6;
+      text-transform: uppercase;
+    }
+
+    .review-author span:last-child { color: var(--ink-soft); letter-spacing: .15em; }
+
+    .discovery-section {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 76vh;
+      padding-block: clamp(100px, 15vh, 180px);
+      overflow: hidden;
+      text-align: center;
+      border-top: 1px solid var(--line);
+    }
+
+    .discovery-section::before,
+    .discovery-section::after {
+      content: "";
+      position: absolute;
+      width: clamp(180px, 30vw, 430px);
+      height: clamp(180px, 30vw, 430px);
+      border-radius: 50%;
+      filter: blur(58px);
+      opacity: .56;
+      pointer-events: none;
+    }
+
+    .discovery-section::before {
+      top: 12%;
+      left: -8%;
+      background: #cdb8ff;
+    }
+
+    .discovery-section::after {
+      right: -8%;
+      bottom: 8%;
+      background: #b6f0e0;
+    }
+
+    .discovery-inner { position: relative; z-index: 1; }
+
+    .discovery-title {
+      max-width: 900px;
+      margin: 20px auto;
+      font-family: var(--serif);
+      font-size: clamp(3.3rem, 8.6vw, 8.4rem);
+      font-weight: 200;
+      letter-spacing: -.065em;
+      line-height: .9;
+    }
+
+    .discovery-title em { font-weight: 200; }
+
+    .discovery-copy {
+      max-width: 430px;
+      margin: 26px auto 36px;
+      color: var(--ink-soft);
+      font-family: var(--serif);
+      font-size: clamp(16px, 1.5vw, 20px);
+      font-style: italic;
+      line-height: 1.55;
+    }
+
+    .discovery-button {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      min-height: 56px;
+      padding: 17px 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, .9);
+      border-radius: 999px;
+      background: linear-gradient(115deg, #fff2f6 0%, #e8ddff 25%, #dff6ec 50%, #fff0da 75%, #ffe2ed 100%);
+      background-size: 250% 100%;
+      box-shadow: inset 0 1px 0 #fff, 0 14px 36px rgba(74, 53, 92, .12);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+      cursor: pointer;
+      animation: gradient-drift 9s ease infinite;
+      transition: transform .55s var(--ease), box-shadow .55s var(--ease);
+    }
+
+    .discovery-button::after {
+      content: "";
+      position: absolute;
+      inset: -80% auto -80% -35%;
+      width: 28%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .9), transparent);
+      transform: skewX(-20deg);
+      animation: button-sheen 6.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .discovery-button:hover {
+      transform: translateY(-3px) scale(1.015);
+      box-shadow: inset 0 1px 0 #fff, 0 20px 44px rgba(74, 53, 92, .18);
+    }
+
+    .discovery-button:active { transform: translateY(0) scale(.99); }
+
+    .discovery-button svg {
+      width: 18px;
+      height: 18px;
+      transition: transform .45s var(--ease);
+    }
+
+    .discovery-button:hover svg { transform: translateX(4px); }
+
+    @keyframes gradient-drift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    @keyframes button-sheen {
+      0%, 58% { left: -35%; }
+      82%, 100% { left: 125%; }
+    }
+
+    .discovery-fineprint {
+      margin: 18px 0 0;
+      color: rgba(68, 54, 83, .6);
+      font-size: 8px;
+      letter-spacing: .16em;
+      line-height: 1.7;
+      text-transform: uppercase;
+    }
+
+    .site-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 28px clamp(20px, 4.5vw, 72px) 34px;
+      border-top: 1px solid var(--line);
+      color: rgba(63, 50, 78, .65);
+      font-size: 8px;
+      letter-spacing: .18em;
+      line-height: 1.7;
+      text-transform: uppercase;
+    }
+
+    .footer-note { font-family: var(--serif); font-size: 13px; font-style: italic; letter-spacing: 0; text-transform: none; }
+
+    dialog {
+      width: min(520px, calc(100% - 32px));
+      max-height: calc(100svh - 40px);
+      padding: 0;
+      overflow: auto;
+      color: var(--ink);
+      border: 1px solid rgba(255, 255, 255, .82);
+      border-radius: 30px;
+      background: rgba(249, 242, 246, .88);
+      box-shadow: 0 35px 110px rgba(48, 32, 63, .28), inset 0 1px 0 #fff;
+      backdrop-filter: blur(26px);
+      -webkit-backdrop-filter: blur(26px);
+    }
+
+    dialog::backdrop {
+      background: rgba(69, 51, 86, .2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .dialog-inner { position: relative; padding: clamp(32px, 6vw, 54px); }
+
+    .dialog-close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .35);
+      cursor: pointer;
+      transition: background .3s ease, transform .3s ease;
+    }
+
+    .dialog-close:hover { background: rgba(255, 255, 255, .8); transform: rotate(8deg); }
+    .dialog-close svg { width: 14px; height: 14px; }
+
+    .dialog-title {
+      margin: 16px 0;
+      font-family: var(--serif);
+      font-size: clamp(2.6rem, 8vw, 4.3rem);
+      font-weight: 200;
+      letter-spacing: -.055em;
+      line-height: .95;
+    }
+
+    .dialog-copy {
+      color: var(--ink-soft);
+      font-family: var(--serif);
+      font-size: 18px;
+      font-style: italic;
+      line-height: 1.55;
+    }
+
+    .dialog-list {
+      display: grid;
+      gap: 0;
+      margin: 28px 0;
+      padding: 0;
+      list-style: none;
+      border-top: 1px solid var(--line);
+    }
+
+    .dialog-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding-block: 13px;
+      border-bottom: 1px solid var(--line);
+      font-size: 11px;
+      letter-spacing: .04em;
+    }
+
+    .dialog-list span:last-child { color: var(--ink-soft); text-align: right; }
+
+    .dialog-return {
+      width: 100%;
+      min-height: 50px;
+      border: 1px solid rgba(255, 255, 255, .9);
+      border-radius: 999px;
+      background: linear-gradient(110deg, #eadfff, #ffe2e8, #dff5ec);
+      box-shadow: inset 0 1px 0 #fff;
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .reveal-ready [data-reveal] {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 1.15s var(--ease), transform 1.15s var(--ease);
+    }
+
+    .reveal-ready [data-reveal].in-view {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-ready [data-reveal][data-delay="1"] { transition-delay: .12s; }
+    .reveal-ready [data-reveal][data-delay="2"] { transition-delay: .24s; }
+    .reveal-ready [data-reveal][data-delay="3"] { transition-delay: .36s; }
+
+    @media (max-width: 980px) {
+      .site-nav a:first-child { display: none; }
+      .pyramid-section { grid-template-columns: 1fr; }
+      .pyramid-card { width: min(100%, 680px); margin-inline: auto; }
+      .pyramid-legend { width: min(100%, 680px); margin-inline: auto; }
+      .review-card { min-height: 330px; }
+    }
+
+    @media (max-width: 760px) {
+      .site-header { padding-block: 21px; }
+      .brand-name { display: none; }
+      .site-nav { gap: 20px; }
+      .hero { min-height: max(850px, 100svh); }
+      .hero-title { font-size: clamp(4rem, 15.5vw, 7rem); }
+      .vertical-note { display: none; }
+      .botanical-one { left: 3%; top: 19%; }
+      .botanical-two { right: 3%; top: 15%; }
+      .botanical-three { left: 4%; bottom: 14%; }
+      .botanical-four { right: 4%; bottom: 12%; }
+      .scroll-cue { display: none; }
+      .story-section { grid-template-columns: 1fr; gap: 34px; min-height: auto; }
+      .section-kicker { display: flex; align-items: center; gap: 18px; }
+      .section-kicker .number { font-size: 25px; }
+      .story-signature { margin-top: 30px; }
+      .review-grid { grid-template-columns: 1fr; }
+      .review-card { min-height: 260px; }
+      .section-heading-row { align-items: start; flex-direction: column; }
+      .section-aside { text-align: left; }
+      .site-footer { align-items: start; flex-direction: column; gap: 12px; }
+    }
+
+    @media (max-width: 600px) {
+      .hero {
+        grid-template-rows: auto minmax(400px, 1fr) auto;
+        min-height: 900px;
+        padding-inline: 18px;
+      }
+      .hero-copy { padding-top: 10px; }
+      .hero-title { margin-top: 14px; font-size: clamp(3.65rem, 17.8vw, 5.9rem); }
+      .hero-subtitle { max-width: 280px; margin-top: 17px; font-size: 15px; }
+      .hero-stage { min-height: 400px; }
+      .bottle-float { top: 53%; width: clamp(218px, 61vw, 280px); }
+      .botanical { opacity: .8; }
+      .botanical-five, .botanical-six { display: none; }
+      .note-controls { grid-template-columns: 1fr; gap: 13px; padding-top: 14px; }
+      .note-family {
+        display: grid;
+        grid-template-columns: 60px minmax(0, 1fr);
+        align-items: center;
+        text-align: left;
+      }
+      .note-family-label { margin: 0; }
+      .note-pills { justify-content: flex-start; }
+      .note-pill { min-height: 35px; padding: 8px 11px; font-size: 9px; }
+      .note-status { bottom: -1px; font-size: 12px; }
+      .section-shell { width: calc(100% - 40px); }
+      .pyramid-section, .reviews-section, .discovery-section { padding-block: 90px; }
+      .pyramid-card { padding: 22px 16px 26px; }
+      .pyramid-heading { padding-inline: 6px; }
+      .pyramid-legend li { grid-template-columns: 30px minmax(0, 1fr); gap: 16px; padding-block: 23px; }
+      .discovery-button { width: min(100%, 330px); padding-inline: 20px; letter-spacing: .12em; }
+    }
+
+    @media (max-width: 380px) {
+      .site-nav a:not(:last-child) { display: none; }
+      .hero-title { font-size: 3.55rem; }
+      .note-pill { padding-inline: 9px; }
+    }
+
+    .refract-a,
+    .refract-b,
+    .refract-c,
+    .refract-d {
+      transform-box: fill-box;
+      transform-origin: center;
+      will-change: transform;
+    }
+
+    .refract-a { animation: refract-one 17s ease-in-out infinite alternate; }
+    .refract-b { animation: refract-two 21s ease-in-out infinite alternate; }
+    .refract-c { animation: refract-three 24s ease-in-out infinite alternate; }
+    .refract-d { animation: refract-four 19s ease-in-out infinite alternate; }
+
+    .meniscus-shimmer {
+      animation: meniscus-light 5.5s ease-in-out infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    @keyframes refract-one {
+      from { transform: translate(-8px, -5px) scale(.96); }
+      to { transform: translate(20px, 16px) scale(1.13); }
+    }
+
+    @keyframes refract-two {
+      from { transform: translate(7px, 4px) scale(1.08); }
+      to { transform: translate(-22px, -14px) scale(.93); }
+    }
+
+    @keyframes refract-three {
+      from { transform: translate(-4px, 10px) scale(1.05); }
+      to { transform: translate(19px, -17px) scale(.94); }
+    }
+
+    @keyframes refract-four {
+      from { transform: translate(9px, -7px) scale(.94); }
+      to { transform: translate(-17px, 13px) scale(1.12); }
+    }
+
+    @keyframes meniscus-light {
+      0%, 100% { opacity: .38; transform: translateX(-7px) scaleX(.92); }
+      50% { opacity: .95; transform: translateX(8px) scaleX(1.04); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .bottle-float, .botanical svg, .scroll-cue span:last-child { animation: none !important; }
+      .drift-particle {
+        animation: none !important;
+        opacity: .2;
+        transform: translate3d(0, -45vh, 0) rotate(var(--spin, 20deg));
+      }
+      .reveal-ready [data-reveal] { opacity: 1 !important; transform: none !important; }
+      .pyramid-line { stroke-dashoffset: 0 !important; }
+      #mist-canvas { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to the fragrance</a>
+
+  <svg class="svg-sprite" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="petal-fill" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fffaf4"/>
+        <stop offset=".55" stop-color="#ffe7ee"/>
+        <stop offset="1" stop-color="#ecdff8"/>
+      </linearGradient>
+      <linearGradient id="citrus-fill" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fff4bb"/>
+        <stop offset=".6" stop-color="#ffd987"/>
+        <stop offset="1" stop-color="#f7bd72"/>
+      </linearGradient>
+      <linearGradient id="wood-fill" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#d8b191"/>
+        <stop offset="1" stop-color="#9f745f"/>
+      </linearGradient>
+      <symbol id="motif-citrus" viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="35" fill="url(#citrus-fill)" stroke="#fff8e5" stroke-width="3"/>
+        <circle cx="40" cy="40" r="28" fill="#fff0bd" stroke="#e9b765" stroke-width="1.5"/>
+        <path d="M40 12v56M17.2 26l45.6 28M17.2 54l45.6-28M12 40h56" fill="none" stroke="#e8b766" stroke-width="1.6" stroke-linecap="round"/>
+        <circle cx="40" cy="40" r="4" fill="#fff8dd"/>
+        <path d="M23 21c6-7 16-10 25-7" fill="none" stroke="#fffdf2" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+      </symbol>
+      <symbol id="motif-petal" viewBox="0 0 80 80">
+        <path d="M40 4C63 22 67 49 40 76 13 49 17 22 40 4Z" fill="url(#petal-fill)" stroke="#fffdf8" stroke-width="2"/>
+        <path d="M40 13c-3 18-3 36 0 51" fill="none" stroke="#dcc9df" stroke-width="1.2" stroke-linecap="round"/>
+        <path d="M40 26c-8 5-13 11-16 19M40 39c8 4 13 10 16 18" fill="none" stroke="#eadbea" stroke-width="1" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="motif-wood" viewBox="0 0 80 80">
+        <path d="M13 26c17-17 38-16 54 2-18 3-34 9-46 20" fill="none" stroke="url(#wood-fill)" stroke-width="6" stroke-linecap="round"/>
+        <path d="M17 47c14-12 30-13 46-3-15 1-28 6-39 15" fill="none" stroke="#bb8d70" stroke-width="4.5" stroke-linecap="round"/>
+        <path d="M26 64c10-5 20-5 30 0" fill="none" stroke="#d9b394" stroke-width="3" stroke-linecap="round"/>
+      </symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24">
+        <path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+      </symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24">
+        <path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="atmosphere" aria-hidden="true">
+    <div class="aurora aurora-lavender"></div>
+    <div class="aurora aurora-apricot"></div>
+    <div class="aurora aurora-seafoam"></div>
+    <div class="aurora aurora-pink"></div>
+    <div class="mood-wash mood-top"></div>
+    <div class="mood-wash mood-heart"></div>
+    <div class="mood-wash mood-base"></div>
+  </div>
+
+  <svg class="grain" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+    <filter id="grain-filter">
+      <feTurbulence type="fractalNoise" baseFrequency=".78" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#grain-filter)" opacity=".72"/>
+  </svg>
+
+  <canvas id="mist-canvas" aria-hidden="true"></canvas>
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Atelier Néroli, back to the top">
+      <span class="brand-mark" aria-hidden="true">A·N</span>
+      <span class="brand-name">Atelier Néroli</span>
+    </a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#story">The story</a>
+      <a href="#notes">The notes</a>
+      <a href="#discovery">Discovery</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow">Eau de Parfum · No. 5</p>
+        <h1 class="hero-title" id="hero-title">Blue <em>Hour</em></h1>
+        <p class="hero-subtitle">For the minute when the garden forgets the sun.</p>
+      </div>
+
+      <div class="hero-stage">
+        <p class="vertical-note vertical-note-left">Blended in Grasse · 50 ml</p>
+        <p class="vertical-note vertical-note-right">Neroli · Jasmine · Cedar</p>
+
+        <div class="botanical botanical-one" data-depth="14" aria-hidden="true">
+          <svg viewBox="0 0 80 80"><use href="#motif-petal"/></svg>
+        </div>
+        <div class="botanical botanical-two" data-depth="-18" aria-hidden="true">
+          <svg viewBox="0 0 80 80"><use href="#motif-citrus"/></svg>
+        </div>
+        <div class="botanical botanical-three" data-depth="20" aria-hidden="true">
+          <svg viewBox="0 0 80 80"><use href="#motif-citrus"/></svg>
+        </div>
+        <div class="botanical botanical-four" data-depth="-12" aria-hidden="true">
+          <svg viewBox="0 0 80 80"><use href="#motif-petal"/></svg>
+        </div>
+        <div class="botanical botanical-five" data-depth="26" aria-hidden="true">
+          <svg viewBox="0 0 80 80"><use href="#motif-petal"/></svg>
+        </div>
+        <div class="botanical botanical-six" data-depth="-24" aria-hidden="true">
+          <svg viewBox="0 0 80 80"><use href="#motif-citrus"/></svg>
+        </div>
+
+        <div id="drift-field" aria-hidden="true"></div>
+
+        <div class="bottle-float">
+          <svg viewBox="0 0 420 620" role="img" aria-labelledby="bottle-title bottle-description" xmlns="http://www.w3.org/2000/svg">
+            <title id="bottle-title">Atelier Néroli Blue Hour perfume bottle</title>
+            <desc id="bottle-description">A transparent faceted glass bottle with pale golden liquid, a lavender glass cap, and a small ivory label.</desc>
+            <defs>
+              <linearGradient id="glass-body" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ffffff" stop-opacity=".72"/>
+                <stop offset=".22" stop-color="#f5efff" stop-opacity=".28"/>
+                <stop offset=".52" stop-color="#ffffff" stop-opacity=".12"/>
+                <stop offset=".78" stop-color="#d9f5ec" stop-opacity=".32"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity=".66"/>
+              </linearGradient>
+              <linearGradient id="glass-edge" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#ffffff" stop-opacity=".92"/>
+                <stop offset=".14" stop-color="#ffffff" stop-opacity=".25"/>
+                <stop offset=".52" stop-color="#ffffff" stop-opacity=".12"/>
+                <stop offset=".86" stop-color="#ffffff" stop-opacity=".36"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity=".95"/>
+              </linearGradient>
+              <linearGradient id="liquid-fill" x1="0" y1="0" x2=".8" y2="1">
+                <stop offset="0" stop-color="#fff2c8" stop-opacity=".72"/>
+                <stop offset=".38" stop-color="#f9d99d" stop-opacity=".6"/>
+                <stop offset=".72" stop-color="#f6c9b7" stop-opacity=".56"/>
+                <stop offset="1" stop-color="#e8c9e5" stop-opacity=".7"/>
+              </linearGradient>
+              <radialGradient id="liquid-glow" cx=".35" cy=".2" r=".8">
+                <stop offset="0" stop-color="#fffbe8" stop-opacity=".88"/>
+                <stop offset=".5" stop-color="#ffe4b1" stop-opacity=".28"/>
+                <stop offset="1" stop-color="#f3bfda" stop-opacity=".12"/>
+              </radialGradient>
+              <linearGradient id="cap-front" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#fbf8ff" stop-opacity=".96"/>
+                <stop offset=".25" stop-color="#d9c9f6" stop-opacity=".9"/>
+                <stop offset=".52" stop-color="#bda8e1" stop-opacity=".9"/>
+                <stop offset=".76" stop-color="#e9defb" stop-opacity=".94"/>
+                <stop offset="1" stop-color="#b7a2d6" stop-opacity=".9"/>
+              </linearGradient>
+              <linearGradient id="cap-side" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#9f8ac3" stop-opacity=".85"/>
+                <stop offset=".55" stop-color="#d7c6f2" stop-opacity=".94"/>
+                <stop offset="1" stop-color="#eee5ff" stop-opacity=".96"/>
+              </linearGradient>
+              <linearGradient id="cap-top" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#fffdfd"/>
+                <stop offset=".55" stop-color="#e5d9f8"/>
+                <stop offset="1" stop-color="#bda9dd"/>
+              </linearGradient>
+              <linearGradient id="label-fill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#fffdf7" stop-opacity=".9"/>
+                <stop offset="1" stop-color="#f4e9e7" stop-opacity=".72"/>
+              </linearGradient>
+              <linearGradient id="glass-shine" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset=".5" stop-color="#ffffff" stop-opacity=".88"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+              </linearGradient>
+              <linearGradient id="base-shine" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="#ffffff" stop-opacity="0"/>
+                <stop offset=".5" stop-color="#ffffff" stop-opacity=".76"/>
+                <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+              </linearGradient>
+              <clipPath id="bottle-clip">
+                <path d="M120 185c0-17 12-28 29-31l27-5h68l27 5c17 3 29 14 29 31v257c0 53-35 88-83 91h-14c-48-3-83-38-83-91V185Z"/>
+              </clipPath>
+              <filter id="shadow-blur" x="-50%" y="-200%" width="200%" height="500%">
+                <feGaussianBlur stdDeviation="15"/>
+              </filter>
+              <filter id="refract-blur" x="-30%" y="-30%" width="160%" height="160%">
+                <feTurbulence type="fractalNoise" baseFrequency=".012 .026" numOctaves="2" seed="7" result="noise"/>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="17" xChannelSelector="R" yChannelSelector="B"/>
+                <feGaussianBlur stdDeviation="7"/>
+              </filter>
+              <filter id="meniscus-glow" x="-30%" y="-100%" width="160%" height="300%">
+                <feGaussianBlur stdDeviation="2.2"/>
+              </filter>
+            </defs>
+
+            <ellipse cx="210" cy="568" rx="111" ry="17" fill="#5e466f" opacity=".2" filter="url(#shadow-blur)"/>
+
+            <g class="bottle-cap">
+              <path d="m155 43 24-22h62l24 22-9 8H164Z" fill="url(#cap-top)" stroke="#ffffff" stroke-opacity=".8" stroke-width="1.2"/>
+              <path d="M164 51h92v86l-8 7h-76l-8-7Z" fill="url(#cap-front)" stroke="#ffffff" stroke-opacity=".76" stroke-width="1.2"/>
+              <path d="m256 51 9 8v78l-9 8Z" fill="url(#cap-side)" stroke="#ffffff" stroke-opacity=".55" stroke-width="1"/>
+              <path d="m155 43 9 8v86l-9 7Z" fill="#b6a2d5" fill-opacity=".46" stroke="#ffffff" stroke-opacity=".45" stroke-width="1"/>
+              <path d="M180 55v79M204 51v88M228 51v88M246 57v75" stroke="#ffffff" stroke-opacity=".27" stroke-width="1"/>
+              <path d="m168 59 20-7v82l-20 7Z" fill="#ffffff" fill-opacity=".17"/>
+              <path d="M177 151h66v17c0 5-4 8-9 8h-48c-5 0-9-3-9-8Z" fill="url(#glass-body)" stroke="#ffffff" stroke-opacity=".82" stroke-width="1.2"/>
+              <path d="M177 154h66M177 160h66" stroke="#ffffff" stroke-opacity=".48" stroke-width="1"/>
+            </g>
+
+            <path d="M120 185c0-17 12-28 29-31l27-5h68l27 5c17 3 29 14 29 31v257c0 53-35 88-83 91h-14c-48-3-83-38-83-91V185Z" fill="url(#glass-body)" stroke="url(#glass-edge)" stroke-width="2"/>
+
+            <g clip-path="url(#bottle-clip)">
+              <g filter="url(#refract-blur)" opacity=".88">
+                <ellipse class="refract-a" cx="166" cy="248" rx="89" ry="73" fill="#cdb8ff"/>
+                <ellipse class="refract-b" cx="270" cy="276" rx="79" ry="87" fill="#ffcfa8"/>
+                <ellipse class="refract-c" cx="164" cy="427" rx="107" ry="79" fill="#b6f0e0"/>
+                <ellipse class="refract-d" cx="265" cy="470" rx="88" ry="73" fill="#ffd9e8"/>
+              </g>
+
+              <path d="M101 319c58-15 160 14 218-1v205H101Z" fill="url(#liquid-fill)"/>
+              <path d="M101 319c58-15 160 14 218-1v205H101Z" fill="url(#liquid-glow)" opacity=".58"/>
+              <path d="M101 319c58-15 160 14 218-1" fill="none" stroke="#fffbea" stroke-opacity=".84" stroke-width="2.4"/>
+              <ellipse cx="210" cy="318" rx="109" ry="13" fill="#fff7dc" fill-opacity=".3" stroke="#fffdf1" stroke-opacity=".7" stroke-width="1.4"/>
+              <path class="meniscus-shimmer" d="M133 314c39-9 104-10 151 1" fill="none" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" filter="url(#meniscus-glow)"/>
+
+              <g fill="#fffdf2" fill-opacity=".55">
+                <circle cx="157" cy="355" r="2.2"/>
+                <circle cx="268" cy="344" r="1.4"/>
+                <circle cx="241" cy="464" r="2"/>
+                <circle cx="180" cy="489" r="1.3"/>
+                <circle cx="283" cy="416" r="1.1"/>
+              </g>
+
+              <path d="M142 194c-7 38-9 86-7 133v105c0 31 10 55 28 72" fill="none" stroke="#ffffff" stroke-opacity=".64" stroke-width="5" stroke-linecap="round"/>
+              <path d="M278 199c7 45 8 87 6 130v105c0 26-8 48-23 65" fill="none" stroke="#ffffff" stroke-opacity=".48" stroke-width="3.5" stroke-linecap="round"/>
+              <path d="M156 207c-4 21-5 43-5 65" fill="none" stroke="url(#glass-shine)" stroke-width="10" stroke-linecap="round" opacity=".72"/>
+              <path d="M168 538c29 7 62 7 91 0" fill="none" stroke="url(#base-shine)" stroke-width="4" stroke-linecap="round"/>
+
+              <g class="bottle-label">
+                <rect x="137" y="377" width="146" height="83" rx="2" fill="url(#label-fill)" stroke="#ffffff" stroke-opacity=".8" stroke-width="1"/>
+                <path d="M151 391h118M151 446h118" stroke="#78677e" stroke-opacity=".28" stroke-width=".7"/>
+                <text x="210" y="406" text-anchor="middle" fill="#4e4058" font-family="Helvetica Neue, Arial, sans-serif" font-size="6.8" letter-spacing="2.1">ATELIER NÉROLI</text>
+                <text x="210" y="425" text-anchor="middle" fill="#3d3148" font-family="Didot, Bodoni MT, Georgia, serif" font-size="15" font-style="italic" letter-spacing=".2">Blue Hour</text>
+                <text x="210" y="438" text-anchor="middle" fill="#65566d" font-family="Helvetica Neue, Arial, sans-serif" font-size="5.6" letter-spacing="1.5">EAU DE PARFUM · No. 5</text>
+              </g>
+            </g>
+
+            <path d="M120 185c0-17 12-28 29-31l27-5h68l27 5c17 3 29 14 29 31v257c0 53-35 88-83 91h-14c-48-3-83-38-83-91V185Z" fill="none" stroke="url(#glass-edge)" stroke-width="2.2"/>
+            <path d="M130 193c2-12 10-20 23-23" fill="none" stroke="#ffffff" stroke-opacity=".82" stroke-width="3" stroke-linecap="round"/>
+            <path d="M290 193c-2-12-10-20-23-23" fill="none" stroke="#ffffff" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
+
+        <p class="note-status" id="note-status" aria-live="polite" aria-atomic="true">Hover a note. Watch the hour turn.</p>
+      </div>
+
+      <div class="note-controls" role="group" aria-label="Explore the fragrance notes">
+        <div class="note-family">
+          <span class="note-family-label">Top · the first light</span>
+          <div class="note-pills">
+            <button class="note-pill" type="button" data-family="top" data-note="Bergamot" data-hue="-12" data-description="Bergamot — a flash of green light." aria-pressed="false" style="--dot:#b9c98a">Bergamot</button>
+            <button class="note-pill" type="button" data-family="top" data-note="Pink pepper" data-hue="-4" data-description="Pink pepper — warm air, a little spark." aria-pressed="false" style="--dot:#df9aa8">Pink pepper</button>
+          </div>
+        </div>
+        <div class="note-family">
+          <span class="note-family-label">Heart · the soft centre</span>
+          <div class="note-pills">
+            <button class="note-pill" type="button" data-family="heart" data-note="Neroli" data-hue="24" data-description="Neroli — orange blossom against cool skin." aria-pressed="false" style="--dot:#e8bd83">Neroli</button>
+            <button class="note-pill" type="button" data-family="heart" data-note="Jasmine sambac" data-hue="34" data-description="Jasmine sambac — a white petal after rain." aria-pressed="false" style="--dot:#f2dce7">Jasmine sambac</button>
+          </div>
+        </div>
+        <div class="note-family">
+          <span class="note-family-label">Base · what remains</span>
+          <div class="note-pills">
+            <button class="note-pill" type="button" data-family="base" data-note="Cedar" data-hue="-26" data-description="Cedar — the quiet grain of a sun-warmed rail." aria-pressed="false" style="--dot:#b58e72">Cedar</button>
+            <button class="note-pill" type="button" data-family="base" data-note="Musk" data-hue="-34" data-description="Musk — skin remembered, long after dusk." aria-pressed="false" style="--dot:#b4a0cb">Musk</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="scroll-cue" aria-hidden="true"><span>Follow the scent</span><span></span></div>
+    </section>
+    <section class="story-section section-shell" id="story" aria-labelledby="story-title">
+      <p class="section-kicker" data-reveal>
+        <span class="number">01</span>
+        <span>The memory</span>
+      </p>
+      <div>
+        <h2 class="story-copy" id="story-title" data-reveal>
+          It begins in the <span class="soft-word">blue minute</span> after the sun has gone, when the garden holds its breath. Bergamot flashes cool against pink pepper; orange blossom settles on warm skin. Cedar and musk stay behind like the print of a hand on a sun-warmed rail.
+        </h2>
+        <p class="story-signature" data-reveal data-delay="1">Composed in Grasse · imagined everywhere</p>
+      </div>
+    </section>
+
+    <section class="pyramid-section section-shell" id="notes" aria-labelledby="pyramid-title">
+      <div class="pyramid-card" data-reveal>
+        <h2 class="pyramid-heading" id="pyramid-title">The shape of a <em>scent</em></h2>
+        <svg class="pyramid-diagram" viewBox="0 0 800 500" role="img" aria-labelledby="pyramid-svg-title pyramid-svg-desc" data-reveal>
+          <title id="pyramid-svg-title">Scent pyramid</title>
+          <desc id="pyramid-svg-desc">A fine-line triangle divided into top, heart, and base notes.</desc>
+          <path class="pyramid-line" pathLength="1" d="M400 36 738 442H62Z"/>
+          <path class="pyramid-line" pathLength="1" d="M270 190h260"/>
+          <path class="pyramid-line" pathLength="1" d="M178 315h444"/>
+          <circle class="pyramid-node" cx="400" cy="36" r="4"/>
+          <circle class="pyramid-node" cx="270" cy="190" r="3"/>
+          <circle class="pyramid-node" cx="530" cy="190" r="3"/>
+          <circle class="pyramid-node" cx="178" cy="315" r="3"/>
+          <circle class="pyramid-node" cx="622" cy="315" r="3"/>
+          <circle class="pyramid-node" cx="62" cy="442" r="4"/>
+          <circle class="pyramid-node" cx="738" cy="442" r="4"/>
+          <text class="pyramid-svg-label" x="400" y="127" text-anchor="middle">Top</text>
+          <text class="pyramid-svg-label" x="400" y="261" text-anchor="middle">Heart</text>
+          <text class="pyramid-svg-label" x="400" y="390" text-anchor="middle">Base</text>
+        </svg>
+        <p class="pyramid-caption">Light arrives first. The heart lingers. The base becomes memory.</p>
+      </div>
+
+      <ol class="pyramid-legend">
+        <li data-reveal>
+          <span class="legend-number">I</span>
+          <div>
+            <span class="legend-label">Top notes · 0–20 minutes</span>
+            <span class="legend-notes">Bergamot · Pink pepper</span>
+            <span class="legend-description">A green-gold opening: bitter citrus peel, rain on a leaf, the electric hush before evening.</span>
+          </div>
+        </li>
+        <li data-reveal data-delay="1">
+          <span class="legend-number">II</span>
+          <div>
+            <span class="legend-label">Heart notes · 20 minutes–4 hours</span>
+            <span class="legend-notes">Neroli · Jasmine sambac</span>
+            <span class="legend-description">White flowers drawn through with warm orange blossom. Intimate, luminous, never too sweet.</span>
+          </div>
+        </li>
+        <li data-reveal data-delay="2">
+          <span class="legend-number">III</span>
+          <div>
+            <span class="legend-label">Base notes · 4–10 hours</span>
+            <span class="legend-notes">Cedar · Musk</span>
+            <span class="legend-description">Dry cedarwood and a soft mineral musk, settling into skin like the last warmth of the day.</span>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="reviews-section section-shell" aria-labelledby="reviews-title">
+      <div class="section-heading-row">
+        <h2 class="section-title" id="reviews-title" data-reveal>Worn into <em>memory</em></h2>
+        <p class="section-aside" data-reveal data-delay="1">A few words from people who let the hour follow them home.</p>
+      </div>
+
+      <div class="review-grid">
+        <figure class="review-card" data-reveal style="margin:0;--review-glow:rgba(205,184,255,.34)">
+          <span class="review-mark" aria-hidden="true">“</span>
+          <blockquote class="review-quote">It smells like the moment a linen curtain lifts.</blockquote>
+          <figcaption class="review-author">
+            <span>Camille R.</span>
+            <span>Paris · verified wearer</span>
+          </figcaption>
+        </figure>
+        <figure class="review-card" data-reveal data-delay="1" style="margin:0;--review-glow:rgba(182,240,224,.34)">
+          <span class="review-mark" aria-hidden="true">“</span>
+          <blockquote class="review-quote">Neroli without the sweetness. Something crystalline, then suddenly warm.</blockquote>
+          <figcaption class="review-author">
+            <span>Elias M.</span>
+            <span>Copenhagen · verified wearer</span>
+          </figcaption>
+        </figure>
+        <figure class="review-card" data-reveal data-delay="2" style="margin:0;--review-glow:rgba(255,207,168,.34)">
+          <span class="review-mark" aria-hidden="true">“</span>
+          <blockquote class="review-quote">I wore it to the sea and came home with the sea still on me.</blockquote>
+          <figcaption class="review-author">
+            <span>Noor A.</span>
+            <span>Tangier · verified wearer</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="discovery-section" id="discovery" aria-labelledby="discovery-title">
+      <div class="discovery-inner section-shell">
+        <p class="eyebrow" data-reveal>The Discovery Set</p>
+        <h2 class="discovery-title" id="discovery-title" data-reveal data-delay="1">Keep a little <em>blue hour.</em></h2>
+        <p class="discovery-copy" data-reveal data-delay="2">Three 2 ml vials. One linen pouch. A week of almosts, made to be worn slowly.</p>
+        <button class="discovery-button" id="open-discovery" type="button" aria-haspopup="dialog" aria-controls="discovery-dialog" data-reveal data-delay="3">
+          Explore the discovery set
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-arrow"/></svg>
+        </button>
+        <p class="discovery-fineprint" data-reveal data-delay="3">€38 · Complimentary shipping within Europe</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span>© 2026 Atelier Néroli</span>
+    <span class="footer-note">Made for the hours that ask nothing of you.</span>
+    <span>Eau de Parfum No. 5 · Blue Hour</span>
+  </footer>
+
+  <dialog id="discovery-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+    <div class="dialog-inner">
+      <button class="dialog-close" id="close-discovery" type="button" aria-label="Close discovery set details">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#icon-close"/></svg>
+      </button>
+      <p class="eyebrow">A small wardrobe of scent</p>
+      <h2 class="dialog-title" id="dialog-title">The Blue Hour set</h2>
+      <p class="dialog-copy" id="dialog-description">Three intimate vials from the Atelier: one green and sparkling, one white-flowered, one warm and close to skin.</p>
+      <ul class="dialog-list">
+        <li><span>No. 1 · First Light</span><span>Bergamot · Pink pepper · 2 ml</span></li>
+        <li><span>No. 2 · White Garden</span><span>Neroli · Jasmine sambac · 2 ml</span></li>
+        <li><span>No. 3 · After Dusk</span><span>Cedar · Musk · 2 ml</span></li>
+        <li><span>Linen pouch</span><span>Natural, reusable, unbleached</span></li>
+      </ul>
+      <button class="dialog-return" id="return-to-scent" type="button">Return to the blue hour</button>
+    </div>
+  </dialog>
+  <script>
+    (() => {
+      "use strict";
+
+      const root = document.documentElement;
+      const body = document.body;
+      const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+      let reducedMotion = motionQuery.matches;
+
+      const noteButtons = Array.from(document.querySelectorAll(".note-pill"));
+      const noteStatus = document.getElementById("note-status");
+      const driftField = document.getElementById("drift-field");
+      const defaultStatus = noteStatus.textContent;
+      const motifByFamily = {
+        top: "#motif-citrus",
+        heart: "#motif-petal",
+        base: "#motif-wood"
+      };
+      let heldNote = null;
+      let touchTimer = 0;
+      let lastPointerType = "mouse";
+
+      const random = (min, max) => min + Math.random() * (max - min);
+
+      function renderDrift(family) {
+        while (driftField.firstChild) driftField.removeChild(driftField.firstChild);
+
+        for (let index = 0; index < 18; index += 1) {
+          const particle = document.createElement("span");
+          particle.className = "drift-particle";
+          particle.style.left = `${random(1, 97)}%`;
+          particle.style.setProperty("--particle-size", `${random(17, 39)}px`);
+          particle.style.setProperty("--duration", `${random(16, 29)}s`);
+          particle.style.setProperty("--delay", `${random(-27, 0)}s`);
+          particle.style.setProperty("--sway", `${random(-80, 80)}px`);
+          particle.style.setProperty("--spin", `${random(-260, 260)}deg`);
+
+          const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          svg.setAttribute("viewBox", "0 0 80 80");
+          svg.setAttribute("aria-hidden", "true");
+          const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+          const symbol = family === "air"
+            ? (index % 2 === 0 ? "#motif-petal" : "#motif-citrus")
+            : motifByFamily[family];
+          use.setAttribute("href", symbol);
+          svg.appendChild(use);
+          particle.appendChild(svg);
+          driftField.appendChild(particle);
+        }
+      }
+
+      function resetAtmosphere() {
+        heldNote = null;
+        body.removeAttribute("data-mood");
+        root.style.setProperty("--note-hue", "0deg");
+        noteStatus.textContent = defaultStatus;
+        renderDrift("air");
+      }
+
+      function activateNote(button) {
+        window.clearTimeout(touchTimer);
+        heldNote = button;
+        noteButtons.forEach((item) => {
+          item.setAttribute("aria-pressed", item === button ? "true" : "false");
+        });
+        body.dataset.mood = button.dataset.family;
+        root.style.setProperty("--note-hue", `${button.dataset.hue}deg`);
+        noteStatus.textContent = button.dataset.description;
+        renderDrift(button.dataset.family);
+      }
+
+      function releaseNote(button) {
+        if (button !== heldNote) return;
+        button.setAttribute("aria-pressed", "false");
+        const stillActive = noteButtons.some((item) => item.getAttribute("aria-pressed") === "true");
+        if (!stillActive) resetAtmosphere();
+      }
+
+      noteButtons.forEach((button) => {
+        button.addEventListener("pointerdown", (event) => {
+          lastPointerType = event.pointerType || "mouse";
+        });
+
+        button.addEventListener("pointerenter", (event) => {
+          if (event.pointerType === "mouse" || event.pointerType === "pen") activateNote(button);
+        });
+
+        button.addEventListener("pointerleave", (event) => {
+          if (event.pointerType !== "mouse" && event.pointerType !== "pen") return;
+          if (!button.matches(":focus-visible")) releaseNote(button);
+        });
+
+        button.addEventListener("focus", () => activateNote(button));
+        button.addEventListener("blur", () => releaseNote(button));
+
+        button.addEventListener("click", () => {
+          activateNote(button);
+          if (lastPointerType === "mouse") return;
+          window.clearTimeout(touchTimer);
+          touchTimer = window.setTimeout(() => {
+            releaseNote(button);
+            button.blur();
+          }, 4200);
+        });
+      });
+
+      const botanicals = Array.from(document.querySelectorAll(".botanical"));
+      let targetX = 0;
+      let targetY = 0;
+      let currentX = 0;
+      let currentY = 0;
+      let parallaxFrame = 0;
+
+      function animateParallax() {
+        currentX += (targetX - currentX) * 0.055;
+        currentY += (targetY - currentY) * 0.055;
+
+        botanicals.forEach((item) => {
+          const depth = Number(item.dataset.depth) || 0;
+          item.style.setProperty("--px", `${currentX * depth}px`);
+          item.style.setProperty("--py", `${currentY * depth}px`);
+        });
+
+        if (Math.abs(targetX - currentX) + Math.abs(targetY - currentY) > 0.002) {
+          parallaxFrame = window.requestAnimationFrame(animateParallax);
+        } else {
+          parallaxFrame = 0;
+        }
+      }
+
+      function queueParallax() {
+        if (reducedMotion || parallaxFrame) return;
+        parallaxFrame = window.requestAnimationFrame(animateParallax);
+      }
+
+      const canvas = document.getElementById("mist-canvas");
+      const context = canvas.getContext("2d");
+      const mist = [];
+      let mistFrame = 0;
+      let lastMistX = -100;
+      let lastMistY = -100;
+
+      function resizeCanvas() {
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(window.innerWidth * ratio);
+        canvas.height = Math.round(window.innerHeight * ratio);
+        if (context) context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      }
+
+      function addMist(x, y, pointerType) {
+        if (reducedMotion || !context) return;
+        if (Math.hypot(x - lastMistX, y - lastMistY) < 3) return;
+        lastMistX = x;
+        lastMistY = y;
+
+        const count = pointerType === "touch" ? 2 : 3;
+        for (let index = 0; index < count; index += 1) {
+          mist.push({
+            x: x + random(-4, 4),
+            y: y + random(-4, 4),
+            vx: random(-0.28, 0.28),
+            vy: random(-0.5, -0.12),
+            life: 1,
+            decay: random(0.012, 0.024),
+            size: random(2.5, 7),
+            color: `hsl(${random(265, 330)}, 70%, 94%)`
+          });
+        }
+
+        if (mist.length > 110) mist.splice(0, mist.length - 110);
+        if (!mistFrame) mistFrame = window.requestAnimationFrame(drawMist);
+      }
+
+      function drawMist() {
+        if (!context || reducedMotion) {
+          mist.length = 0;
+          mistFrame = 0;
+          return;
+        }
+
+        context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        context.save();
+        context.globalCompositeOperation = "screen";
+        context.shadowBlur = 8;
+        context.shadowColor = "rgba(255, 250, 255, .75)";
+
+        for (let index = mist.length - 1; index >= 0; index -= 1) {
+          const particle = mist[index];
+          particle.x += particle.vx;
+          particle.y += particle.vy;
+          particle.vy -= 0.002;
+          particle.life -= particle.decay;
+
+          if (particle.life <= 0) {
+            mist.splice(index, 1);
+            continue;
+          }
+
+          context.globalAlpha = particle.life * 0.2;
+          context.fillStyle = particle.color;
+          context.beginPath();
+          context.arc(particle.x, particle.y, particle.size * particle.life, 0, Math.PI * 2);
+          context.fill();
+        }
+
+        context.restore();
+        mistFrame = mist.length ? window.requestAnimationFrame(drawMist) : 0;
+        if (!mistFrame) context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      }
+
+      window.addEventListener("pointermove", (event) => {
+        lastPointerType = event.pointerType || "mouse";
+        if (reducedMotion) return;
+        targetX = (event.clientX / window.innerWidth - 0.5) * 2;
+        targetY = (event.clientY / window.innerHeight - 0.5) * 2;
+        queueParallax();
+        addMist(event.clientX, event.clientY, event.pointerType);
+      }, { passive: true });
+
+      window.addEventListener("pointerout", (event) => {
+        if (event.relatedTarget) return;
+        targetX = 0;
+        targetY = 0;
+        queueParallax();
+      }, { passive: true });
+
+      const revealItems = Array.from(document.querySelectorAll("[data-reveal]"));
+      let revealObserver = null;
+
+      function revealEverything() {
+        revealItems.forEach((item) => item.classList.add("in-view"));
+      }
+
+      function setupReveals() {
+        if (revealObserver) revealObserver.disconnect();
+        if (reducedMotion || !("IntersectionObserver" in window)) {
+          revealEverything();
+          return;
+        }
+
+        root.classList.add("reveal-ready");
+        revealObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("in-view");
+            revealObserver.unobserve(entry.target);
+          });
+        }, { threshold: 0.12, rootMargin: "0px 0px -7% 0px" });
+
+        revealItems.forEach((item) => {
+          if (!item.classList.contains("in-view")) revealObserver.observe(item);
+        });
+      }
+
+      const progress = document.getElementById("scroll-progress");
+      let scrollFrame = 0;
+
+      function updateProgress() {
+        const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        const amount = scrollable > 0 ? window.scrollY / scrollable : 0;
+        progress.style.transform = `scaleX(${Math.min(1, Math.max(0, amount))})`;
+        scrollFrame = 0;
+      }
+
+      window.addEventListener("scroll", () => {
+        if (scrollFrame) return;
+        scrollFrame = window.requestAnimationFrame(updateProgress);
+      }, { passive: true });
+
+      const dialog = document.getElementById("discovery-dialog");
+      const openDialogButton = document.getElementById("open-discovery");
+      const closeDialogButton = document.getElementById("close-discovery");
+      const returnButton = document.getElementById("return-to-scent");
+
+      function openDiscovery() {
+        body.classList.add("modal-open");
+        if (typeof dialog.showModal === "function") {
+          dialog.showModal();
+        } else {
+          dialog.setAttribute("open", "");
+        }
+      }
+
+      function closeDiscovery() {
+        if (dialog.open && typeof dialog.close === "function") {
+          dialog.close();
+        } else {
+          dialog.removeAttribute("open");
+          body.classList.remove("modal-open");
+        }
+      }
+
+      openDialogButton.addEventListener("click", openDiscovery);
+      closeDialogButton.addEventListener("click", closeDiscovery);
+      returnButton.addEventListener("click", closeDiscovery);
+      dialog.addEventListener("close", () => body.classList.remove("modal-open"));
+      dialog.addEventListener("click", (event) => {
+        if (event.target !== dialog) return;
+        const bounds = dialog.getBoundingClientRect();
+        const outside = event.clientX < bounds.left || event.clientX > bounds.right ||
+          event.clientY < bounds.top || event.clientY > bounds.bottom;
+        if (outside) closeDiscovery();
+      });
+
+      function handleMotionChange() {
+        reducedMotion = motionQuery.matches;
+        window.clearTimeout(touchTimer);
+        if (reducedMotion) {
+          if (parallaxFrame) window.cancelAnimationFrame(parallaxFrame);
+          if (mistFrame) window.cancelAnimationFrame(mistFrame);
+          parallaxFrame = 0;
+          mistFrame = 0;
+          mist.length = 0;
+          targetX = 0;
+          targetY = 0;
+          currentX = 0;
+          currentY = 0;
+          botanicals.forEach((item) => {
+            item.style.setProperty("--px", "0px");
+            item.style.setProperty("--py", "0px");
+          });
+          if (context) context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+          revealEverything();
+        } else {
+          resizeCanvas();
+        }
+        setupReveals();
+      }
+
+      if (typeof motionQuery.addEventListener === "function") {
+        motionQuery.addEventListener("change", handleMotionChange);
+      } else {
+        motionQuery.addListener(handleMotionChange);
+      }
+
+      window.addEventListener("resize", () => {
+        resizeCanvas();
+        updateProgress();
+      }, { passive: true });
+
+      renderDrift("air");
+      resizeCanvas();
+      setupReveals();
+      updateProgress();
+    })();
+  </script>
+</body>
+</html>

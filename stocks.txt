@@ -1,0 +1,14 @@
+TITLE
+QUANTA Terminal — Simulated Market
+
+PROMPT
+Build a single self-contained trading terminal called QUANTA Terminal. It must be obviously simulated: a fictional market, no network, no real orders. The subject is one invented pair, AURX/USDS, "Aurex Labs · Synthetic compute equity". Palette: background #0b0e11, panels #12161c and #171c23, hairlines #252b33, text #e9eef5, muted #7f8a99, up green #16c784, down red #ea3943, gold #f0b90b.
+
+The chrome has Terminal, Markets, Portfolio and Trade, a simulated index quote, and a ticker tape that can be paused. The main stage is an interactive candlestick chart for AURX/USDS with ranges 1H, 4H, 1D, 1W and 1M, and toggles for a 20-period and a 50-period moving average. Drag or the arrow keys pan. Scroll, or plus and minus, zooms. Double-click or a reset control returns the view. The chart states that it is a simulation.
+
+Beside the chart, an order book shows bids and asks with a spread, a grouping control, and a side filter. A ticket places paper buy or sell orders, market or limit, and says they are paper only. Portfolio and markets views stay inside the same terminal. On a phone the sections become a switcher rather than a crushed desktop grid.
+
+All prices are synthetic and keep moving while the page is open. Use tabular numerals. Reduced motion keeps the board usable and calms decorative pulses. No external data, fonts, or libraries.
+
+DESCRIPTION
+A paper trading terminal for a fictional asset, AURX/USDS, of the invented company Aurex Labs. A candlestick chart pans and zooms across five ranges, with two moving averages. Beside it sit a live order book, a portfolio and a ticket for market or limit orders that never leave the browser. A ticker tape runs along the chrome. The whole board is labeled as a simulation.

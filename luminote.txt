@@ -1,0 +1,14 @@
+TITLE
+Luminote — Piano with Falling Lights
+
+PROMPT
+Build a single self-contained instrument called Luminote, "Piano with falling lights". The stage is dark (#0a0a12, #101019, #161620) with warm key light #e8c59a and #f6dbb7 and pale type #f4f0e7. The sentence on the page: "An instrument made of light."
+
+The keyboard is three octaves, C3 to C6, drawn as real white and black keys. Notes can sound together. Play with the mouse, with several fingers on a touch screen, or with the computer keyboard: black keys on the Q–P row, white keys on the A–L row and the row below, as a small help dialog explains. Every note releases a falling light on a visualizer above the keys. A visible sound control can mute the synthesized piano. Sound is produced in the browser with the Web Audio API.
+
+Three modes: Free play ("Your stage, your light. Play anything."); Listen, which performs a chosen melody — Ode to Joy, Für Elise, Twinkle Twinkle Little Star, Gymnopédie No. 1 — at a tempo the visitor sets, with restart and pause; Learn, which lights the next key and waits for the visitor to play it. A control shows or hides note names.
+
+The first view should already be a piano, not a loading state. Reduced motion keeps the keys and the modes and calms the falling lights. No external fonts, samples, or libraries.
+
+DESCRIPTION
+A three-octave piano made of light, from C3 to C6, on a dark stage. Every note leaves a falling glow. Free play is the open keyboard. Listen performs Ode to Joy, Für Elise, Twinkle Twinkle Little Star or Gymnopédie No. 1 at a chosen tempo. Learn lights the next key and waits. The keys answer the mouse, several fingers at once, and two rows of the computer keyboard.

@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#02030a">
+  <meta name="color-scheme" content="dark">
+  <title>Northern Lights — Lake Inari, 68.9° N</title>
+  <style>
+    :root {
+      --fog: rgba(226, 236, 255, 0.72);
+      --fog-bright: rgba(236, 244, 255, 0.9);
+      --mint: #c8ffe4;
+      --aurora-green: #3cf5a0;
+      --violet: #a86bff;
+      --glass: rgba(5, 13, 25, 0.42);
+      --hairline: rgba(200, 255, 228, 0.18);
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --serif: Georgia, "Iowan Old Style", "Palatino Linotype", Palatino, serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #02030a;
+    }
+
+    body {
+      color: var(--fog);
+      font-family: var(--mono);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    button, input { font: inherit; }
+
+    button { -webkit-tap-highlight-color: transparent; }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100vh;
+      height: 100svh;
+      isolation: isolate;
+      overflow: hidden;
+    }
+
+    #scene {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #02030a;
+    }
+
+    .vignette {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 50% 43%, transparent 36%, rgba(0, 2, 8, 0.12) 66%, rgba(0, 2, 8, 0.7) 115%),
+        linear-gradient(to bottom, rgba(0, 2, 8, 0.16), transparent 22%, transparent 76%, rgba(0, 2, 8, 0.24));
+    }
+
+    .ui {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .topbar {
+      position: absolute;
+      top: max(26px, env(safe-area-inset-top));
+      left: clamp(22px, 3.4vw, 54px);
+      right: clamp(22px, 3.4vw, 54px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .eyebrow, .clock-wrap, .meta, .legend, .intensity-label,
+    .intensity-value, .snow-status, .sr-only {
+      font-family: var(--mono);
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin: 0;
+      color: rgba(226, 236, 255, 0.64);
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: 0.19em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55);
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      flex: 0 0 6px;
+      border-radius: 50%;
+      background: var(--aurora-green);
+      box-shadow: 0 0 9px rgba(60, 245, 160, 0.72), 0 0 22px rgba(60, 245, 160, 0.28);
+      animation: breathe-dot 3.8s ease-in-out infinite;
+    }
+
+    @keyframes breathe-dot {
+      0%, 100% { opacity: 0.58; transform: scale(0.86); }
+      50% { opacity: 1; transform: scale(1.12); }
+    }
+
+    .clock-wrap {
+      display: grid;
+      justify-items: end;
+      gap: 7px;
+      color: rgba(226, 236, 255, 0.78);
+      text-shadow: 0 1px 14px rgba(0, 0, 0, 0.6);
+    }
+
+    #clock {
+      font-size: 12px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.14em;
+    }
+
+    .clock-label {
+      color: rgba(226, 236, 255, 0.36);
+      font-size: 8px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    .caption {
+      position: absolute;
+      left: clamp(22px, 3.4vw, 54px);
+      bottom: clamp(102px, 13.5vh, 154px);
+      width: min(510px, calc(100vw - 44px));
+      opacity: 0;
+      transform: translateY(14px);
+      animation: caption-arrive 1.7s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s forwards;
+      text-shadow: 0 2px 24px rgba(0, 0, 0, 0.72);
+    }
+
+    @keyframes caption-arrive {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .caption h1 {
+      max-width: 480px;
+      margin: 0 0 16px;
+      color: rgba(236, 244, 255, 0.93);
+      font-family: var(--serif);
+      font-size: clamp(35px, 3.5vw, 57px);
+      font-weight: 400;
+      line-height: 1.04;
+      letter-spacing: -0.035em;
+    }
+
+    .caption h1 em {
+      color: var(--mint);
+      font-weight: 400;
+    }
+
+    .caption p {
+      max-width: 440px;
+      margin: 0;
+      color: rgba(226, 236, 255, 0.58);
+      font-family: var(--serif);
+      font-size: 14px;
+      line-height: 1.65;
+      letter-spacing: 0.005em;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 17px;
+      margin-top: 20px;
+      color: rgba(226, 236, 255, 0.46);
+      font-size: 9px;
+      line-height: 1.4;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .meta span {
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .meta span + span::before {
+      content: "·";
+      position: absolute;
+      left: -11px;
+      color: rgba(200, 255, 228, 0.3);
+    }
+    .control-dock {
+      position: absolute;
+      left: 50%;
+      bottom: max(25px, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-height: 54px;
+      padding: 9px 10px 9px 19px;
+      border: 1px solid var(--hairline);
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(12, 27, 42, 0.54), rgba(3, 9, 18, 0.4));
+      box-shadow: 0 14px 44px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(235, 255, 247, 0.06);
+      backdrop-filter: blur(18px) saturate(125%);
+      -webkit-backdrop-filter: blur(18px) saturate(125%);
+      transform: translateX(-50%);
+      transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 260ms ease, background 260ms ease;
+      pointer-events: auto;
+    }
+
+    .control-dock:hover,
+    .control-dock:focus-within {
+      border-color: rgba(200, 255, 228, 0.3);
+      background: linear-gradient(135deg, rgba(14, 32, 48, 0.62), rgba(4, 11, 21, 0.48));
+      transform: translate(-50%, -4px);
+    }
+
+    .intensity-control {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .intensity-label {
+      color: rgba(226, 236, 255, 0.58);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    #intensity {
+      width: clamp(126px, 13vw, 196px);
+      height: 24px;
+      margin: 0;
+      padding: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: pointer;
+      touch-action: pan-y;
+    }
+
+    #intensity::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #c8ffe4 0%, #3cf5a0 38%, #72e9ae 59%, #a86bff 100%);
+      box-shadow: 0 0 12px rgba(60, 245, 160, 0.16);
+    }
+
+    #intensity::-moz-range-track {
+      width: 100%;
+      height: 3px;
+      border: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #c8ffe4 0%, #3cf5a0 38%, #72e9ae 59%, #a86bff 100%);
+      box-shadow: 0 0 12px rgba(60, 245, 160, 0.16);
+    }
+
+    #intensity::-webkit-slider-thumb {
+      width: 13px;
+      height: 13px;
+      margin-top: -5px;
+      appearance: none;
+      -webkit-appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.94);
+      border-radius: 50%;
+      background: #f4fff9;
+      box-shadow: 0 0 0 3px rgba(200, 255, 228, 0.08), 0 0 14px rgba(221, 255, 239, 0.72);
+      transform: scale(1);
+      transition: transform 220ms cubic-bezier(0.2, 1.7, 0.4, 1), box-shadow 220ms ease;
+    }
+
+    #intensity::-moz-range-thumb {
+      width: 13px;
+      height: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.94);
+      border-radius: 50%;
+      background: #f4fff9;
+      box-shadow: 0 0 0 3px rgba(200, 255, 228, 0.08), 0 0 14px rgba(221, 255, 239, 0.72);
+      transform: scale(1);
+      transition: transform 220ms cubic-bezier(0.2, 1.7, 0.4, 1), box-shadow 220ms ease;
+    }
+
+    #intensity:hover::-webkit-slider-thumb,
+    #intensity.dragging::-webkit-slider-thumb,
+    #intensity:active::-webkit-slider-thumb {
+      transform: scale(1.28);
+      box-shadow: 0 0 0 5px rgba(200, 255, 228, 0.1), 0 0 20px rgba(221, 255, 239, 0.9);
+    }
+
+    #intensity:hover::-moz-range-thumb,
+    #intensity.dragging::-moz-range-thumb,
+    #intensity:active::-moz-range-thumb {
+      transform: scale(1.28);
+      box-shadow: 0 0 0 5px rgba(200, 255, 228, 0.1), 0 0 20px rgba(221, 255, 239, 0.9);
+    }
+
+    #intensity:focus-visible,
+    #snow-toggle:focus-visible {
+      outline: 2px solid rgba(200, 255, 228, 0.82);
+      outline-offset: 5px;
+    }
+
+    .intensity-value {
+      min-width: 31px;
+      color: rgba(232, 255, 243, 0.84);
+      font-size: 10px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.04em;
+      text-align: right;
+    }
+
+    .dock-divider {
+      width: 1px;
+      height: 20px;
+      background: rgba(200, 255, 228, 0.13);
+    }
+
+    #snow-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 34px;
+      padding: 0 13px;
+      border: 1px solid rgba(200, 255, 228, 0.16);
+      border-radius: 999px;
+      color: rgba(226, 236, 255, 0.7);
+      background: rgba(200, 255, 228, 0.045);
+      cursor: pointer;
+      transition: color 200ms ease, border-color 200ms ease, background 200ms ease, transform 200ms ease;
+    }
+
+    #snow-toggle:hover {
+      color: var(--mint);
+      border-color: rgba(200, 255, 228, 0.32);
+      background: rgba(200, 255, 228, 0.08);
+      transform: translateY(-1px);
+    }
+
+    #snow-toggle[aria-pressed="true"] {
+      color: var(--mint);
+      border-color: rgba(200, 255, 228, 0.27);
+      background: rgba(60, 245, 160, 0.075);
+    }
+
+    #snow-toggle:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .snowflake {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 13px;
+      height: 13px;
+    }
+
+    .snowflake svg {
+      display: block;
+      width: 13px;
+      height: 13px;
+    }
+
+    .snow-status {
+      min-width: 20px;
+      color: rgba(226, 236, 255, 0.4);
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    #snow-toggle[aria-pressed="true"] .snow-status {
+      color: rgba(200, 255, 228, 0.68);
+    }
+
+    .legend {
+      position: absolute;
+      right: clamp(22px, 3.4vw, 54px);
+      bottom: max(34px, env(safe-area-inset-bottom));
+      display: grid;
+      gap: 8px;
+      color: rgba(226, 236, 255, 0.38);
+      font-size: 8px;
+      line-height: 1;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-shadow: 0 1px 12px rgba(0, 0, 0, 0.7);
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .legend-swatch {
+      width: 14px;
+      height: 1px;
+      background: var(--aurora-green);
+      box-shadow: 0 0 7px rgba(60, 245, 160, 0.5);
+    }
+
+    .legend-swatch.violet {
+      background: var(--violet);
+      box-shadow: 0 0 7px rgba(168, 107, 255, 0.5);
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @media (max-width: 1100px) {
+      .caption { width: min(460px, calc(100vw - 44px)); }
+      .legend { bottom: max(102px, calc(env(safe-area-inset-bottom) + 92px)); }
+    }
+
+    @media (max-width: 720px) {
+      .topbar {
+        top: max(20px, env(safe-area-inset-top));
+        left: 20px;
+        right: 20px;
+      }
+
+      .eyebrow { font-size: 8px; letter-spacing: 0.14em; }
+      #clock { font-size: 10px; }
+      .clock-label { font-size: 7px; }
+
+      .caption {
+        left: 20px;
+        bottom: max(148px, calc(env(safe-area-inset-bottom) + 138px));
+        width: calc(100vw - 40px);
+      }
+
+      .caption h1 {
+        max-width: 390px;
+        margin-bottom: 12px;
+        font-size: clamp(33px, 9vw, 46px);
+      }
+
+      .caption p {
+        max-width: 400px;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .meta {
+        gap: 7px 14px;
+        margin-top: 14px;
+        font-size: 8px;
+      }
+
+      .meta span + span::before { left: -9px; }
+
+      .control-dock {
+        left: 16px;
+        right: 16px;
+        bottom: max(17px, env(safe-area-inset-bottom));
+        justify-content: center;
+        gap: 12px;
+        min-height: 52px;
+        padding: 8px 9px 8px 14px;
+        transform: none;
+      }
+
+      .control-dock:hover,
+      .control-dock:focus-within { transform: translateY(-3px); }
+
+      .intensity-control { flex: 1; gap: 9px; }
+      .intensity-label { font-size: 8px; }
+      #intensity { width: 100%; min-width: 74px; }
+      .intensity-value { min-width: 29px; font-size: 9px; }
+      #snow-toggle { padding: 0 10px; gap: 6px; }
+      .snow-status { display: none; }
+
+      .legend {
+        right: 21px;
+        bottom: max(87px, calc(env(safe-area-inset-bottom) + 78px));
+        gap: 6px;
+        font-size: 7px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .intensity-label { display: none; }
+      .control-dock { gap: 10px; }
+      .caption h1 { font-size: 34px; }
+      .meta { max-width: 310px; }
+    }
+
+    @media (max-height: 660px) and (min-width: 721px) {
+      .caption { bottom: 94px; }
+      .caption h1 { margin-bottom: 10px; font-size: 39px; }
+      .caption p { font-size: 12px; line-height: 1.5; }
+      .meta { margin-top: 12px; }
+      .legend { bottom: 94px; }
+    }
+
+    @media (max-height: 620px) and (max-width: 720px) {
+      .caption { bottom: 126px; }
+      .caption h1 { margin-bottom: 8px; font-size: 31px; }
+      .caption p { font-size: 11px; line-height: 1.4; }
+      .meta { margin-top: 10px; }
+      .legend { bottom: 78px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+      }
+
+      .caption { opacity: 1; transform: none; }
+      .live-dot { opacity: 0.82; }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" aria-label="Northern lights over Lake Inari">
+    <canvas id="scene" role="img" aria-label="A calm aurora borealis above a frozen lake and a dark pine treeline" aria-describedby="scene-description">
+      A green and violet aurora above Lake Inari, reflected in a dark frozen lake.
+    </canvas>
+    <div class="vignette" aria-hidden="true"></div>
+
+    <div class="ui">
+      <header class="topbar">
+        <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span>Field observation · Kp 5</p>
+        <div class="clock-wrap" aria-label="Local time">
+          <time id="clock">--:--:--</time>
+          <span class="clock-label">Local time</span>
+        </div>
+      </header>
+
+      <section class="caption" aria-labelledby="scene-title">
+        <h1 id="scene-title">The sky <em>breathing</em> over Lake Inari</h1>
+        <p id="scene-description">High above the lake, excited oxygen releases its familiar green light at 557.7 nanometres. Farther out, rare nitrogen emissions trace the upper curtains in violet and rose.</p>
+        <div class="meta" aria-label="Observation conditions">
+          <span>68.9° N 27.0° E</span>
+          <span>−23 °C</span>
+          <span>Wind calm</span>
+          <span>Cloud 0/8</span>
+        </div>
+      </section>
+
+      <div class="control-dock" role="group" aria-label="Scene controls">
+        <div class="intensity-control">
+          <label class="intensity-label" for="intensity">Intensity</label>
+          <input id="intensity" type="range" min="0" max="100" value="62" step="1" aria-label="Aurora intensity">
+          <output id="intensity-value" class="intensity-value" for="intensity">62%</output>
+        </div>
+        <span class="dock-divider" aria-hidden="true"></span>
+        <button id="snow-toggle" type="button" aria-pressed="true" aria-label="Toggle snowfall">
+          <span class="snowflake" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M3.34 7l17.32 10M3.34 17 20.66 7M9 4l3 3 3-3M9 20l3-3 3 3"/>
+            </svg>
+          </span>
+          <span>Snow</span>
+          <span id="snow-status" class="snow-status" aria-hidden="true">On</span>
+        </button>
+      </div>
+
+      <aside class="legend" aria-label="Emission wavelength legend">
+        <div class="legend-row"><span>Oxygen 557.7 nm</span><span class="legend-swatch" aria-hidden="true"></span></div>
+        <div class="legend-row"><span>Nitrogen 427.8 nm</span><span class="legend-swatch violet" aria-hidden="true"></span></div>
+      </aside>
+    </div>
+  </main>
+  <script>
+    (() => {
+      "use strict";
+
+      const canvas = document.getElementById("scene");
+      const ctx = canvas.getContext("2d", { alpha: false });
+      const intensityInput = document.getElementById("intensity");
+      const intensityValue = document.getElementById("intensity-value");
+      const snowToggle = document.getElementById("snow-toggle");
+      const snowStatus = document.getElementById("snow-status");
+      const clock = document.getElementById("clock");
+      const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      const TAU = Math.PI * 2;
+      const curtains = [
+        { hue: 151, saturation: 96, fringe: 285, height: 0.47, alpha: 0.62, speed: 0.78, direction: 1,  frequency: 0.0062, sway: 0.027, swaySpeed: 0.13, ribbonSpeed: 0.071, seed: 2.1,  base: 0.715 },
+        { hue: 157, saturation: 92, fringe: 326, height: 0.56, alpha: 0.43, speed: 1.16, direction: -1, frequency: 0.0084, sway: 0.021, swaySpeed: 0.17, ribbonSpeed: 0.093, seed: 8.7,  base: 0.733 },
+        { hue: 285, saturation: 82, fringe: 330, height: 0.39, alpha: 0.25, speed: 0.53, direction: 1,  frequency: 0.0047, sway: 0.033, swaySpeed: 0.09, ribbonSpeed: 0.052, seed: 14.3, base: 0.698 },
+        { hue: 330, saturation: 74, fringe: 286, height: 0.34, alpha: 0.19, speed: 1.47, direction: -1, frequency: 0.0106, sway: 0.018, swaySpeed: 0.21, ribbonSpeed: 0.112, seed: 21.9, base: 0.744 }
+      ];
+
+      const auroraCanvas = document.createElement("canvas");
+      const auroraCtx = auroraCanvas.getContext("2d");
+      const treeCanvas = document.createElement("canvas");
+      const treeCtx = treeCanvas.getContext("2d");
+
+      const state = {
+        width: 0,
+        height: 0,
+        dpr: 1,
+        skyHeight: 0,
+        horizon: 0,
+        auroraWidth: 0,
+        auroraHeight: 0,
+        treeHeight: 0,
+        intensity: Number(intensityInput.value),
+        snowEnabled: !motionQuery.matches,
+        snowPreference: true,
+        reducedMotion: motionQuery.matches,
+        stars: [],
+        snow: [],
+        glints: [],
+        meteors: [],
+        nextMeteor: 6.5,
+        startedAt: performance.now(),
+        lastAuroraAt: -Infinity,
+        raf: 0,
+        resizeTimer: 0
+      };
+
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const fract = value => value - Math.floor(value);
+      const hsla = (hue, saturation, lightness, alpha) =>
+        `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha})`;
+
+      function hash2(x, y) {
+        return fract(Math.sin(x * 127.1 + y * 311.7 + 37.19) * 43758.5453123);
+      }
+
+      function noise2(x, y) {
+        const ix = Math.floor(x);
+        const iy = Math.floor(y);
+        const fx = x - ix;
+        const fy = y - iy;
+        const ux = fx * fx * (3 - 2 * fx);
+        const uy = fy * fy * (3 - 2 * fy);
+        const a = lerp(hash2(ix, iy), hash2(ix + 1, iy), ux);
+        const b = lerp(hash2(ix, iy + 1), hash2(ix + 1, iy + 1), ux);
+        return lerp(a, b, uy);
+      }
+
+      function noise1(x) {
+        return noise2(x, 17.17);
+      }
+
+      function fbm(x, y) {
+        let sum = 0;
+        let amplitude = 0.5;
+        let frequency = 1;
+        for (let octave = 0; octave < 4; octave += 1) {
+          sum += noise2(x * frequency, y * frequency) * amplitude;
+          amplitude *= 0.5;
+          frequency *= 2;
+        }
+        return sum / 0.9375;
+      }
+
+      function buildStars() {
+        const count = Math.round(clamp(state.width * state.height / 4600, 150, 480));
+        state.stars = Array.from({ length: count }, () => {
+          const large = Math.random() < 0.08;
+          const warm = Math.random() < 0.2;
+          return {
+            x: Math.random() * state.width,
+            y: 8 + Math.random() * state.skyHeight * 0.9,
+            radius: large ? 0.95 + Math.random() * 0.8 : 0.28 + Math.random() * 0.57,
+            alpha: 0.28 + Math.random() * 0.62,
+            phase: Math.random() * TAU,
+            speed: 0.35 + Math.random() * 1.25,
+            color: warm ? "255, 231, 196" : "223, 233, 255"
+          };
+        });
+      }
+
+      function drawStars(time) {
+        const dimming = 1 - state.intensity * 0.28;
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        for (const star of state.stars) {
+          const twinkle = 0.76 + Math.sin(time * star.speed + star.phase) * 0.24;
+          const alpha = star.alpha * twinkle * dimming;
+          ctx.fillStyle = `rgba(${star.color}, ${alpha})`;
+          ctx.shadowColor = `rgba(${star.color}, ${alpha * 0.7})`;
+          ctx.shadowBlur = star.radius > 0.95 ? 4 : 0;
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.radius, 0, TAU);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      function renderAurora(time, force = false) {
+        if (!force && time - state.lastAuroraAt < 1 / 30) return;
+        state.lastAuroraAt = time;
+
+        const width = state.auroraWidth;
+        const height = state.auroraHeight;
+        const intensity = state.intensity / 100;
+        auroraCtx.clearRect(0, 0, width, height);
+        if (intensity <= 0.001 || !width || !height) return;
+
+        auroraCtx.globalCompositeOperation = "lighter";
+        for (const curtain of curtains) {
+          const drift = time * curtain.speed * curtain.direction;
+          for (let x = 0; x < width; x += 1) {
+            const foldNoise = fbm(
+              x * curtain.frequency + drift,
+              curtain.seed + time * curtain.speed * 0.07
+            );
+            const horizontalSway = Math.sin(
+              (x / width) * TAU * 1.08 + time * curtain.swaySpeed + curtain.seed
+            );
+            const ribbon = Math.sin(
+              (x / width) * TAU * 2.35 - time * curtain.ribbonSpeed + curtain.seed * 0.7
+            );
+            const mixedFolds = clamp(
+              (foldNoise - 0.25) / 0.75 * 0.86 +
+                (horizontalSway * 0.5 + 0.5) * 0.1 +
+                (ribbon * 0.5 + 0.5) * 0.04,
+              0,
+              1
+            );
+            const brightness = Math.pow(mixedFolds, 1.8);
+            const bottom = clamp(
+              state.skyHeight * curtain.base +
+                horizontalSway * state.skyHeight * curtain.sway +
+                ribbon * state.skyHeight * 0.013,
+              24,
+              height - 2
+            );
+            const heightNoise = fbm(
+              x * curtain.frequency * 0.58 - drift * 0.22,
+              curtain.seed + 19.3
+            );
+            const heightScale =
+              (0.42 + heightNoise * 0.72) * (0.55 + intensity * 0.75);
+            const top = Math.max(10, bottom - state.skyHeight * curtain.height * heightScale);
+            const alpha = curtain.alpha * intensity * brightness;
+            if (alpha < 0.002 || bottom - top < 3) continue;
+
+            const gradient = auroraCtx.createLinearGradient(0, top, 0, bottom);
+            gradient.addColorStop(0, hsla(curtain.fringe, curtain.saturation, 72, 0));
+            gradient.addColorStop(0.18, hsla(curtain.fringe, curtain.saturation, 68, alpha * 0.045));
+            gradient.addColorStop(0.5, hsla(curtain.hue, curtain.saturation, 61, alpha * 0.25));
+            gradient.addColorStop(0.8, hsla(curtain.hue, curtain.saturation, 64, alpha * 0.94));
+            gradient.addColorStop(0.92, hsla(curtain.hue, curtain.saturation, 70, alpha * 0.48));
+            gradient.addColorStop(1, hsla(curtain.hue, curtain.saturation, 62, 0));
+            auroraCtx.fillStyle = gradient;
+            auroraCtx.fillRect(x - 0.3, 0, 1.6, height);
+          }
+        }
+        auroraCtx.globalCompositeOperation = "source-over";
+      }
+
+      function drawSky(time) {
+        const sky = ctx.createLinearGradient(0, 0, 0, state.horizon);
+        sky.addColorStop(0, "#02030a");
+        sky.addColorStop(0.52, "#061021");
+        sky.addColorStop(1, "#0b1a30");
+        ctx.fillStyle = sky;
+        ctx.fillRect(0, 0, state.width, state.horizon);
+
+        const glow = ctx.createLinearGradient(0, state.horizon - state.skyHeight * 0.2, 0, state.horizon);
+        glow.addColorStop(0, "rgba(60, 245, 160, 0)");
+        glow.addColorStop(0.62, `rgba(45, 184, 132, ${0.025 + state.intensity * 0.00035})`);
+        glow.addColorStop(1, `rgba(60, 245, 160, ${0.045 + state.intensity * 0.00085})`);
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, state.horizon - state.skyHeight * 0.2, state.width, state.skyHeight * 0.2);
+
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(
+          auroraCanvas,
+          0,
+          0,
+          state.auroraWidth,
+          state.auroraHeight,
+          0,
+          0,
+          state.width,
+          state.auroraHeight
+        );
+        ctx.restore();
+        drawStars(time);
+      }
+      function drawPine(context, x, base, height, width, color, seed) {
+        context.fillStyle = color;
+        context.fillRect(x - width * 0.035, base - height * 0.21, width * 0.07, height * 0.22);
+
+        for (let level = 0; level < 4; level += 1) {
+          const spacingNoise = noise1(seed + level * 3.17);
+          const heightNoise = noise1(seed + level * 5.31 + 4.2);
+          const spacing = height * (0.19 + spacingNoise * 0.035);
+          const triangleHeight = height * (0.31 + heightNoise * 0.055);
+          const bottom = base - spacing * level;
+          const halfWidth = width * 0.5 * (1 - level * 0.2) * (0.88 + heightNoise * 0.2);
+          context.beginPath();
+          context.moveTo(x, bottom - triangleHeight);
+          context.lineTo(x - halfWidth, bottom);
+          context.lineTo(x + halfWidth, bottom);
+          context.closePath();
+          context.fill();
+        }
+      }
+
+      function buildTreeline() {
+        state.treeHeight = Math.round(clamp(state.height * 0.16, 84, 190));
+        treeCanvas.width = Math.max(1, Math.ceil(state.width * state.dpr));
+        treeCanvas.height = Math.max(1, Math.ceil(state.treeHeight * state.dpr));
+        treeCtx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+        treeCtx.clearRect(0, 0, state.width, state.treeHeight);
+
+        let x = -28;
+        let index = 0;
+        while (x < state.width + 30) {
+          const n = noise1(x * 0.013 + 3.4);
+          const height = state.treeHeight * (0.22 + n * 0.34);
+          const width = height * (0.39 + noise1(x * 0.021 + 9.1) * 0.1);
+          drawPine(treeCtx, x, state.treeHeight - 2, height, width, "#050a14", index * 0.73 + 2.5);
+          x += width * (0.42 + noise1(x * 0.017 + 5.8) * 0.2);
+          index += 1;
+        }
+
+        x = -34;
+        index = 0;
+        while (x < state.width + 36) {
+          const n = noise1(x * 0.009 + 27.6);
+          const height = state.treeHeight * (0.48 + n * 0.49);
+          const width = height * (0.34 + noise1(x * 0.019 + 12.7) * 0.1);
+          drawPine(treeCtx, x, state.treeHeight - 1, height, width, "#02040a", index * 0.81 + 41.2);
+          x += width * (0.38 + noise1(x * 0.015 + 18.3) * 0.19);
+          index += 1;
+        }
+      }
+
+      function buildGlints() {
+        state.glints = Array.from({ length: 14 }, () => ({
+          x: Math.random() * state.width,
+          depth: 0.07 + Math.random() * 0.86,
+          length: 18 + Math.random() * Math.min(86, state.width * 0.075),
+          width: 0.45 + Math.random() * 0.65,
+          phase: Math.random() * TAU,
+          speed: 0.09 + Math.random() * 0.16,
+          alpha: 0.08 + Math.random() * 0.2,
+          violet: Math.random() < 0.16
+        }));
+      }
+
+      function drawGlints(time) {
+        const lakeHeight = state.height - state.horizon;
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        ctx.lineCap = "round";
+        for (const glint of state.glints) {
+          const pulse = 0.38 + (Math.sin(time * glint.speed + glint.phase) * 0.5 + 0.5) * 0.62;
+          const x = glint.x + Math.sin(time * glint.speed * 0.73 + glint.phase) * 13;
+          const y = state.horizon + glint.depth * lakeHeight + Math.sin(time * 0.17 + glint.phase) * 1.2;
+          const alpha = glint.alpha * pulse * (0.35 + state.intensity * 0.009);
+          const color = glint.violet ? "168, 107, 255" : "112, 239, 186";
+          const gradient = ctx.createLinearGradient(x - glint.length / 2, y, x + glint.length / 2, y);
+          gradient.addColorStop(0, `rgba(${color}, 0)`);
+          gradient.addColorStop(0.5, `rgba(${color}, ${alpha})`);
+          gradient.addColorStop(1, `rgba(${color}, 0)`);
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = glint.width;
+          ctx.beginPath();
+          ctx.moveTo(x - glint.length / 2, y);
+          ctx.lineTo(x + glint.length / 2, y);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function drawLake(time) {
+        const lakeHeight = state.height - state.horizon;
+        const water = ctx.createLinearGradient(0, state.horizon, 0, state.height);
+        water.addColorStop(0, "#08121f");
+        water.addColorStop(0.42, "#050b15");
+        water.addColorStop(1, "#020409");
+        ctx.fillStyle = water;
+        ctx.fillRect(0, state.horizon, state.width, lakeHeight);
+
+        ctx.save();
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.globalCompositeOperation = "screen";
+        const slice = 4;
+        const sourceSlice = Math.max(1, Math.round(slice * 1.3 * state.dpr));
+        const reflectionEnd = Math.min(state.height, state.horizon + lakeHeight / 1.3);
+        for (let y = state.horizon; y < reflectionEnd; y += slice) {
+          const depth = (y - state.horizon) / lakeHeight;
+          const sourceY = clamp(
+            auroraCanvas.height - sourceSlice - (y - state.horizon) * 1.3 * state.dpr,
+            0,
+            Math.max(0, auroraCanvas.height - sourceSlice)
+          );
+          const offset =
+            (Math.sin(y * 0.041 + time * 0.31) +
+              0.58 * Math.sin(y * 0.087 - time * 0.19)) * (2 + depth * 16);
+          ctx.globalAlpha = Math.pow(1 - depth, 1.65) * 0.52;
+          ctx.drawImage(
+            auroraCanvas,
+            0,
+            sourceY,
+            auroraCanvas.width,
+            sourceSlice,
+            -40 + offset,
+            y,
+            state.width + 80,
+            slice
+          );
+        }
+
+        ctx.globalCompositeOperation = "source-over";
+        const treeReflectionEnd = Math.min(state.height, state.horizon + state.treeHeight / 1.3 + 12);
+        for (let y = state.horizon; y < treeReflectionEnd; y += slice) {
+          const depth = (y - state.horizon) / lakeHeight;
+          const sourceY = clamp(
+            treeCanvas.height - sourceSlice - (y - state.horizon) * 1.3 * state.dpr,
+            0,
+            Math.max(0, treeCanvas.height - sourceSlice)
+          );
+          const offset =
+            (Math.sin(y * 0.066 + time * 0.23) +
+              0.35 * Math.sin(y * 0.12 - time * 0.14)) * (1 + depth * 5);
+          ctx.globalAlpha = Math.pow(1 - depth, 1.45) * 0.22;
+          ctx.drawImage(
+            treeCanvas,
+            0,
+            sourceY,
+            treeCanvas.width,
+            sourceSlice,
+            -20 + offset,
+            y,
+            state.width + 40,
+            slice
+          );
+        }
+        ctx.restore();
+
+        drawGlints(time);
+      }
+
+      function drawTreeline() {
+        ctx.save();
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(
+          treeCanvas,
+          0,
+          0,
+          treeCanvas.width,
+          treeCanvas.height,
+          0,
+          state.horizon - state.treeHeight,
+          state.width,
+          state.treeHeight
+        );
+        ctx.restore();
+      }
+
+      function buildSnow() {
+        const count = Math.round(clamp(state.width * state.height / 9000, 70, 220));
+        state.snow = Array.from({ length: count }, () => ({
+          x: Math.random() * state.width,
+          y: Math.random() * state.height,
+          radius: 0.6 + Math.random() * 1.6,
+          speed: 12 + Math.random() * 26,
+          drift: 4 + Math.random() * 10,
+          phase: Math.random() * TAU,
+          frequency: 0.25 + Math.random() * 0.45,
+          alpha: 0.18 + Math.random() * 0.46
+        }));
+      }
+
+      function updateSnow(delta, time) {
+        for (const flake of state.snow) {
+          flake.y += flake.speed * delta;
+          flake.x += Math.sin(time * flake.frequency + flake.phase) * flake.drift * delta;
+          if (flake.y > state.height + 4) {
+            flake.y = -4;
+            flake.x = Math.random() * state.width;
+          }
+          if (flake.x < -8) flake.x = state.width + 8;
+          if (flake.x > state.width + 8) flake.x = -8;
+        }
+      }
+
+      function drawSnow() {
+        if (!state.snowEnabled || state.reducedMotion) return;
+        ctx.save();
+        ctx.fillStyle = "rgba(235, 243, 255, 0.64)";
+        for (const flake of state.snow) {
+          ctx.globalAlpha = flake.alpha;
+          ctx.beginPath();
+          ctx.arc(flake.x, flake.y, flake.radius, 0, TAU);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+      function spawnMeteor(time) {
+        const x = state.width * (0.16 + Math.random() * 0.68);
+        const y = state.height * (0.07 + Math.random() * 0.26);
+        const velocityX = 390 + Math.random() * 270;
+        const velocityY = velocityX * (0.16 + Math.random() * 0.14);
+        state.meteors.push({
+          x,
+          y,
+          velocityX,
+          velocityY,
+          length: 72 + Math.random() * 64,
+          age: 0,
+          duration: 0.88 + Math.random() * 0.24,
+          bornAt: time
+        });
+      }
+
+      function updateMeteors(delta, time) {
+        if (state.reducedMotion) return;
+        if (time >= state.nextMeteor) {
+          spawnMeteor(time);
+          state.nextMeteor = time + 6 + Math.random() * 4;
+        }
+        for (const meteor of state.meteors) {
+          meteor.age += delta;
+          meteor.x += meteor.velocityX * delta;
+          meteor.y += meteor.velocityY * delta;
+        }
+        state.meteors = state.meteors.filter(meteor => meteor.age < meteor.duration);
+      }
+
+      function drawMeteors() {
+        if (state.reducedMotion) return;
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        ctx.lineCap = "round";
+        for (const meteor of state.meteors) {
+          const progress = clamp(meteor.age / meteor.duration, 0, 1);
+          const alpha = Math.sin(progress * Math.PI) * 0.82;
+          const angle = Math.atan2(meteor.velocityY, meteor.velocityX);
+          const tailX = meteor.x - Math.cos(angle) * meteor.length;
+          const tailY = meteor.y - Math.sin(angle) * meteor.length;
+          const streak = ctx.createLinearGradient(tailX, tailY, meteor.x, meteor.y);
+          streak.addColorStop(0, "rgba(226, 236, 255, 0)");
+          streak.addColorStop(0.72, `rgba(226, 236, 255, ${alpha * 0.5})`);
+          streak.addColorStop(1, `rgba(255, 255, 255, ${alpha})`);
+          ctx.strokeStyle = streak;
+          ctx.lineWidth = 1.15;
+          ctx.shadowColor = `rgba(226, 236, 255, ${alpha * 0.7})`;
+          ctx.shadowBlur = 5;
+          ctx.beginPath();
+          ctx.moveTo(tailX, tailY);
+          ctx.lineTo(meteor.x, meteor.y);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function renderFrame(time, forceAurora = false) {
+        if (!state.width || !state.height) return;
+        ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = "source-over";
+        renderAurora(time, forceAurora);
+        drawSky(time);
+        drawMeteors();
+        drawLake(time);
+        drawTreeline();
+        drawSnow();
+      }
+
+      function resizeScene() {
+        state.width = Math.max(1, document.getElementById("app").clientWidth);
+        state.height = Math.max(1, document.getElementById("app").clientHeight);
+        state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+        state.horizon = Math.round(state.height * 0.7);
+        state.skyHeight = state.horizon;
+
+        canvas.width = Math.round(state.width * state.dpr);
+        canvas.height = Math.round(state.height * state.dpr);
+        ctx.setTransform(state.dpr, 0, 0, state.dpr, 0, 0);
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+
+        state.auroraWidth = Math.max(180, Math.round(state.width / 3));
+        state.auroraHeight = Math.max(120, Math.round(state.skyHeight * 0.78));
+        auroraCanvas.width = state.auroraWidth;
+        auroraCanvas.height = state.auroraHeight;
+
+        buildStars();
+        buildSnow();
+        buildTreeline();
+        buildGlints();
+        state.meteors = [];
+        state.nextMeteor = (performance.now() - state.startedAt) / 1000 + 6.5;
+        renderFrame(state.reducedMotion ? 12.5 : (performance.now() - state.startedAt) / 1000, true);
+      }
+
+      function syncSnowUI() {
+        snowToggle.setAttribute("aria-pressed", String(state.snowEnabled));
+        snowStatus.textContent = state.snowEnabled ? "On" : "Off";
+        snowToggle.disabled = state.reducedMotion;
+        snowToggle.title = state.reducedMotion
+          ? "Snowfall is paused by your reduced-motion setting"
+          : state.snowEnabled ? "Turn snowfall off" : "Turn snowfall on";
+      }
+
+      let lastFrameAt = performance.now();
+
+      function animationLoop(now) {
+        const time = (now - state.startedAt) / 1000;
+        const delta = Math.min(0.05, Math.max(0, (now - lastFrameAt) / 1000));
+        lastFrameAt = now;
+        if (state.snowEnabled) updateSnow(delta, time);
+        updateMeteors(delta, time);
+        renderFrame(time);
+        state.raf = requestAnimationFrame(animationLoop);
+      }
+
+      function startAnimation() {
+        if (state.raf || state.reducedMotion) return;
+        lastFrameAt = performance.now();
+        state.raf = requestAnimationFrame(animationLoop);
+      }
+
+      function stopAnimation() {
+        if (state.raf) cancelAnimationFrame(state.raf);
+        state.raf = 0;
+      }
+
+      function applyMotionPreference() {
+        state.reducedMotion = motionQuery.matches;
+        state.snowEnabled = !state.reducedMotion && state.snowPreference;
+        state.meteors = [];
+        syncSnowUI();
+        if (state.reducedMotion) {
+          stopAnimation();
+          renderFrame(12.5, true);
+        } else {
+          startAnimation();
+        }
+      }
+
+      intensityInput.addEventListener("input", () => {
+        state.intensity = Number(intensityInput.value);
+        const label = `${state.intensity}%`;
+        intensityValue.value = label;
+        intensityValue.textContent = label;
+        intensityInput.setAttribute("aria-valuetext", `${state.intensity} percent`);
+        state.lastAuroraAt = -Infinity;
+        if (state.reducedMotion) renderFrame(12.5, true);
+      });
+
+      const releaseSlider = () => intensityInput.classList.remove("dragging");
+      intensityInput.addEventListener("pointerdown", () => intensityInput.classList.add("dragging"));
+      window.addEventListener("pointerup", releaseSlider);
+      window.addEventListener("pointercancel", releaseSlider);
+      intensityInput.addEventListener("keydown", () => intensityInput.classList.add("dragging"));
+      intensityInput.addEventListener("keyup", releaseSlider);
+      intensityInput.addEventListener("blur", releaseSlider);
+
+      snowToggle.addEventListener("click", () => {
+        if (state.reducedMotion) return;
+        state.snowPreference = !state.snowPreference;
+        state.snowEnabled = state.snowPreference;
+        syncSnowUI();
+      });
+
+      window.addEventListener("resize", () => {
+        window.clearTimeout(state.resizeTimer);
+        state.resizeTimer = window.setTimeout(resizeScene, 140);
+      });
+
+      if (typeof motionQuery.addEventListener === "function") {
+        motionQuery.addEventListener("change", applyMotionPreference);
+      } else {
+        motionQuery.addListener(applyMotionPreference);
+      }
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) stopAnimation();
+        else if (!state.reducedMotion) startAnimation();
+      });
+
+      const clockFormatter = new Intl.DateTimeFormat(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23"
+      });
+
+      function updateClock() {
+        const now = new Date();
+        clock.textContent = clockFormatter.format(now);
+        clock.dateTime = now.toISOString();
+      }
+
+      resizeScene();
+      syncSnowUI();
+      updateClock();
+      window.setInterval(updateClock, 1000);
+      applyMotionPreference();
+    })();
+  </script>
+</body>
+</html>

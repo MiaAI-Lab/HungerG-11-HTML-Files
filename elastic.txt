@@ -1,0 +1,14 @@
+TITLE
+ELASTIC — Letterforms on Springs
+
+PROMPT
+Build a single self-contained page called ELASTIC, a typography physics lab. The ground is near-black #111018, with raised panels #17151f and #1d1a26, pale type #f3eef7, magenta #ff2e88 and mint #29e7cd. The idea: a word is no longer static type. Its letterforms are particles connected by springs.
+
+Open on the specimen BOUNCE, already alive, with the line "Type is no longer static. Disturb the field, release the tension, and watch it find its way home." Moving the pointer through the field pushes the particles. A control switches that field between repel and attract. Clicking the field, or pressing Enter, explodes the word. The springs then pull it back toward the letterforms. Pause freezes the simulation. Reset restores it.
+
+Three render modes draw the same particles: Dots, Lines and Threads, chosen with buttons or keys 1–3. A control room sets stiffness (opening at 65), damping (opening at 0.91) and force radius (opening at 150 px). A word field accepts A–Z and 0–9, up to 12 characters, and rebuilds the letterforms when the visitor types, or immediately on Enter. Live readouts show pointer position, point count, energy and frame rate. A keyboard help dialog explains the controls.
+
+The page must work by mouse, touch and keyboard, with visible focus. Reduced motion should calm the idle drift without removing the explode, the modes or the typed word. No external assets.
+
+DESCRIPTION
+A typography physics lab on a near-black field. The opening specimen, BOUNCE, is a cloud of letterforms tied together with springs. Move through it and the letters shove aside. Click, or press Enter, and the word explodes, then finds its way home. Dots, lines or threads change how the same particles are drawn. Stiffness, damping and the pointer's reach are live, and another word of up to twelve characters rebuilds the field.

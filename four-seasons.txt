@@ -1,0 +1,12 @@
+TITLE
+Four Seasons — A Fractal Tree
+
+PROMPT
+Build a single self-contained page titled "Four Seasons — A Fractal Tree". Light paper #faf7ee, ink green #294139, softer green #607269. Serif display (Iowan Old Style, Palatino, Georgia) and a quiet sans for controls. The line under the title: "One seed, a thousand small decisions. A whole year, always becoming."
+
+The subject is one recursive tree grown from a seed, drawn so the branching is visible and the canopy fills the view. It is not four separate pictures. A season dial moves continuously through spring, summer, autumn and winter, with the month named (it opens on March, spring). Spring brings the first blush of green and blossom, summer the full leaf, autumn the turn of colour, winter the bare wood and snow. "Play the year" advances the dial on its own. "New seed" grows a different tree. Dragging the dial, or the arrow keys, fine-tunes the season. Clicking the tree, or pressing Enter, shakes it.
+
+Show the seed identity and whether the tree is growing. Keep the motion organic: growth eases out, wind is a slow sway, snow drifts rather than flashes. On a phone the dial and the two controls stay reachable and the tree still fills the width. Reduced motion holds a settled tree that still changes season when asked. No external assets.
+
+DESCRIPTION
+One fractal tree and one year, on warm paper. A seed grows a recursive canopy. A season dial walks it from the first blush of March through leaf, colour and snow. Play the year and the tree keeps time by itself. A new seed grows a different tree. Drag the dial, use the arrow keys, or click the canopy to shake it.

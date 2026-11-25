@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#2A2438">
+  <meta name="description" content="A living Canvas 2D murmuration over a reed marsh at dusk. Move to hunt; click to stoop.">
+  <title>Murmuration at dusk</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #0D0B12;
+      --plum: #2A2438;
+      --mauve: #6B4E71;
+      --coral: #E58F7B;
+      --apricot: #F6C9A8;
+      --cream: rgba(255, 244, 224, .8);
+      --line: rgba(246, 201, 168, .28);
+      --dusk: 1;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: var(--plum);
+    }
+    body {
+      color: var(--cream);
+      font-family: Georgia, 'Times New Roman', serif;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    button { font: inherit; }
+    button:focus-visible {
+      outline: 1px solid var(--apricot);
+      outline-offset: 5px;
+    }
+    #scene {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      isolation: isolate;
+      touch-action: none;
+      cursor: none;
+      background: linear-gradient(#2A2438, #6B4E71 55%, #E58F7B 78%, #F6C9A8);
+    }
+    canvas {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    #sky, #clouds { filter: brightness(var(--dusk)); transition: filter 3.5s linear; }
+    #sky { z-index: 0; }
+    #clouds { z-index: 1; }
+    #haze { z-index: 2; }
+    #birds { z-index: 3; }
+    #reeds { z-index: 4; }
+    #falcon { z-index: 5; }
+    .vignette {
+      position: absolute;
+      inset: 0;
+      z-index: 6;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 50% 42%, transparent 48%, rgba(13, 11, 18, .18) 100%),
+        linear-gradient(transparent 70%, rgba(13, 11, 18, .12));
+      mix-blend-mode: multiply;
+    }
+    .interface {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .caption {
+      position: absolute;
+      left: max(26px, env(safe-area-inset-left));
+      bottom: max(24px, env(safe-area-inset-bottom));
+      text-shadow: 0 1px 12px rgba(13, 11, 18, .45);
+    }
+    .caption h1 {
+      margin: 0 0 7px;
+      color: rgba(255, 244, 224, .86);
+      font-size: clamp(12px, 1.05vw, 15px);
+      font-style: italic;
+      font-weight: 400;
+      letter-spacing: .18em;
+      line-height: 1;
+    }
+    .count {
+      margin: 0;
+      color: rgba(255, 244, 224, .62);
+      font-size: 9px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: .13em;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .hint {
+      position: absolute;
+      left: 50%;
+      bottom: max(27px, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateX(-50%);
+      color: rgba(255, 244, 224, .64);
+      font-size: 9px;
+      font-style: italic;
+      letter-spacing: .15em;
+      white-space: nowrap;
+      text-shadow: 0 1px 12px rgba(13, 11, 18, .5);
+      transition: opacity 1.8s ease, transform 1.8s ease;
+    }
+    .hint svg { width: 25px; height: 13px; opacity: .8; }
+    .has-interacted .hint {
+      opacity: 0;
+      transform: translate(-50%, 5px);
+    }
+    .flock-controls {
+      position: absolute;
+      left: 50%;
+      bottom: max(59px, calc(env(safe-area-inset-bottom) + 59px));
+      display: flex;
+      gap: 7px;
+      transform: translateX(-50%);
+      pointer-events: auto;
+      opacity: .6;
+      transition: opacity .4s ease;
+    }
+    .flock-controls:hover, .flock-controls:focus-within { opacity: 1; }
+    .quiet-button {
+      min-height: 31px;
+      padding: 7px 13px 6px;
+      border: 1px solid rgba(246, 201, 168, .24);
+      border-radius: 2px;
+      background: rgba(13, 11, 18, .2);
+      color: rgba(255, 244, 224, .7);
+      font-size: 8px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      backdrop-filter: blur(3px);
+      transition: color .25s, border-color .25s, background .25s;
+    }
+    .quiet-button:hover {
+      color: var(--apricot);
+      border-color: rgba(246, 201, 168, .55);
+      background: rgba(13, 11, 18, .34);
+    }
+    .quiet-button[aria-pressed="true"] {
+      color: var(--apricot);
+      border-color: rgba(246, 201, 168, .5);
+    }
+    .sound {
+      position: absolute;
+      right: max(26px, env(safe-area-inset-right));
+      bottom: max(24px, env(safe-area-inset-bottom));
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 0 6px 10px;
+      border: 0;
+      background: transparent;
+      color: rgba(255, 244, 224, .58);
+      font-size: 8px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      pointer-events: auto;
+      text-shadow: 0 1px 12px rgba(13, 11, 18, .4);
+    }
+    .sound:hover { color: var(--apricot); }
+    .sound svg { width: 17px; height: 17px; overflow: visible; }
+    .sound .wave { opacity: .2; transition: opacity .25s; }
+    .sound[aria-pressed="true"] .wave { opacity: 1; }
+    .sound .slash { opacity: .8; transition: opacity .25s; }
+    .sound[aria-pressed="true"] .slash { opacity: 0; }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    @media (max-width: 700px) {
+      .caption { left: max(17px, env(safe-area-inset-left)); bottom: max(18px, env(safe-area-inset-bottom)); }
+      .caption h1 { font-size: 11px; letter-spacing: .13em; }
+      .count { font-size: 7.5px; letter-spacing: .08em; }
+      .sound { right: max(16px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom)); }
+      .sound span { display: none; }
+      .flock-controls { bottom: max(53px, calc(env(safe-area-inset-bottom) + 53px)); }
+      .hint { bottom: max(91px, calc(env(safe-area-inset-bottom) + 91px)); font-size: 8px; }
+      .quiet-button { min-height: 34px; padding-inline: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hint, .flock-controls, .sound .wave, .sound .slash { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <main id="scene" aria-label="Interactive starling murmuration over a reed marsh at dusk">
+    <canvas id="sky" aria-hidden="true"></canvas>
+    <canvas id="clouds" aria-hidden="true"></canvas>
+    <canvas id="haze" aria-hidden="true"></canvas>
+    <canvas id="birds" aria-hidden="true"></canvas>
+    <canvas id="reeds" aria-hidden="true"></canvas>
+    <canvas id="falcon" aria-hidden="true"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <div class="interface">
+      <div class="caption">
+        <h1>Murmuration at dusk</h1>
+        <p class="count" id="count" aria-live="polite">3,200 starlings · one falcon</p>
+      </div>
+      <div class="hint" id="hint" aria-hidden="true">
+        <svg viewBox="0 0 30 14" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M15 5.5 3 2l5 6-5 5 12-3.5L27 12l-5-5 5-5-12 3.5Z"/>
+          <path d="m15 5.5 1.5 3.5L15 12l-1.5-3L15 5.5Z" fill="currentColor" stroke="none"/>
+        </svg>
+        <span id="hint-text">move to hunt · click to stoop</span>
+      </div>
+      <div class="flock-controls" role="group" aria-label="Flock controls">
+        <button class="quiet-button" id="call-down" type="button" aria-pressed="false">Call them down</button>
+        <button class="quiet-button" id="send-up" type="button" aria-pressed="false">Send them up</button>
+      </div>
+      <button class="sound" id="sound" type="button" aria-label="Turn marsh sound on" aria-pressed="false">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M3 8h3l4-3v10l-4-3H3V8Z"/>
+          <path class="wave" d="M12.5 7a4.2 4.2 0 0 1 0 6M15 4.8a7.4 7.4 0 0 1 0 10.4"/>
+          <path class="slash" d="m13 7 4 6m0-6-4 6"/>
+        </svg>
+        <span id="sound-label">Sound off</span>
+      </button>
+      <p class="sr-only" id="flight-status" aria-live="polite">The flock is entering from the right.</p>
+    </div>
+  </main>
+  <script>
+  (() => {
+    'use strict';
+
+    // The scene is intentionally self-contained: every mark is drawn here.
+    const scene = document.getElementById('scene');
+    const skyCanvas = document.getElementById('sky');
+    const cloudCanvas = document.getElementById('clouds');
+    const hazeCanvas = document.getElementById('haze');
+    const birdCanvas = document.getElementById('birds');
+    const reedCanvas = document.getElementById('reeds');
+    const falconCanvas = document.getElementById('falcon');
+    const countNode = document.getElementById('count');
+    const hintText = document.getElementById('hint-text');
+    const soundButton = document.getElementById('sound');
+    const soundLabel = document.getElementById('sound-label');
+    const callButton = document.getElementById('call-down');
+    const sendButton = document.getElementById('send-up');
+    const flightStatus = document.getElementById('flight-status');
+
+    const TAU = Math.PI * 2;
+    const INK = '#0D0B12';
+    const APRICOT = '#F6C9A8';
+    const motionQuery = matchMedia('(prefers-reduced-motion: reduce)');
+    let reducedMotion = motionQuery.matches;
+    const touchLike = matchMedia('(pointer: coarse)').matches;
+    if (touchLike) hintText.textContent = 'drag to hunt · tap to stoop';
+
+    const clamp = (v, lo, hi) => v < lo ? lo : v > hi ? hi : v;
+    const lerp = (a, b, t) => a + (b - a) * t;
+    const smoothstep = (a, b, v) => {
+      const t = clamp((v - a) / (b - a), 0, 1);
+      return t * t * (3 - 2 * t);
+    };
+    const hash = n => {
+      const x = Math.sin(n * 127.1 + 311.7) * 43758.5453123;
+      return x - Math.floor(x);
+    };
+    const formatCount = new Intl.NumberFormat('en-US');
+
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let horizon = 0;
+    let raf = 0;
+    let running = false;
+    let lastFrame = 0;
+    let sceneTime = 0;
+    let motionTime = 0;
+    let frameAverage = 16.7;
+    let slowTime = 0;
+    let lastCountUpdate = -1;
+    let lastPhase = '';
+    let interacted = false;
+    let audio = null;
+
+    const contexts = {};
+    const layers = [
+      ['sky', skyCanvas], ['clouds', cloudCanvas], ['haze', hazeCanvas],
+      ['birds', birdCanvas], ['reeds', reedCanvas], ['falcon', falconCanvas]
+    ];
+    const MAX_BIRDS = 3600;
+    const x = new Float32Array(MAX_BIRDS);
+    const y = new Float32Array(MAX_BIRDS);
+    const vx = new Float32Array(MAX_BIRDS);
+    const vy = new Float32Array(MAX_BIRDS);
+    const z = new Float32Array(MAX_BIRDS);
+    const zBase = new Float32Array(MAX_BIRDS);
+    const phase = new Float32Array(MAX_BIRDS);
+    const lobe = new Uint8Array(MAX_BIRDS);
+    const alarm = new Float32Array(MAX_BIRDS);
+    const pendingAlarm = new Float32Array(MAX_BIRDS);
+    const refractory = new Float32Array(MAX_BIRDS);
+    const agitation = new Float32Array(MAX_BIRDS);
+    const landed = new Uint8Array(MAX_BIRDS);
+    const landX = new Float32Array(MAX_BIRDS);
+    const landY = new Float32Array(MAX_BIRDS);
+    const descentDelay = new Float32Array(MAX_BIRDS);
+    const birdCell = new Int32Array(MAX_BIRDS);
+    let birdCount = 3200;
+    let landedCount = 0;
+
+    let gridCols = 1;
+    let gridRows = 1;
+    let cellSize = 52;
+    let gridHead = new Int32Array(1);
+    let gridNext = new Int32Array(MAX_BIRDS);
+    let gridCount = new Float32Array(1);
+    let gridVx = new Float32Array(1);
+    let gridVy = new Float32Array(1);
+    let gridX = new Float32Array(1);
+    let gridY = new Float32Array(1);
+
+    let roostX = 0;
+    let roostY = 0;
+    let splitAmount = 0;
+    let splitAxis = 0;
+    let cycleTime = 0;
+    let eveningNumber = 1;
+    let manualAction = '';
+    let manualUntil = 0;
+    let phaseName = 'entrance';
+    let lightFade = 0;
+    let visibleFlyers = birdCount;
+    let fleeing = 0;
+    let averageSpeed = 0;
+
+    const reedShakeBins = new Float32Array(160);
+    let reeds = [];
+    let clouds = [];
+    let trees = [];
+    let hazeTexture = null;
+    let hazeTextureCtx = null;
+    let hazeFrame = 0;
+
+    const pointer = { x: 0, y: 0, active: false, lastMove: -100 };
+    const falcon = {
+      x: 0, y: 0, vx: 0, vy: 0, heading: -Math.PI / 2,
+      mode: 'loiter', timer: 0, cooldown: 4, autoAt: 7,
+      stoopX: 0, stoopY: 0, punched: false, targetX: 0, targetY: 0,
+      trail: [], rings: []
+    };
+
+    function setupContexts() {
+      for (const [name, canvas] of layers) {
+        contexts[name] = canvas.getContext('2d', { alpha: name !== 'sky' });
+      }
+      contexts.sky.imageSmoothingEnabled = true;
+      contexts.birds.lineCap = 'round';
+      contexts.birds.lineJoin = 'round';
+      contexts.falcon.lineCap = 'round';
+      contexts.falcon.lineJoin = 'round';
+    }
+
+    function chooseBirdCount() {
+      if (reducedMotion) return 1200;
+      const area = width * height;
+      let count = width < 620 ? 1700 : width < 960 ? 2600 : 3200;
+      if (area > 2400000) count = 3500;
+      if ((navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ||
+          (navigator.deviceMemory && navigator.deviceMemory <= 4)) count = Math.min(count, 2500);
+      return clamp(count, 1200, 3600);
+    }
+
+    function resize() {
+      width = Math.max(1, window.innerWidth);
+      height = Math.max(1, window.innerHeight);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      horizon = height * (width < 620 ? .755 : .735);
+      for (const [name, canvas] of layers) {
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        const ctx = contexts[name];
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+      cellSize = clamp(Math.sqrt(width * height / 1150), 40, 68);
+      gridCols = Math.ceil(width / cellSize) + 2;
+      gridRows = Math.ceil(height / cellSize) + 2;
+      const cells = gridCols * gridRows;
+      gridHead = new Int32Array(cells);
+      gridCount = new Float32Array(cells);
+      gridVx = new Float32Array(cells);
+      gridVy = new Float32Array(cells);
+      gridX = new Float32Array(cells);
+      gridY = new Float32Array(cells);
+      const oldCount = birdCount;
+      birdCount = Math.min(oldCount, chooseBirdCount());
+      if (oldCount < 1200) birdCount = chooseBirdCount();
+      hazeTexture = document.createElement('canvas');
+      hazeTexture.width = Math.max(1, Math.ceil(width / 26));
+      hazeTexture.height = Math.max(1, Math.ceil(height / 26));
+      hazeTextureCtx = hazeTexture.getContext('2d');
+      makeScenery();
+      paintSky();
+      seedBirds(true);
+      if (!pointer.active) {
+        pointer.x = width * .52;
+        pointer.y = height * .43;
+      }
+      if (!falcon.x) {
+        falcon.x = width * .72;
+        falcon.y = height * .28;
+        falcon.vx = -38;
+        falcon.vy = 8;
+      }
+      scene.dataset.birds = String(birdCount);
+      scene.dataset.dpr = String(dpr);
+      scene.dataset.reduced = String(reducedMotion);
+      updateCount(true);
+    }
+
+    function makeScenery() {
+      clouds = [];
+      const cloudCount = width < 620 ? 5 : 8;
+      for (let i = 0; i < cloudCount; i++) {
+        clouds.push({
+          x: hash(i + 2) * width,
+          y: height * (.13 + hash(i + 9) * .44),
+          length: width * (.22 + hash(i + 21) * .38),
+          thickness: 2 + hash(i + 31) * 6,
+          speed: .65 + hash(i + 43) * 1.6,
+          alpha: .045 + hash(i + 51) * .07,
+          bend: (hash(i + 61) - .5) * 18
+        });
+      }
+      trees = [];
+      const treeCount = Math.ceil(width / 10);
+      for (let i = 0; i < treeCount; i++) {
+        trees.push({
+          x: i * 10 + hash(i + 100) * 9,
+          h: 7 + hash(i + 200) * 23,
+          w: 7 + hash(i + 300) * 17
+        });
+      }
+      reeds = [];
+      const density = clamp(Math.round(width / 2.1), 170, 720);
+      for (let layer = 0; layer < 2; layer++) {
+        for (let i = 0; i < density; i++) {
+          const seed = i + layer * 900;
+          const front = layer === 1;
+          const rx = hash(seed + 11) * width;
+          const base = front ? height * (.88 + hash(seed + 17) * .16) : horizon + 9 + hash(seed + 17) * height * .095;
+          const maxH = front ? height * (.18 + hash(seed + 23) * .31) : height * (.06 + hash(seed + 23) * .16);
+          reeds.push({
+            x: rx,
+            y: base,
+            h: maxH,
+            width: front ? .75 + hash(seed + 29) * 1.25 : .45 + hash(seed + 29) * .8,
+            lean: (hash(seed + 37) - .5) * (front ? 48 : 27),
+            phase: hash(seed + 41) * TAU,
+            speed: .62 + hash(seed + 47) * .52,
+            type: hash(seed + 53),
+            front,
+            alpha: front ? .94 : .68
+          });
+        }
+      }
+      reeds.sort((a, b) => Number(a.front) - Number(b.front));
+    }
+
+    let grainPattern = null;
+
+    function getGrainPattern(ctx) {
+      if (grainPattern) return grainPattern;
+      const grain = document.createElement('canvas');
+      grain.width = grain.height = 96;
+      const g = grain.getContext('2d');
+      const image = g.createImageData(96, 96);
+      for (let i = 0; i < image.data.length; i += 4) {
+        const n = hash(i * .17);
+        const light = n > .52;
+        image.data[i] = light ? 246 : 42;
+        image.data[i + 1] = light ? 220 : 36;
+        image.data[i + 2] = light ? 190 : 50;
+        image.data[i + 3] = Math.floor(5 + n * 12);
+      }
+      g.putImageData(image, 0, 0);
+      grainPattern = ctx.createPattern(grain, 'repeat');
+      return grainPattern;
+    }
+
+    function paintSky() {
+      const ctx = contexts.sky;
+      ctx.clearRect(0, 0, width, height);
+      const sky = ctx.createLinearGradient(0, 0, 0, height);
+      sky.addColorStop(0, '#2A2438');
+      sky.addColorStop(.43, '#6B4E71');
+      sky.addColorStop(.73, '#E58F7B');
+      sky.addColorStop(1, '#F6C9A8');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, width, height);
+
+      // Long, nearly imperceptible horizontal washes keep the gradient painterly.
+      for (let i = 0; i < 22; i++) {
+        const yy = height * (.06 + i / 24);
+        const band = ctx.createLinearGradient(0, yy, 0, yy + 7 + hash(i) * 20);
+        const warm = i > 12;
+        band.addColorStop(0, warm ? 'rgba(246,201,168,0)' : 'rgba(42,36,56,0)');
+        band.addColorStop(.45, warm ? `rgba(246,201,168,${.018 + hash(i + 4) * .028})` : `rgba(42,36,56,${.018 + hash(i + 4) * .035})`);
+        band.addColorStop(1, 'rgba(246,201,168,0)');
+        ctx.fillStyle = band;
+        ctx.fillRect(0, yy, width, 7 + hash(i) * 20);
+      }
+
+      const sunX = width * (width < 620 ? .72 : .71);
+      const sunY = horizon - height * .035;
+      const sunR = clamp(width * .021, 17, 34);
+      const glow = ctx.createRadialGradient(sunX, sunY, sunR * .4, sunX, sunY, sunR * 6.5);
+      glow.addColorStop(0, 'rgba(246,201,168,.32)');
+      glow.addColorStop(.32, 'rgba(246,201,168,.13)');
+      glow.addColorStop(1, 'rgba(246,201,168,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(sunX - sunR * 7, sunY - sunR * 7, sunR * 14, sunR * 14);
+      ctx.beginPath();
+      ctx.arc(sunX, sunY, sunR, 0, TAU);
+      ctx.fillStyle = APRICOT;
+      ctx.fill();
+
+      paintMarsh(ctx, sunX, sunY, sunR);
+      paintTreeline(ctx);
+      paintPylons(ctx);
+      paintPoplarClump(ctx);
+
+      ctx.save();
+      ctx.globalAlpha = .42;
+      ctx.fillStyle = getGrainPattern(ctx);
+      ctx.fillRect(0, 0, width, height);
+      ctx.restore();
+    }
+
+    function paintMarsh(ctx, sunX, sunY, sunR) {
+      const waterBottom = height * .865;
+      const water = ctx.createLinearGradient(0, horizon, 0, waterBottom);
+      water.addColorStop(0, 'rgba(246,201,168,.78)');
+      water.addColorStop(.16, 'rgba(229,143,123,.56)');
+      water.addColorStop(.7, 'rgba(107,78,113,.68)');
+      water.addColorStop(1, 'rgba(42,36,56,.82)');
+      ctx.fillStyle = water;
+      ctx.fillRect(0, horizon, width, waterBottom - horizon);
+
+      ctx.fillStyle = 'rgba(13,11,18,.11)';
+      ctx.fillRect(0, horizon, width, 1);
+      for (let i = 0; i < 54; i++) {
+        const yy = horizon + 2 + hash(i + 710) * (waterBottom - horizon);
+        const spread = (yy - horizon) * 1.7 + 8;
+        const half = sunR * .34 + hash(i + 720) * spread;
+        const xx = sunX + (hash(i + 730) - .5) * half * 2;
+        ctx.strokeStyle = `rgba(246,201,168,${.12 + hash(i + 740) * .26})`;
+        ctx.lineWidth = .5 + hash(i + 750) * 1.2;
+        ctx.beginPath();
+        ctx.moveTo(xx - half * (.18 + hash(i + 760) * .55), yy);
+        ctx.lineTo(xx + half * (.2 + hash(i + 770) * .6), yy);
+        ctx.stroke();
+      }
+
+      // The dark bank gives the foreground reeds a believable place to root.
+      ctx.beginPath();
+      ctx.moveTo(0, waterBottom + 5);
+      for (let xx = 0; xx <= width + 20; xx += 20) {
+        ctx.lineTo(xx, waterBottom - 2 + Math.sin(xx * .012) * 4 + hash(xx) * 5);
+      }
+      ctx.lineTo(width, height);
+      ctx.lineTo(0, height);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(13,11,18,.9)';
+      ctx.fill();
+    }
+
+    function paintTreeline(ctx) {
+      ctx.beginPath();
+      ctx.moveTo(0, horizon + 2);
+      for (const tree of trees) {
+        ctx.lineTo(tree.x, horizon - tree.h * .25);
+        ctx.quadraticCurveTo(tree.x + tree.w * .5, horizon - tree.h, tree.x + tree.w, horizon - tree.h * .18);
+      }
+      ctx.lineTo(width, horizon + 3);
+      ctx.lineTo(width, horizon + 12);
+      ctx.lineTo(0, horizon + 12);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(13,11,18,.56)';
+      ctx.fill();
+    }
+
+    function paintPoplarClump(ctx) {
+      const baseX = width * .265;
+      const baseY = horizon + 2;
+      const scale = clamp(width / 1300, .6, 1.2);
+      ctx.fillStyle = 'rgba(13,11,18,.78)';
+      for (let i = 0; i < 9; i++) {
+        const px = baseX + (i - 4) * 7 * scale + (hash(i + 810) - .5) * 6;
+        const ph = (31 + hash(i + 820) * 57) * scale;
+        ctx.beginPath();
+        ctx.moveTo(px - 3.5 * scale, baseY);
+        ctx.bezierCurveTo(px - 9 * scale, baseY - ph * .3, px - 5 * scale, baseY - ph * .76, px, baseY - ph);
+        ctx.bezierCurveTo(px + 6 * scale, baseY - ph * .73, px + 8 * scale, baseY - ph * .28, px + 3.5 * scale, baseY);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    function paintPylons(ctx) {
+      const scale = clamp(width / 1350, .55, 1.05);
+      const positions = [width * .79, width * .895];
+      ctx.save();
+      ctx.strokeStyle = 'rgba(13,11,18,.72)';
+      ctx.fillStyle = 'rgba(13,11,18,.72)';
+      ctx.lineWidth = Math.max(.7, 1.05 * scale);
+      for (let n = 0; n < positions.length; n++) {
+        const px = positions[n];
+        const py = horizon + 2;
+        const ph = 60 * scale;
+        const half = 13 * scale;
+        ctx.beginPath();
+        ctx.moveTo(px - half, py);
+        ctx.lineTo(px - half * .24, py - ph);
+        ctx.lineTo(px + half * .24, py - ph);
+        ctx.lineTo(px + half, py);
+        ctx.moveTo(px - half * .72, py - ph * .3);
+        ctx.lineTo(px + half * .72, py - ph * .3);
+        ctx.moveTo(px - half * .48, py - ph * .58);
+        ctx.lineTo(px + half * .48, py - ph * .58);
+        ctx.moveTo(px - half * .17, py - ph * .9);
+        ctx.lineTo(px + half * .17, py - ph * .9);
+        ctx.moveTo(px - half * .62, py - ph * .3);
+        ctx.lineTo(px + half * .64, py - ph * .3);
+        ctx.moveTo(px - half * .38, py - ph * .58);
+        ctx.lineTo(px + half * .4, py - ph * .58);
+        ctx.stroke();
+      }
+      ctx.lineWidth = .55 * scale;
+      for (let wire = 0; wire < 3; wire++) {
+        const offset = (wire - 1) * 8 * scale;
+        ctx.beginPath();
+        ctx.moveTo(width * .62, horizon - 17 * scale + offset);
+        ctx.quadraticCurveTo(width * .7, horizon + 5 * scale + offset, positions[0], horizon - 45 * scale + offset);
+        ctx.quadraticCurveTo(width * .84, horizon + 3 * scale + offset, positions[1], horizon - 45 * scale + offset);
+        ctx.quadraticCurveTo(width * .95, horizon + 4 * scale + offset, width * 1.01, horizon - 20 * scale + offset);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function paintFence(ctx) {
+      const scale = clamp(width / 1350, .65, 1.15);
+      const postX = width * .155;
+      const postBase = height * .915;
+      const postH = height * .245 * scale;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(13,11,18,.97)';
+      ctx.fillStyle = 'rgba(13,11,18,.97)';
+      ctx.lineWidth = 5 * scale;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(postX - 3 * scale, postBase);
+      ctx.lineTo(postX + 8 * scale, postBase - postH);
+      ctx.stroke();
+      ctx.lineWidth = 1.2 * scale;
+      ctx.beginPath();
+      ctx.moveTo(postX + 6 * scale, postBase - postH + 5 * scale);
+      ctx.quadraticCurveTo(width * .36, postBase - postH * .72, width * .62, postBase - postH * .9);
+      ctx.moveTo(postX + 2 * scale, postBase - postH * .66);
+      ctx.quadraticCurveTo(width * .34, postBase - postH * .48, width * .6, postBase - postH * .72);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function seedBirds(initial = false) {
+      landedCount = 0;
+      for (let i = 0; i < birdCount; i++) {
+        if (!initial && i < birdCount && phase[i] !== 0) continue;
+        phase[i] = hash(i + 1100) * TAU;
+        lobe[i] = i & 1;
+        zBase[i] = hash(i + 1200);
+        z[i] = zBase[i];
+        alarm[i] = 0;
+        pendingAlarm[i] = 0;
+        refractory[i] = 0;
+        agitation[i] = 0;
+        landed[i] = 0;
+        landX[i] = width * (.025 + hash(i + 1300) * .95);
+        landY[i] = horizon + height * (.035 + hash(i + 1400) * .095);
+        descentDelay[i] = hash(i + 1500) * 4.8;
+        x[i] = width + 35 + hash(i + 1600) * width * .86;
+        const ribbon = Math.sin(i * .017) * height * .042 + Math.sin(i * .047) * height * .018;
+        y[i] = height * .34 + hash(i + 1700) * height * .17 + ribbon;
+        vx[i] = -(82 + hash(i + 1800) * 62);
+        vy[i] = (hash(i + 1900) - .5) * 22;
+      }
+      buildGrid();
+    }
+
+    function resetEvening() {
+      eveningNumber++;
+      cycleTime = 0;
+      manualAction = '';
+      manualUntil = 0;
+      lightFade = 0;
+      splitAmount = 0;
+      for (let i = 0; i < birdCount; i++) phase[i] = 0;
+      seedBirds(false);
+      falcon.mode = 'loiter';
+      falcon.x = width * .73;
+      falcon.y = height * .27;
+      falcon.vx = -34;
+      falcon.vy = 7;
+      falcon.cooldown = 4;
+      falcon.autoAt = sceneTime + 8;
+      falcon.trail.length = 0;
+      falcon.rings.length = 0;
+      lastPhase = '';
+      updateCount(true);
+    }
+
+    function buildGrid() {
+      gridHead.fill(-1);
+      gridCount.fill(0);
+      gridVx.fill(0);
+      gridVy.fill(0);
+      gridX.fill(0);
+      gridY.fill(0);
+      for (let i = 0; i < birdCount; i++) {
+        if (landed[i]) continue;
+        const gx = clamp(Math.floor(x[i] / cellSize) + 1, 0, gridCols - 1);
+        const gy = clamp(Math.floor(y[i] / cellSize) + 1, 0, gridRows - 1);
+        const cell = gy * gridCols + gx;
+        birdCell[i] = cell;
+        gridNext[i] = gridHead[cell];
+        gridHead[cell] = i;
+        gridCount[cell]++;
+        gridVx[cell] += vx[i];
+        gridVy[cell] += vy[i];
+        gridX[cell] += x[i];
+        gridY[cell] += y[i];
+      }
+    }
+
+    function updateLifecycle(dt) {
+      cycleTime += dt * (reducedMotion ? .42 : 1);
+      const wasPhase = phaseName;
+      lightFade = smoothstep(72, 154, cycleTime) * .15;
+      document.documentElement.style.setProperty('--dusk', String(1 - lightFade));
+
+      if (manualAction && sceneTime < manualUntil) {
+        if (manualAction === 'down') {
+          phaseName = landedCount >= birdCount ? 'roost' : cycleTime < 166 ? 'gather' : 'funnel';
+        } else {
+          phaseName = 'flight';
+        }
+      } else if (cycleTime < 7) {
+        phaseName = 'entrance';
+      } else if (cycleTime < 150) {
+        phaseName = 'flight';
+      } else if (cycleTime < 164) {
+        phaseName = 'gather';
+      } else if (cycleTime < 179 || landedCount < birdCount) {
+        phaseName = landedCount >= birdCount ? 'roost' : 'funnel';
+      } else if (cycleTime < 188) {
+        phaseName = 'roost';
+      } else if (cycleTime < 196) {
+        phaseName = 'rest';
+      } else {
+        resetEvening();
+        phaseName = 'entrance';
+      }
+
+      if (phaseName !== wasPhase) {
+        scene.dataset.phase = phaseName;
+        callButton.setAttribute('aria-pressed', String(phaseName === 'gather' || phaseName === 'funnel'));
+        sendButton.setAttribute('aria-pressed', String(manualAction === 'up'));
+        const messages = {
+          entrance: 'The flock is streaming in from the right.',
+          flight: 'The flock is folding above the marsh.',
+          gather: 'The flock is gathering above its roost.',
+          funnel: 'The flock is pouring down into the reeds.',
+          roost: 'The starlings are settled in the reeds.',
+          rest: 'The marsh rests in the last light.'
+        };
+        flightStatus.textContent = messages[phaseName];
+        lastCountUpdate = -1;
+      }
+    }
+
+    function callThemDown() {
+      if (landedCount >= birdCount) return;
+      manualAction = 'down';
+      manualUntil = sceneTime + 19;
+      if (cycleTime < 166) cycleTime = 172;
+      for (let i = 0; i < birdCount; i++) {
+        if (!landed[i]) {
+          alarm[i] = Math.max(alarm[i], .55);
+          refractory[i] = Math.max(refractory[i], .5);
+        }
+      }
+      markInteracted();
+      updateCount(true);
+    }
+
+    function sendThemUp() {
+      for (let i = 0; i < birdCount; i++) {
+        landed[i] = 0;
+        x[i] = landX[i] + (hash(i + eveningNumber * 91) - .5) * width * .018;
+        y[i] = landY[i] - hash(i + 2100) * 10;
+        const burst = 150 + hash(i + 2200) * 155;
+        vx[i] = (hash(i + 2300) - .5) * burst * 1.35;
+        vy[i] = -burst * (.75 + hash(i + 2400) * .55);
+        alarm[i] = 1;
+        refractory[i] = 1.4 + hash(i + 2500);
+        agitation[i] = 1;
+      }
+      for (let b = 0; b < reedShakeBins.length; b++) reedShakeBins[b] = 1.2;
+      landedCount = 0;
+      manualAction = 'up';
+      manualUntil = sceneTime + 16;
+      cycleTime = Math.max(cycleTime, 24);
+      phaseName = 'flight';
+      scene.dataset.phase = phaseName;
+      callButton.setAttribute('aria-pressed', 'false');
+      sendButton.setAttribute('aria-pressed', 'true');
+      flightStatus.textContent = 'The whole flock erupts out of the reeds.';
+      markInteracted();
+      updateCount(true);
+    }
+
+    function updateCount(force = false) {
+      if (!force && sceneTime - lastCountUpdate < .8) return;
+      lastCountUpdate = sceneTime;
+      visibleFlyers = 0;
+      if (landedCount < birdCount) {
+        for (let i = 0; i < birdCount; i++) {
+          if (!landed[i] && x[i] > -12 && x[i] < width + 12 && y[i] > -12 && y[i] < height + 12) visibleFlyers++;
+        }
+      }
+      const roosting = landedCount >= birdCount;
+      const shown = roosting ? birdCount : visibleFlyers;
+      countNode.textContent = roosting
+        ? `${formatCount.format(shown)} starlings in the reeds · one falcon, hungry`
+        : `${formatCount.format(shown)} starlings · one falcon`;
+      scene.dataset.visible = String(visibleFlyers);
+      scene.dataset.landed = String(landedCount);
+      scene.dataset.phase = phaseName;
+    }
+
+    function landBird(i) {
+      if (landed[i]) return;
+      landed[i] = 1;
+      landedCount++;
+      x[i] = landX[i];
+      y[i] = landY[i];
+      vx[i] = 0;
+      vy[i] = 0;
+      const bin = clamp(Math.floor(landX[i] / width * reedShakeBins.length), 0, reedShakeBins.length - 1);
+      reedShakeBins[bin] = Math.min(2.5, reedShakeBins[bin] + .16);
+      if (bin > 0) reedShakeBins[bin - 1] += .06;
+      if (bin < reedShakeBins.length - 1) reedShakeBins[bin + 1] += .06;
+    }
+
+    function punchFlock(px, py, radius) {
+      for (let i = 0; i < birdCount; i++) {
+        if (landed[i]) continue;
+        const dx = x[i] - px;
+        const dy = y[i] - py;
+        const d2 = dx * dx + dy * dy;
+        if (d2 > radius * radius || d2 < .01) continue;
+        const d = Math.sqrt(d2);
+        const force = (1 - d / radius) * 270;
+        vx[i] += dx / d * force;
+        vy[i] += dy / d * force;
+        alarm[i] = 1;
+        refractory[i] = 1.35 + hash(i + sceneTime) * .5;
+        agitation[i] = 1;
+      }
+    }
+
+    function spookAnEdge() {
+      if (landedCount >= birdCount || reducedMotion || phaseName === 'funnel' || phaseName === 'roost') return;
+      const side = Math.random() < .5 ? -1 : 1;
+      let chosen = -1;
+      let extreme = -Infinity;
+      for (let i = 0; i < birdCount; i += 3) {
+        if (landed[i]) continue;
+        const edge = x[i] * side + y[i] * .22;
+        if (edge > extreme) {
+          extreme = edge;
+          chosen = i;
+        }
+      }
+      if (chosen >= 0) {
+        alarm[chosen] = 1;
+        refractory[chosen] = 1.7;
+        agitation[chosen] = 1;
+      }
+    }
+
+    const nearestIndex = new Int32Array(7);
+    const nearestDistance = new Float32Array(7);
+
+    function updateBirds(dt) {
+      buildGrid();
+      fleeing = 0;
+      let speedSum = 0;
+      let speedSamples = 0;
+      const nearRadius = cellSize * 1.22;
+      const nearRadius2 = nearRadius * nearRadius;
+      const motionScale = reducedMotion ? .48 : 1;
+      const splitWave = (Math.sin(motionTime * .17 - .8) + 1) * .5;
+      const splitTarget = phaseName === 'flight' || phaseName === 'entrance'
+        ? smoothstep(.22, .88, splitWave) : 0;
+      splitAmount += (splitTarget - splitAmount) * Math.min(1, dt * .65);
+      splitAxis = motionTime * .065;
+      roostX = width * (.48 + Math.sin(motionTime * .043) * .038);
+      roostY = height * (.365 + Math.cos(motionTime * .051) * .031);
+
+      for (let i = 0; i < birdCount; i++) {
+        if (landed[i]) continue;
+        const oldVx = vx[i];
+        const oldVy = vy[i];
+        const depth = clamp(zBase[i] * .76 +
+          Math.sin(x[i] * .0027 + motionTime * .075) * .12 +
+          Math.sin(y[i] * .0034 - motionTime * .105) * .1, 0, 1);
+        z[i] = depth;
+
+        if (refractory[i] > 0) refractory[i] = Math.max(0, refractory[i] - dt);
+        if (alarm[i] > 0) alarm[i] = Math.max(0, alarm[i] - dt * 1.65);
+        if (pendingAlarm[i] > 0) {
+          pendingAlarm[i] -= dt;
+          if (pendingAlarm[i] <= 0) {
+            alarm[i] = 1;
+            refractory[i] = 1.45 + hash(i + sceneTime) * .35;
+            pendingAlarm[i] = 0;
+          }
+        }
+
+        const cell = birdCell[i];
+        const cx = cell % gridCols;
+        const cy = Math.floor(cell / gridCols);
+        let nearest = 0;
+        for (let oy = -1; oy <= 1; oy++) {
+          const gy = cy + oy;
+          if (gy < 0 || gy >= gridRows) continue;
+          for (let ox = -1; ox <= 1; ox++) {
+            const gx = cx + ox;
+            if (gx < 0 || gx >= gridCols) continue;
+            const c = gy * gridCols + gx;
+            for (let j = gridHead[c]; j !== -1; j = gridNext[j]) {
+              if (j === i || landed[j]) continue;
+              const dx = x[j] - x[i];
+              const dy = y[j] - y[i];
+              const d2 = dx * dx + dy * dy;
+              if (d2 > nearRadius2 || d2 < .0001) continue;
+              if (nearest < 7) {
+                let k = nearest++;
+                nearestDistance[k] = d2;
+                nearestIndex[k] = j;
+                while (k > 0 && nearestDistance[k] < nearestDistance[k - 1]) {
+                  const td = nearestDistance[k];
+                  nearestDistance[k] = nearestDistance[k - 1];
+                  nearestDistance[k - 1] = td;
+                  const ti = nearestIndex[k];
+                  nearestIndex[k] = nearestIndex[k - 1];
+                  nearestIndex[k - 1] = ti;
+                  k--;
+                }
+              } else if (d2 < nearestDistance[6]) {
+                let k = 6;
+                nearestDistance[k] = d2;
+                nearestIndex[k] = j;
+                while (k > 0 && nearestDistance[k] < nearestDistance[k - 1]) {
+                  const td = nearestDistance[k];
+                  nearestDistance[k] = nearestDistance[k - 1];
+                  nearestDistance[k - 1] = td;
+                  const ti = nearestIndex[k];
+                  nearestIndex[k] = nearestIndex[k - 1];
+                  nearestIndex[k - 1] = ti;
+                  k--;
+                }
+              }
+            }
+          }
+        }
+
+        let sepX = 0;
+        let sepY = 0;
+        let alignX = 0;
+        let alignY = 0;
+        let cohX = 0;
+        let cohY = 0;
+        let waveSignal = 0;
+        for (let k = 0; k < nearest; k++) {
+          const j = nearestIndex[k];
+          const dx = x[j] - x[i];
+          const dy = y[j] - y[i];
+          const d2 = nearestDistance[k];
+          const d = Math.sqrt(d2);
+          const proximity = 1 - d / nearRadius;
+          if (d < 22) {
+            const push = (1 - d / 22) / Math.max(d, .5);
+            sepX -= dx * push;
+            sepY -= dy * push;
+          }
+          const depthWeight = clamp(1.25 - Math.abs(z[j] - depth) * .75, .35, 1);
+          alignX += vx[j] * depthWeight;
+          alignY += vy[j] * depthWeight;
+          cohX += dx * depthWeight;
+          cohY += dy * depthWeight;
+          waveSignal += alarm[j] * proximity * proximity;
+        }
+        if (nearest > 0) {
+          alignX /= nearest;
+          alignY /= nearest;
+          cohX /= nearest;
+          cohY /= nearest;
+        }
+
+        let wideCount = 0;
+        let wideVx = 0;
+        let wideVy = 0;
+        let wideX = 0;
+        let wideY = 0;
+        for (let oy = -2; oy <= 2; oy++) {
+          const gy = cy + oy;
+          if (gy < 0 || gy >= gridRows) continue;
+          for (let ox = -2; ox <= 2; ox++) {
+            const gx = cx + ox;
+            if (gx < 0 || gx >= gridCols) continue;
+            const c = gy * gridCols + gx;
+            const weight = ox === 0 && oy === 0 ? 1 : Math.abs(ox) + Math.abs(oy) === 1 ? .72 : .38;
+            const n = gridCount[c] * weight;
+            wideCount += n;
+            wideVx += gridVx[c] * weight;
+            wideVy += gridVy[c] * weight;
+            wideX += gridX[c] * weight;
+            wideY += gridY[c] * weight;
+          }
+        }
+
+        let ax = sepX * 118;
+        let ay = sepY * 118;
+        if (nearest > 0) {
+          ax += (alignX - vx[i]) * .86 + cohX * .115;
+          ay += (alignY - vy[i]) * .86 + cohY * .115;
+        }
+        if (wideCount > .5) {
+          ax += (wideVx / wideCount - vx[i]) * .19 + (wideX / wideCount - x[i]) * .014;
+          ay += (wideVy / wideCount - vy[i]) * .19 + (wideY / wideCount - y[i]) * .014;
+        }
+
+        const localDensity = gridCount[cell];
+        if (localDensity > 8) {
+          const left = gridCount[cy * gridCols + clamp(cx - 1, 0, gridCols - 1)];
+          const right = gridCount[cy * gridCols + clamp(cx + 1, 0, gridCols - 1)];
+          const up = gridCount[clamp(cy - 1, 0, gridRows - 1) * gridCols + cx];
+          const down = gridCount[clamp(cy + 1, 0, gridRows - 1) * gridCols + cx];
+          let gradX = left - right;
+          let gradY = up - down;
+          const gradLength = Math.hypot(gradX, gradY);
+          if (gradLength > .01) {
+            const pressure = Math.min(1, (localDensity - 7) / 20) * 92;
+            ax += gradX / gradLength * pressure;
+            ay += gradY / gradLength * pressure;
+          }
+        }
+
+        const funneling = phaseName === 'funnel';
+        if (funneling) {
+          const localTime = cycleTime - (166 + descentDelay[i]);
+          if (localTime > 0) {
+            const progress = smoothstep(0, 7.4, localTime);
+            const neckX = roostX + Math.sin(i * .61) * width * .022;
+            const neckY = roostY + height * .175;
+            const targetX = lerp(neckX, landX[i], progress);
+            const targetY = lerp(neckY, landY[i], progress);
+            ax += (targetX - x[i]) * 2.15;
+            ay += (targetY - y[i]) * 2.15 + 26;
+            if ((progress > .9 && y[i] > landY[i] - 18) || localTime > 9.6) {
+              landBird(i);
+              continue;
+            }
+          } else {
+            ax += (roostX - x[i]) * .55;
+            ay += (roostY + height * .12 - y[i]) * .55;
+          }
+        } else {
+          const entranceStrength = smoothstep(2.2, 7.2, cycleTime);
+          const sign = lobe[i] ? 1 : -1;
+          const separation = width * .125 * splitAmount;
+          const targetX = roostX + Math.cos(splitAxis) * separation * sign;
+          const targetY = roostY + Math.sin(splitAxis) * separation * .48 * sign;
+          const gathering = phaseName === 'gather';
+          const pull = gathering ? .56 : .095 * entranceStrength;
+          ax += (targetX - x[i]) * pull;
+          ay += (targetY - y[i]) * pull;
+          ax += -(y[i] - targetY) * (gathering ? .035 : .022) * entranceStrength;
+          ay += (x[i] - targetX) * (gathering ? .035 : .022) * entranceStrength;
+
+          const top = height * .115;
+          const bottom = height * (gathering ? .57 : .635);
+          if (y[i] < top) ay += (top - y[i]) * 1.2;
+          if (y[i] > bottom) ay -= (y[i] - bottom) * 1.1;
+          if (x[i] < width * .045) ax += (width * .045 - x[i]) * 1.15;
+          if (x[i] > width * .955) ax -= (x[i] - width * .955) * 1.15;
+        }
+
+        // Coherent, low-frequency curl-like turbulence.
+        ax += (Math.sin(y[i] * .008 + motionTime * .52 + depth * 3) +
+               Math.sin(x[i] * .004 - motionTime * .31)) * 7.5 * motionScale;
+        ay += (Math.cos(x[i] * .007 - motionTime * .46) +
+               Math.sin(y[i] * .005 + motionTime * .37)) * 6.5 * motionScale;
+
+        // The peregrine is a local predator and a moving wall in the flock's flow.
+        const fdx = x[i] - falcon.x;
+        const fdy = y[i] - falcon.y;
+        const fd2 = fdx * fdx + fdy * fdy;
+        const threatRadius = falcon.mode === 'stoop' ? 245 : 185;
+        if (fd2 < threatRadius * threatRadius && fd2 > .01) {
+          const fd = Math.sqrt(fd2);
+          const threat = 1 - fd / threatRadius;
+          fleeing++;
+          ax += fdx / fd * threat * threat * 255;
+          ay += fdy / fd * threat * threat * 255;
+          const side = (fdx * Math.sin(falcon.heading) - fdy * Math.cos(falcon.heading)) >= 0 ? 1 : -1;
+          ax += Math.cos(falcon.heading) * threat * 42 * side;
+          ay += Math.sin(falcon.heading) * threat * 42 * side;
+          if (threat > .48 && refractory[i] <= 0) alarm[i] = Math.max(alarm[i], threat);
+        }
+
+        if (waveSignal > .38 && refractory[i] <= 0 && pendingAlarm[i] <= 0 && Math.random() < dt * 4.2) {
+          pendingAlarm[i] = .065 + Math.random() * .11;
+        }
+
+        vx[i] += ax * dt;
+        vy[i] += ay * dt;
+        let speed = Math.hypot(vx[i], vy[i]);
+        const maxSpeed = funneling ? 315 : 185 + agitation[i] * 70 + alarm[i] * 42;
+        const minSpeed = reducedMotion ? 28 : 52;
+        if (speed > maxSpeed) {
+          vx[i] *= maxSpeed / speed;
+          vy[i] *= maxSpeed / speed;
+          speed = maxSpeed;
+        } else if (speed < minSpeed && speed > .01) {
+          vx[i] *= minSpeed / speed;
+          vy[i] *= minSpeed / speed;
+          speed = minSpeed;
+        }
+        x[i] += vx[i] * dt;
+        y[i] += vy[i] * dt;
+
+        const newSpeed = Math.hypot(vx[i], vy[i]);
+        if (oldVx * oldVx + oldVy * oldVy > 1 && newSpeed > 1) {
+          const cross = oldVx * vy[i] - oldVy * vx[i];
+          const dot = oldVx * vx[i] + oldVy * vy[i];
+          const turnRate = Math.abs(Math.atan2(cross, dot)) / Math.max(dt, .001);
+          const targetAgitation = clamp(turnRate * .11 + alarm[i] * .78, 0, 1);
+          agitation[i] += (targetAgitation - agitation[i]) * Math.min(1, dt * 8);
+        }
+        speedSum += newSpeed;
+        speedSamples++;
+      }
+      averageSpeed = speedSamples ? speedSum / speedSamples : 0;
+    }
+
+    function drawClouds(dt) {
+      const ctx = contexts.clouds;
+      ctx.clearRect(0, 0, width, height);
+      const drift = dt * (reducedMotion ? .22 : 1);
+      for (const cloud of clouds) {
+        cloud.x += cloud.speed * drift;
+        if (cloud.x - cloud.length > width + 30) cloud.x = -cloud.length - 30;
+        const y0 = cloud.y;
+        const x0 = cloud.x;
+        const len = cloud.length;
+        ctx.beginPath();
+        ctx.moveTo(x0, y0);
+        ctx.bezierCurveTo(x0 + len * .22, y0 - cloud.thickness + cloud.bend, x0 + len * .62, y0 + cloud.thickness * .45, x0 + len, y0 + cloud.bend * .25);
+        ctx.strokeStyle = `rgba(246,201,168,${cloud.alpha})`;
+        ctx.lineWidth = cloud.thickness;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x0 + len * .08, y0 + cloud.thickness * 1.8);
+        ctx.bezierCurveTo(x0 + len * .34, y0 + cloud.thickness * .8, x0 + len * .72, y0 + cloud.thickness * 2.7, x0 + len * .94, y0 + cloud.thickness * 1.25);
+        ctx.strokeStyle = `rgba(246,201,168,${cloud.alpha * .42})`;
+        ctx.lineWidth = Math.max(.7, cloud.thickness * .32);
+        ctx.stroke();
+      }
+
+      // Small, intermittent glints keep the strip of water alive without sparkling.
+      const sunX = width * (width < 620 ? .72 : .71);
+      for (let i = 0; i < 18; i++) {
+        const yy = horizon + 5 + hash(i + 2600) * height * .1;
+        const flicker = Math.max(0, Math.sin(motionTime * (1.1 + hash(i + 2700)) + i * 2.7));
+        if (flicker < .72) continue;
+        const spread = 8 + (yy - horizon) * .8;
+        const xx = sunX + (hash(i + 2800) - .5) * spread * 2;
+        const half = 3 + hash(i + 2900) * spread;
+        ctx.strokeStyle = `rgba(246,201,168,${flicker * .28})`;
+        ctx.lineWidth = .7;
+        ctx.beginPath();
+        ctx.moveTo(xx - half, yy);
+        ctx.lineTo(xx + half, yy);
+        ctx.stroke();
+      }
+    }
+
+    function updateHaze() {
+      if (!hazeTextureCtx) return;
+      hazeFrame++;
+      if (hazeFrame % 3 !== 0 && phaseName !== 'entrance') return;
+      const hc = hazeTextureCtx;
+      const tw = hazeTexture.width;
+      const th = hazeTexture.height;
+      hc.clearRect(0, 0, tw, th);
+      hc.fillStyle = INK;
+      for (let gy = 0; gy < gridRows; gy++) {
+        for (let gx = 0; gx < gridCols; gx++) {
+          const density = gridCount[gy * gridCols + gx];
+          if (density < 4) continue;
+          const tx = gx * cellSize / width * tw;
+          const ty = gy * cellSize / height * th;
+          const cw = cellSize / width * tw + .8;
+          const ch = cellSize / height * th + .8;
+          hc.globalAlpha = Math.min(.24, (density - 2) * .013);
+          hc.fillRect(tx, ty, cw, ch);
+        }
+      }
+      hc.globalAlpha = 1;
+      const ctx = contexts.haze;
+      ctx.clearRect(0, 0, width, height);
+      ctx.save();
+      ctx.filter = 'blur(13px)';
+      ctx.globalAlpha = .72;
+      ctx.drawImage(hazeTexture, 0, 0, width, height);
+      ctx.restore();
+    }
+
+    function drawBirds() {
+      const ctx = contexts.birds;
+      ctx.clearRect(0, 0, width, height);
+      const bands = [
+        { max: .25, color: 'rgba(42,36,56,.48)', width: .55 },
+        { max: .5, color: 'rgba(13,11,18,.63)', width: .7 },
+        { max: .75, color: 'rgba(13,11,18,.8)', width: .85 },
+        { max: 1.01, color: 'rgba(13,11,18,.96)', width: 1 }
+      ];
+      for (let bandIndex = 0; bandIndex < bands.length; bandIndex++) {
+        const band = bands[bandIndex];
+        const min = bandIndex === 0 ? -1 : bands[bandIndex - 1].max;
+        ctx.beginPath();
+        for (let i = 0; i < birdCount; i++) {
+          if (landed[i] || z[i] < min || z[i] >= band.max) continue;
+          if (x[i] < -15 || x[i] > width + 15 || y[i] < -15 || y[i] > height + 15) continue;
+          const speed = Math.hypot(vx[i], vy[i]);
+          const ux = speed > .1 ? vx[i] / speed : 1;
+          const uy = speed > .1 ? vy[i] / speed : 0;
+          const nx = -uy;
+          const ny = ux;
+          const size = (.82 + z[i] * 2.03) * (1 + agitation[i] * .5 + alarm[i] * .18);
+          const flap = Math.sin(phase[i] + motionTime * (10.5 + z[i] * 5.5));
+          const left = size * (.5 + flap * .43);
+          const right = size * (.5 - flap * .43);
+          const frontX = x[i] + ux * size * (.54 + agitation[i] * .28);
+          const frontY = y[i] + uy * size * (.54 + agitation[i] * .28);
+          const backX = x[i] - ux * size * .34;
+          const backY = y[i] - uy * size * .34;
+          ctx.moveTo(backX + nx * left, backY + ny * left);
+          ctx.lineTo(frontX, frontY);
+          ctx.moveTo(frontX, frontY);
+          ctx.lineTo(backX - nx * right, backY - ny * right);
+        }
+        ctx.strokeStyle = band.color;
+        ctx.lineWidth = band.width;
+        ctx.stroke();
+      }
+    }
+
+    function steerFalcon(targetX, targetY, strength, maxSpeed, dt) {
+      const dx = targetX - falcon.x;
+      const dy = targetY - falcon.y;
+      falcon.vx += dx * strength * dt;
+      falcon.vy += dy * strength * dt;
+      const drag = Math.exp(-dt * .58);
+      falcon.vx *= drag;
+      falcon.vy *= drag;
+      const speed = Math.hypot(falcon.vx, falcon.vy);
+      if (speed > maxSpeed) {
+        falcon.vx *= maxSpeed / speed;
+        falcon.vy *= maxSpeed / speed;
+      }
+    }
+
+    function startAutoPass() {
+      if (reducedMotion || pointer.active || phaseName === 'roost' || phaseName === 'rest') {
+        falcon.autoAt = sceneTime + 7;
+        return;
+      }
+      const fromLeft = Math.random() < .5;
+      falcon.x = fromLeft ? -40 : width + 40;
+      falcon.y = height * (.2 + Math.random() * .15);
+      falcon.targetX = fromLeft ? width + 45 : -45;
+      falcon.targetY = roostY - height * (.02 + Math.random() * .1);
+      falcon.mode = 'pass';
+      falcon.timer = 5.2;
+      falcon.autoAt = sceneTime + 10 + Math.random() * 9;
+    }
+
+    function beginStoop(targetX, targetY, autonomous = false) {
+      if (falcon.mode === 'stoop' || falcon.cooldown > 0) return;
+      falcon.mode = 'stoop';
+      falcon.timer = reducedMotion ? 1.45 : .92;
+      falcon.cooldown = reducedMotion ? 4 : 3.2;
+      falcon.stoopX = targetX;
+      falcon.stoopY = targetY;
+      falcon.punched = false;
+      const dx = targetX - falcon.x;
+      const dy = targetY - falcon.y;
+      const distance = Math.max(1, Math.hypot(dx, dy));
+      falcon.heading = Math.atan2(dy, dx);
+      const speed = reducedMotion ? 270 : 880;
+      falcon.vx = dx / distance * speed;
+      falcon.vy = dy / distance * speed;
+      if (!reducedMotion) falcon.trail.push({ x: falcon.x, y: falcon.y, life: .65 });
+      if (!autonomous) markInteracted();
+    }
+
+    function stoopFromPointer() {
+      let tx = pointer.x;
+      let ty = pointer.y;
+      const distance = Math.hypot(pointer.x - falcon.x, pointer.y - falcon.y);
+      if (!pointer.active || distance < 175) {
+        tx = falcon.x + Math.cos(falcon.heading) * width * .42;
+        ty = falcon.y + Math.sin(falcon.heading) * width * .42;
+      }
+      beginStoop(tx, ty);
+    }
+
+    function finishStoop() {
+      if (!falcon.punched) {
+        falcon.punched = true;
+        punchFlock(falcon.x, falcon.y, reducedMotion ? 105 : 155);
+        if (!reducedMotion) {
+          falcon.rings.push({ x: falcon.x, y: falcon.y, life: 1, radius: 12 });
+          falcon.trail.push({ x: falcon.x, y: falcon.y, life: .8 });
+        }
+      }
+      falcon.mode = 'recover';
+      falcon.timer = 1.05;
+      falcon.vx *= .42;
+      falcon.vy *= .42;
+    }
+
+    function updateFalcon(dt) {
+      falcon.cooldown = Math.max(0, falcon.cooldown - dt);
+      const hunting = pointer.active && sceneTime - pointer.lastMove < 6;
+      const scale = reducedMotion ? .48 : 1;
+
+      if (falcon.mode === 'stoop') {
+        falcon.timer -= dt * scale;
+        const dx = falcon.stoopX - falcon.x;
+        const dy = falcon.stoopY - falcon.y;
+        const distance = Math.hypot(dx, dy);
+        if (distance > 1) falcon.heading = Math.atan2(dy, dx);
+        falcon.vx += dx * .8 * dt;
+        falcon.vy += dy * .8 * dt;
+        falcon.x += falcon.vx * dt * scale;
+        falcon.y += falcon.vy * dt * scale;
+        if (!reducedMotion) falcon.trail.push({ x: falcon.x, y: falcon.y, life: .6 });
+        if (distance < 32 || falcon.timer <= .08 || falcon.x < -80 || falcon.x > width + 80 || falcon.y < -80 || falcon.y > height + 80) {
+          finishStoop();
+        }
+      } else if (falcon.mode === 'recover') {
+        falcon.timer -= dt;
+        const tx = width * .69 + Math.sin(sceneTime * .18) * width * .09;
+        const ty = height * .245 + Math.cos(sceneTime * .2) * height * .045;
+        steerFalcon(tx, ty, 1.1, 150, dt);
+        falcon.x += falcon.vx * dt * scale;
+        falcon.y += falcon.vy * dt * scale;
+        if (falcon.timer <= 0) falcon.mode = 'loiter';
+      } else if (falcon.mode === 'pass') {
+        falcon.timer -= dt;
+        steerFalcon(falcon.targetX, falcon.targetY, 1.28, 235, dt);
+        falcon.x += falcon.vx * dt;
+        falcon.y += falcon.vy * dt;
+        if (!reducedMotion && falcon.cooldown <= 0 && falcon.timer < 2.6 &&
+            Math.abs(falcon.x - roostX) < width * .16 && Math.random() < dt * 1.6) {
+          beginStoop(roostX + (Math.random() - .5) * width * .12, roostY + (Math.random() - .5) * height * .08, true);
+        }
+        if (falcon.timer <= 0) {
+          falcon.mode = 'loiter';
+          falcon.autoAt = sceneTime + 9 + Math.random() * 8;
+        }
+      } else if (hunting) {
+        const orbit = clamp(width * .082, 72, 145);
+        const angle = sceneTime * .72;
+        const tx = pointer.x + Math.cos(angle) * orbit;
+        const ty = pointer.y + Math.sin(angle) * orbit * .58;
+        steerFalcon(tx, ty, 1.65, 175, dt);
+        falcon.x += falcon.vx * dt * scale;
+        falcon.y += falcon.vy * dt * scale;
+        falcon.autoAt = Math.max(falcon.autoAt, sceneTime + 5);
+      } else {
+        if (!reducedMotion && sceneTime > falcon.autoAt) startAutoPass();
+        const tx = width * .69 + Math.sin(sceneTime * .11) * width * .11;
+        const ty = height * .235 + Math.cos(sceneTime * .17) * height * .055;
+        steerFalcon(tx, ty, .72, 72, dt);
+        falcon.x += falcon.vx * dt * scale;
+        falcon.y += falcon.vy * dt * scale;
+      }
+
+      if (Math.hypot(falcon.vx, falcon.vy) > 2) {
+        const desired = Math.atan2(falcon.vy, falcon.vx);
+        let delta = desired - falcon.heading;
+        while (delta > Math.PI) delta -= TAU;
+        while (delta < -Math.PI) delta += TAU;
+        falcon.heading += delta * Math.min(1, dt * 8);
+      }
+      falcon.x = clamp(falcon.x, -70, width + 70);
+      falcon.y = clamp(falcon.y, -70, height + 70);
+
+      for (let i = falcon.trail.length - 1; i >= 0; i--) {
+        falcon.trail[i].life -= dt;
+        if (falcon.trail[i].life <= 0) falcon.trail.splice(i, 1);
+      }
+      for (let i = falcon.rings.length - 1; i >= 0; i--) {
+        falcon.rings[i].life -= dt * .9;
+        falcon.rings[i].radius += dt * 105;
+        if (falcon.rings[i].life <= 0) falcon.rings.splice(i, 1);
+      }
+      scene.dataset.falcon = falcon.mode;
+    }
+
+    function drawFalcon() {
+      const ctx = contexts.falcon;
+      ctx.clearRect(0, 0, width, height);
+
+      if (falcon.trail.length > 1) {
+        ctx.beginPath();
+        ctx.moveTo(falcon.trail[0].x, falcon.trail[0].y);
+        for (let i = 1; i < falcon.trail.length; i++) ctx.lineTo(falcon.trail[i].x, falcon.trail[i].y);
+        ctx.strokeStyle = 'rgba(13,11,18,.2)';
+        ctx.lineWidth = 1.15;
+        ctx.stroke();
+        ctx.beginPath();
+        for (let i = 1; i < falcon.trail.length; i++) {
+          const p = falcon.trail[i];
+          ctx.moveTo(falcon.trail[i - 1].x, falcon.trail[i - 1].y);
+          ctx.lineTo(p.x, p.y);
+        }
+        ctx.strokeStyle = 'rgba(246,201,168,.16)';
+        ctx.lineWidth = .45;
+        ctx.stroke();
+      }
+
+      for (const ring of falcon.rings) {
+        ctx.beginPath();
+        ctx.arc(ring.x, ring.y, ring.radius, 0, TAU);
+        ctx.strokeStyle = `rgba(246,201,168,${ring.life * .28})`;
+        ctx.lineWidth = .8;
+        ctx.stroke();
+      }
+
+      if (pointer.active) {
+        const r = 10;
+        ctx.strokeStyle = 'rgba(246,201,168,.46)';
+        ctx.lineWidth = .75;
+        ctx.beginPath();
+        ctx.moveTo(pointer.x - r - 4, pointer.y); ctx.lineTo(pointer.x - r + 2, pointer.y);
+        ctx.moveTo(pointer.x + r - 2, pointer.y); ctx.lineTo(pointer.x + r + 4, pointer.y);
+        ctx.moveTo(pointer.x, pointer.y - r - 4); ctx.lineTo(pointer.x, pointer.y - r + 2);
+        ctx.moveTo(pointer.x, pointer.y + r - 2); ctx.lineTo(pointer.x, pointer.y + r + 4);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(pointer.x, pointer.y, 1.2, 0, TAU);
+        ctx.fillStyle = 'rgba(246,201,168,.66)';
+        ctx.fill();
+      }
+
+      ctx.save();
+      ctx.translate(falcon.x, falcon.y);
+      ctx.rotate(falcon.heading);
+      const scale = width < 620 ? .84 : 1.05;
+      ctx.scale(scale, scale);
+      ctx.fillStyle = INK;
+      ctx.beginPath();
+      if (falcon.mode === 'stoop') {
+        ctx.moveTo(18, 0);
+        ctx.quadraticCurveTo(8, -3.5, 1, -4.3);
+        ctx.lineTo(-7, -5.6);
+        ctx.lineTo(-12, -2.3);
+        ctx.lineTo(-18, 0);
+        ctx.lineTo(-12, 2.3);
+        ctx.lineTo(-7, 5.6);
+        ctx.lineTo(1, 4.3);
+        ctx.quadraticCurveTo(8, 3.5, 18, 0);
+      } else {
+        const wing = Math.sin(motionTime * 1.3) * .8;
+        ctx.moveTo(17, 0);
+        ctx.quadraticCurveTo(8, -3, 1, -4.5);
+        ctx.lineTo(-7, -15.5 - wing);
+        ctx.quadraticCurveTo(-3.5, -5, -10.5, -2.2);
+        ctx.lineTo(-17, 0);
+        ctx.lineTo(-10.5, 2.2);
+        ctx.quadraticCurveTo(-3.5, 5, -7, 15.5 + wing);
+        ctx.lineTo(1, 4.5);
+        ctx.quadraticCurveTo(8, 3, 17, 0);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(17, 0);
+      ctx.lineTo(21, -.6);
+      ctx.lineTo(17.5, 1.1);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function updateReeds(dt) {
+      const decay = Math.exp(-dt * 1.35);
+      for (let i = 0; i < reedShakeBins.length; i++) reedShakeBins[i] *= decay;
+    }
+
+    function drawReeds() {
+      const ctx = contexts.reeds;
+      ctx.clearRect(0, 0, width, height);
+      const motion = reducedMotion ? motionTime * .28 : motionTime;
+      let firstFront = reeds.length;
+      for (let i = 0; i < reeds.length; i++) {
+        if (reeds[i].front) {
+          firstFront = i;
+          break;
+        }
+      }
+
+      if (landedCount > 0) {
+        ctx.beginPath();
+        for (let i = 0; i < birdCount; i += 2) {
+          if (!landed[i]) continue;
+          const yy = y[i] + Math.sin(motion * .8 + i) * .5;
+          ctx.moveTo(x[i] - 1.8, yy - .7);
+          ctx.lineTo(x[i], yy + .6);
+          ctx.lineTo(x[i] + 1.8, yy - .7);
+        }
+        ctx.strokeStyle = 'rgba(13,11,18,.72)';
+        ctx.lineWidth = .75;
+        ctx.stroke();
+      }
+
+      drawReedLayer(ctx, 0, firstFront, motion);
+      paintFence(ctx);
+      drawReedLayer(ctx, firstFront, reeds.length, motion);
+    }
+
+    function drawReedLayer(ctx, start, end, motion) {
+      for (let index = start; index < end; index++) {
+        const reed = reeds[index];
+        const bin = clamp(Math.floor(reed.x / width * reedShakeBins.length), 0, reedShakeBins.length - 1);
+        const wind = Math.sin(motion * reed.speed + reed.x * .011 + reed.phase);
+        const crosswind = Math.sin(motion * .31 + reed.x * .004 + reed.phase * 1.7);
+        const shiver = reedShakeBins[bin] * Math.sin(motion * 18 + reed.phase);
+        const amplitude = reed.front ? 10 : 5.5;
+        const sway = wind * amplitude + crosswind * amplitude * .3 + shiver * (reed.front ? 16 : 8);
+        const topX = reed.x + reed.lean + sway;
+        const topY = reed.y - reed.h;
+        const controlX = reed.x + reed.lean * .18 + sway * .3;
+        const controlY = reed.y - reed.h * .54;
+        const color = reed.front ? 'rgba(13,11,18,.98)' : 'rgba(13,11,18,.7)';
+
+        ctx.beginPath();
+        ctx.moveTo(reed.x, reed.y);
+        ctx.quadraticCurveTo(controlX, controlY, topX, topY);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = reed.width;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        if (reed.type < .57) {
+          const side = reed.phase > Math.PI ? 1 : -1;
+          const leafY = reed.y - reed.h * (.36 + hash(index + 3100) * .24);
+          const leafX = lerp(reed.x, topX, .42);
+          const leafLength = reed.h * (.16 + hash(index + 3200) * .13);
+          ctx.beginPath();
+          ctx.moveTo(leafX, leafY);
+          ctx.quadraticCurveTo(leafX + side * leafLength * .45, leafY - leafLength * .24, leafX + side * leafLength, leafY - leafLength * .7);
+          ctx.quadraticCurveTo(leafX + side * leafLength * .32, leafY - leafLength * .28, leafX, leafY);
+          ctx.fillStyle = color;
+          ctx.fill();
+          if (reed.front && reed.type < .22) {
+            const side2 = -side;
+            ctx.beginPath();
+            ctx.moveTo(leafX - 2, leafY + reed.h * .14);
+            ctx.quadraticCurveTo(leafX + side2 * leafLength * .3, leafY - leafLength * .02, leafX + side2 * leafLength * .72, leafY - leafLength * .42);
+            ctx.quadraticCurveTo(leafX + side2 * leafLength * .2, leafY - leafLength * .06, leafX - 2, leafY + reed.h * .14);
+            ctx.fill();
+          }
+        } else if (reed.type < .84) {
+          // A soft, drooping reed plume, built from a few tapered hairs.
+          const droop = reed.lean * .3 + sway * .45 + 5;
+          const plumeLength = reed.h * (.13 + hash(index + 3300) * .08);
+          ctx.beginPath();
+          ctx.moveTo(topX, topY);
+          ctx.bezierCurveTo(topX + droop * .25, topY + plumeLength * .15, topX + droop, topY + plumeLength * .65, topX + droop * .72, topY + plumeLength);
+          ctx.strokeStyle = color;
+          ctx.lineWidth = Math.max(1.4, reed.width * 2.5);
+          ctx.stroke();
+          ctx.lineWidth = Math.max(.45, reed.width * .62);
+          for (let hair = 0; hair < 4; hair++) {
+            const off = (hair - 1.5) * 1.5;
+            ctx.beginPath();
+            ctx.moveTo(topX + off, topY + hair * 1.4);
+            ctx.quadraticCurveTo(topX + droop * .45 + off, topY + plumeLength * .4, topX + droop * .72 + off, topY + plumeLength - hair);
+            ctx.stroke();
+          }
+        } else {
+          const headH = reed.h * .075;
+          ctx.save();
+          ctx.translate(topX, topY + headH * .4);
+          ctx.rotate(reed.lean * .006 + sway * .004);
+          ctx.beginPath();
+          ctx.ellipse(0, 0, Math.max(1.5, reed.width * 1.65), headH, 0, 0, TAU);
+          ctx.fillStyle = color;
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+    }
+
+    function createWingAudio() {
+      const AudioCtor = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtor) throw new Error('AudioContext unavailable');
+      const context = new AudioCtor();
+      const length = Math.floor(context.sampleRate * 2);
+      const buffer = context.createBuffer(1, length, context.sampleRate);
+      const data = buffer.getChannelData(0);
+      let brown = 0;
+      for (let i = 0; i < length; i++) {
+        const white = Math.random() * 2 - 1;
+        brown = (brown + .018 * white) / 1.018;
+        data[i] = white * .42 + brown * 2.8;
+      }
+      const source = context.createBufferSource();
+      source.buffer = buffer;
+      source.loop = true;
+      const filter = context.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 720;
+      filter.Q.value = .72;
+      const flutter = context.createGain();
+      flutter.gain.value = .46;
+      const master = context.createGain();
+      master.gain.value = 0;
+      const lfo = context.createOscillator();
+      lfo.type = 'sine';
+      lfo.frequency.value = 10.5;
+      const lfoDepth = context.createGain();
+      lfoDepth.gain.value = .34;
+      source.connect(filter);
+      filter.connect(flutter);
+      flutter.connect(master);
+      master.connect(context.destination);
+      lfo.connect(lfoDepth);
+      lfoDepth.connect(flutter.gain);
+      source.start();
+      lfo.start();
+      return { context, filter, flutter, master, lfo, enabled: false };
+    }
+
+    async function toggleSound() {
+      markInteracted();
+      if (!audio) {
+        try {
+          audio = createWingAudio();
+        } catch (_) {
+          soundLabel.textContent = 'Sound unavailable';
+          soundButton.disabled = true;
+          soundButton.setAttribute('aria-label', 'Marsh sound is unavailable in this browser');
+          return;
+        }
+      }
+      try {
+        if (audio.context.state === 'suspended') await audio.context.resume();
+      } catch (_) {
+        soundLabel.textContent = 'Sound unavailable';
+        soundButton.disabled = true;
+        return;
+      }
+      audio.enabled = !audio.enabled;
+      audio.master.gain.cancelScheduledValues(audio.context.currentTime);
+      audio.master.gain.setTargetAtTime(audio.enabled ? .05 : 0, audio.context.currentTime, .18);
+      soundButton.setAttribute('aria-pressed', String(audio.enabled));
+      soundButton.setAttribute('aria-label', audio.enabled ? 'Turn marsh sound off' : 'Turn marsh sound on');
+      soundLabel.textContent = audio.enabled ? 'Sound on' : 'Sound off';
+      scene.dataset.sound = String(audio.enabled);
+    }
+
+    function updateAudio() {
+      if (!audio || !audio.enabled || audio.context.state !== 'running') return;
+      const now = audio.context.currentTime;
+      const presence = clamp(visibleFlyers / Math.max(1, birdCount), 0, 1);
+      const speed = clamp(averageSpeed / 165, 0, 1);
+      const falconDistance = Math.hypot(falcon.x - roostX, falcon.y - roostY);
+      const proximity = clamp(1 - falconDistance / (width * .48), 0, 1);
+      const panic = clamp(fleeing / Math.max(1, visibleFlyers), 0, 1);
+      const volume = (.012 + speed * .034 + proximity * .018 + panic * .052) * presence;
+      audio.master.gain.setTargetAtTime(volume, now, .12);
+      audio.filter.frequency.setTargetAtTime(480 + speed * 920 + panic * 720, now, .16);
+      audio.filter.Q.setTargetAtTime(.66 + panic * .42, now, .2);
+      audio.lfo.frequency.setTargetAtTime(8.5 + speed * 6.5 + panic * 5, now, .15);
+      audio.flutter.gain.setTargetAtTime(.28 + speed * .18 + panic * .18, now, .15);
+    }
+
+    function markInteracted() {
+      if (interacted) return;
+      interacted = true;
+      scene.classList.add('has-interacted');
+    }
+
+    let pointerDown = null;
+
+    function updatePointer(event) {
+      const rect = scene.getBoundingClientRect();
+      pointer.x = clamp(event.clientX - rect.left, 0, width);
+      pointer.y = clamp(event.clientY - rect.top, 0, height);
+      pointer.active = true;
+      pointer.lastMove = sceneTime;
+    }
+
+    scene.addEventListener('pointermove', event => {
+      if (event.target.closest('button')) return;
+      updatePointer(event);
+      markInteracted();
+      if (pointerDown && pointerDown.id === event.pointerId) {
+        if (Math.hypot(event.clientX - pointerDown.x, event.clientY - pointerDown.y) > 8) pointerDown.dragged = true;
+      }
+    }, { passive: true });
+
+    scene.addEventListener('pointerdown', event => {
+      if (event.target.closest('button') || event.button > 0) return;
+      event.preventDefault();
+      updatePointer(event);
+      markInteracted();
+      pointerDown = { id: event.pointerId, x: event.clientX, y: event.clientY, time: performance.now(), dragged: false };
+      if (event.pointerType !== 'touch') stoopFromPointer();
+      if (scene.setPointerCapture) {
+        try { scene.setPointerCapture(event.pointerId); } catch (_) {}
+      }
+    });
+
+    scene.addEventListener('pointerup', event => {
+      if (!pointerDown || pointerDown.id !== event.pointerId) return;
+      if (event.pointerType === 'touch' && !pointerDown.dragged && performance.now() - pointerDown.time < 450) stoopFromPointer();
+      pointerDown = null;
+      if (event.pointerType !== 'touch') pointer.active = false;
+    });
+
+    scene.addEventListener('pointercancel', () => {
+      pointerDown = null;
+      pointer.active = false;
+    });
+
+    scene.addEventListener('pointerleave', event => {
+      if (event.pointerType === 'mouse' && !pointerDown) pointer.active = false;
+    });
+
+    window.addEventListener('blur', () => {
+      pointer.active = false;
+      pointerDown = null;
+    });
+
+    window.addEventListener('keydown', event => {
+      if (event.target.closest('button, input, select, textarea')) return;
+      if (event.code === 'Space') {
+        event.preventDefault();
+        if (!event.repeat) stoopFromPointer();
+      } else if (event.code === 'KeyC') {
+        callThemDown();
+      } else if (event.code === 'KeyU') {
+        sendThemUp();
+      } else if (event.code === 'KeyM') {
+        toggleSound();
+      }
+    });
+
+    callButton.addEventListener('click', callThemDown);
+    sendButton.addEventListener('click', sendThemUp);
+    soundButton.addEventListener('click', toggleSound);
+
+    function applyMotionPreference() {
+      reducedMotion = motionQuery.matches;
+      birdCount = chooseBirdCount();
+      for (let i = 0; i < birdCount; i++) phase[i] = 0;
+      seedBirds(false);
+      falcon.mode = 'loiter';
+      falcon.trail.length = 0;
+      falcon.rings.length = 0;
+      scene.dataset.reduced = String(reducedMotion);
+      scene.dataset.birds = String(birdCount);
+      updateCount(true);
+    }
+
+    if (motionQuery.addEventListener) motionQuery.addEventListener('change', applyMotionPreference);
+
+    let nextSpook = 11;
+    let resizeTimer = 0;
+
+    function adaptPerformance(dt) {
+      if (dt > .034) slowTime += dt;
+      else slowTime = Math.max(0, slowTime - dt * .5);
+      if (slowTime > 3.2 && birdCount > 1200) {
+        birdCount = Math.max(1200, birdCount - 200);
+        landedCount = 0;
+        for (let i = 0; i < birdCount; i++) if (landed[i]) landedCount++;
+        slowTime = 0;
+        scene.dataset.birds = String(birdCount);
+        updateCount(true);
+      }
+    }
+
+    function frame(now) {
+      if (!running) return;
+      const rawDt = lastFrame ? (now - lastFrame) / 1000 : 1 / 60;
+      const dt = clamp(rawDt, .001, .05);
+      lastFrame = now;
+      frameAverage = lerp(frameAverage, rawDt * 1000, .035);
+      sceneTime += dt;
+      motionTime += dt * (reducedMotion ? .42 : 1);
+
+      updateLifecycle(dt);
+      if (sceneTime > nextSpook) {
+        spookAnEdge();
+        nextSpook = sceneTime + 9 + Math.random() * 8;
+      }
+      updateFalcon(dt);
+      updateBirds(dt);
+      updateReeds(dt);
+      drawClouds(dt);
+      updateHaze();
+      drawBirds();
+      drawReeds();
+      drawFalcon();
+      updateCount();
+      updateAudio();
+      adaptPerformance(rawDt);
+      scene.dataset.fps = String(Math.round(1000 / Math.max(1, frameAverage)));
+      raf = requestAnimationFrame(frame);
+    }
+
+    function start() {
+      if (running) return;
+      running = true;
+      lastFrame = performance.now();
+      scene.dataset.paused = 'false';
+      if (audio && audio.enabled && audio.context.state === 'suspended') audio.context.resume().catch(() => {});
+      raf = requestAnimationFrame(frame);
+    }
+
+    function stop() {
+      running = false;
+      cancelAnimationFrame(raf);
+      scene.dataset.paused = 'true';
+      if (audio && audio.context.state === 'running') audio.context.suspend().catch(() => {});
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop();
+      else start();
+    });
+
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 140);
+    });
+
+    setupContexts();
+    resize();
+    scene.dataset.phase = phaseName;
+    scene.dataset.sound = 'false';
+    scene.dataset.paused = 'false';
+    window.murmuration = Object.freeze({
+      getState: () => ({
+        birds: birdCount,
+        visible: visibleFlyers,
+        landed: landedCount,
+        phase: phaseName,
+        reducedMotion,
+        dpr,
+        fps: Math.round(1000 / Math.max(1, frameAverage)),
+        sound: Boolean(audio && audio.enabled),
+        falcon: falcon.mode,
+        evening: eveningNumber,
+        cycleTime: Math.round(cycleTime)
+      })
+    });
+    start();
+  })();
+  </script>
+</body>
+</html>

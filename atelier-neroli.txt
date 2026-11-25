@@ -1,0 +1,14 @@
+TITLE
+Atelier Néroli — Blue Hour · Eau de Parfum No. 5
+
+PROMPT
+A landing page for an invented Grasse perfume house, Atelier Néroli, presenting one fragrance: Eau de Parfum No. 5, "Blue Hour". The mood is the minute between daylight and dream. Weightless, floral, and slow. The page is pale lavender and warm ivory, with ink #2d2838 and a softer #625a70. Display type is a high-contrast serif (Didot, Bodoni, Iowan Old Style, Palatino, Georgia). Labels are a clean sans.
+
+The hero is a single object: a transparent faceted glass bottle drawn in line and gradient, pale golden liquid inside, a lavender glass cap, and a small ivory label reading Atelier Néroli, Blue Hour, Eau de Parfum No. 5. The headline is "Blue Hour", with the line "For the minute when the garden forgets the sun." A small fact line reads "Blended in Grasse · 50 ml" and names neroli, jasmine and cedar.
+
+The notes are the interaction. Three groups: top, the first light (bergamot, pink pepper); heart, the soft centre (neroli, jasmine sambac); base, what remains (cedar, musk). Hovering, focusing, or pressing a note names it and shifts the colour and light of the hour. A short story, "The memory", follows the scent from the blue minute after sunset. A discovery set can be opened and closed. A control returns the page to the blue hour.
+
+Keep the motion quiet: a slow drift of light, not a spectacle. Respect reduced motion by holding the bottle and the notes still while every note remains readable and usable. No external images, fonts, or libraries. All imagery is inline SVG and CSS.
+
+DESCRIPTION
+A quiet house page for an invented Grasse perfume, Eau de Parfum No. 5, called Blue Hour. A faceted glass bottle of pale golden liquid sits in a lavender dusk, and the six notes — bergamot, pink pepper, neroli, jasmine sambac, cedar and musk — are the controls. Hover or focus a note and the hour turns with it. A short memory of the garden after the sun has gone, and a discovery set, stay in the same soft register.

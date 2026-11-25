@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="HungerG 11-HTML Files. Eleven self-contained visual studies with screenshots and the original prompt for each page.">
+<title>HungerG 11-HTML Files</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+:root{color-scheme:light;--paper:#f7f6f2;--ink:#211d17;--muted:#665e50;--line:#e6e1d6;--accent:#9a3412}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,sans-serif;min-height:100vh}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 10% 0,#9a341218,transparent 45%),radial-gradient(ellipse at 90% 0,#b4530912,transparent 40%),radial-gradient(ellipse at 50% 100%,#0e7a5f10,transparent 45%)}
+.wrap{position:relative;max-width:960px;margin:auto;padding:48px 20px 80px}header{margin-bottom:30px}.eyebrow{font-size:11px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);margin:0 0 12px}h1{font-size:clamp(28px,5vw,42px);line-height:1.12;letter-spacing:-.03em;margin:0 0 12px;font-weight:800}.lede{max-width:62ch;color:var(--muted);margin:0}
+.toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 0;margin-bottom:8px;background:linear-gradient(var(--paper) 65%,#f7f6f200);backdrop-filter:blur(8px)}.search{position:relative;flex:1;min-width:220px}.search svg{position:absolute;left:13px;top:15px;width:16px;height:16px;pointer-events:none;color:#9a917f}input{font:inherit;font-size:14px;width:100%;padding:12px 14px 12px 40px;border:1px solid #cfc6b4;border-radius:10px;background:white;color:var(--ink)}input::placeholder{color:#9a917f}.count{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#756c5c;white-space:nowrap}.count b{color:var(--accent);font-weight:600}
+.list{display:flex;flex-direction:column;gap:12px}.card{background:white;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 1px 2px #1e14320d,0 8px 24px -12px #1e14321f;transition:transform .15s,border-color .2s,box-shadow .2s}.card:hover{transform:translateY(-1px);border-color:#c9c0ae;box-shadow:0 2px 6px #1e14320f,0 16px 34px -16px #1e143233}.thumb{display:block;overflow:hidden;text-decoration:none;background:#ede9e1;aspect-ratio:1440/1000}.thumb img{display:block;width:100%;height:auto;transition:transform .25s}.card:hover .thumb img{transform:scale(1.015)}.preview-missing{height:100%;padding:30px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;text-align:center;font-size:14px;color:var(--muted)}.preview-missing span{color:var(--accent)}
+.card-top{display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:16px;padding:18px 18px 14px}.num{font:12px/1.5 ui-monospace,Menlo,monospace;letter-spacing:.06em;color:#9a3412;background:#9a34121a;border:1px solid #9a341238;padding:6px 9px;border-radius:8px;min-width:48px;text-align:center}.main{min-width:0}h2{font-size:17px;line-height:1.35;letter-spacing:-.02em;margin:0 0 4px;font-weight:650}h2 a{color:inherit;text-decoration:none}h2 a:hover{color:var(--accent)}.desc{font-size:13.5px;color:var(--muted);margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.actions{display:flex;flex-direction:column;gap:8px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 14px;border:1px solid #cfc6b4;border-radius:9px;font:600 12px/1.5 inherit;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;white-space:nowrap;cursor:pointer;background:transparent;color:var(--muted)}.btn-open{background:#9a341214;border-color:#9a341259;color:#9a3412}.btn-open:hover{background:#9a3412;color:white}.btn-prompt:hover{background:#fbfaf7;color:var(--ink)}.btn-prompt[aria-expanded=true]{color:#0e7a5f;background:#0e7a5f14;border-color:#0e7a5f66}
+.prompt-panel{border-top:1px solid var(--line);padding:16px 18px 18px;background:#f4f1ea}.prompt-panel h3{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#0e7a5f;margin:0 0 10px}.prompt-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13.5px;line-height:1.65;color:#47402f}.file-name{display:inline-block;margin-top:12px;font:11px ui-monospace,Menlo,monospace;color:#756c5c;overflow-wrap:anywhere}.empty{text-align:center;padding:60px 20px;color:var(--muted);border:1px dashed #cfc6b4;border-radius:14px}footer{margin-top:48px;padding-top:20px;border-top:1px solid #cfc6b4;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:12px;color:#756c5c}footer a{color:inherit}:focus-visible{outline:3px solid #9a3412;outline-offset:3px}[hidden]{display:none!important}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:640px){.card-top{grid-template-columns:auto 1fr}.actions{grid-column:1/-1;flex-direction:row}.btn{flex:1}.wrap{padding-top:30px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important}.card:hover,.card:hover .thumb img{transform:none}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header><p class="eyebrow">Collection · 11 studies</p><h1>HungerG 11-HTML Files</h1>
+<p class="lede">Eleven self-contained visual studies — generative art, physics, typography, interfaces and scenes. Open any piece in a new tab, or expand a card to read the original generation prompt.</p></header>
+<div class="toolbar"><div class="search"><label class="sr-only" for="q">Search studies by name, number, or prompt</label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/></svg><input type="search" id="q" placeholder="Search by name, number, or prompt…" autocomplete="off" spellcheck="false"></div><div class="count" id="count" role="status" aria-live="polite"><b>11</b> studies</div></div>
+<div class="list" id="list"><article class="card" id="study-01">
+  <a class="thumb" href="atelier-neroli.html" target="_blank" rel="noopener" aria-label="Open Atelier Néroli — Blue Hour · Eau de Parfum No. 5">
+    <img src="thumbs/atelier-neroli.jpg" alt="Atelier Néroli — Blue Hour · Eau de Parfum No. 5 screenshot" width="1440" height="1000" loading="lazy" decoding="async">
+    <span class="preview-missing" hidden>Screenshot will appear after the gallery is published.<br><span>Open Atelier Néroli — Blue Hour · Eau de Parfum No. 5 ↗</span></span>
+  </a>
+  <div class="card-top">
+    <span class="num">01</span>
+    <div class="main"><h2><a href="atelier-neroli.html" target="_blank" rel="noopener">Atelier Néroli — Blue Hour · Eau de Parfum No. 5</a></h2>
+    <p class="desc">A quiet house page for an invented Grasse perfume, Eau de Parfum No. 5, called Blue Hour. A faceted glass bottle of pale golden liquid sits in a lavender dusk, and the six notes — bergamot, pink pepper, neroli, jasmine sambac, cedar and musk — are the controls. Hover or focus a note and the hour turns with it. A short memory of the garden after the sun has gone, and a discovery set, stay in the same soft register.</p></div>
+    <div class="actions"><a class="btn btn-open" href="atelier-neroli.html" target="_blank" rel="noopener" aria-label="Open Atelier Néroli — Blue Hour · Eau de Parfum No. 5">↗ Open</a>
+    <button class="btn btn-prompt" type="button" aria-expanded="false" aria-controls="prompt-01">☰ Prompt</button></div>
+  </div>
+  <div class="prompt-panel" id="prompt-01" hidden><h3>Original prompt</h3>
+    <div class="prompt-text">A landing page for an invented Grasse perfume house, Atelier Néroli, presenting one fragrance: Eau de Parfum No. 5, &quot;Blue Hour&quot;. The mood is the minute between daylight and dream. Weightless, floral, and slow. The page is pale lavender and warm ivory, with ink #2d2838 and a softer #625a70. Display type is a high-contrast serif (Didot, Bodoni, Iowan Old Style, Palatino, Georgia). Labels are a clean sans.
+
+The hero is a single object: a transparent faceted glass bottle drawn in line and gradient, pale golden liquid inside, a lavender glass cap, and a small ivory label reading Atelier Néroli, Blue Hour, Eau de Parfum No. 5. The headline is &quot;Blue Hour&quot;, with the line &quot;For the minute when the garden forgets the sun.&quot; A small fact line reads &quot;Blended in Grasse · 50 ml&quot; and names neroli, jasmine and cedar.
+
+The notes are the interaction. Three groups: top, the first light (bergamot, pink pepper); heart, the soft centre (neroli, jasmine sambac); base, what remains (cedar, musk). Hovering, focusing, or pressing a note names it and shifts the colour and light of the hour. A short story, &quot;The memory&quot;, follows the scent from the blue minute after sunset. A discovery set can be opened and closed. A control returns the page to the blue hour.
+
+Keep the motion quiet: a slow drift of light, not a spectacle. Respect reduced motion by holding the bottle and the notes still while every note remains readable and usable. No external images, fonts, or libraries. All imagery is inline SVG and CSS.</div>
+    <a class="file-name" href="atelier-neroli.txt" target="_blank" rel="noopener">atelier-neroli.txt</a>
+  </div>
+</article>
+<article class="card" id="study-02">
+  <a class="thumb" href="elastic.html" target="_blank" rel="noopener" aria-label="Open ELASTIC — Letterforms on Springs">
+    <img src="thumbs/elastic.jpg" alt="ELASTIC — Letterforms on Springs screenshot" width="1440" height="1000" loading="lazy" decoding="async">
+    <span class="preview-missing" hidden>Screenshot will appear after the gallery is published.<br><span>Open ELASTIC — Letterforms on Springs ↗</span></span>
+  </a>
+  <div class="card-top">
+    <span class="num">02</span>
+    <div class="main"><h2><a href="elastic.html" target="_blank" rel="noopener">ELASTIC — Letterforms on Springs</a></h2>
+    <p class="desc">A typography physics lab on a near-black field. The opening specimen, BOUNCE, is a cloud of letterforms tied together with springs. Move through it and the letters shove aside. Click, or press Enter, and the word explodes, then finds its way home. Dots, lines or threads change how the same particles are drawn. Stiffness, damping and the pointer&#x27;s reach are live, and another word of up to twelve characters rebuilds the field.</p></div>
+    <div class="actions"><a class="btn btn-open" href="elastic.html" target="_blank" rel="noopener" aria-label="Open ELASTIC — Letterforms on Springs">↗ Open</a>
+    <button class="btn btn-prompt" type="button" aria-expanded="false" aria-controls="prompt-02">☰ Prompt</button></div>
+  </div>
+  <div class="prompt-panel" id="prompt-02" hidden><h3>Original prompt</h3>
+    <div class="prompt-text">Build a single self-contained page called ELASTIC, a typography physics lab. The ground is near-black #111018, with raised panels #17151f and #1d1a26, pale type #f3eef7, magenta #ff2e88 and mint #29e7cd. The idea: a word is no longer static type. Its letterforms are particles connected by springs.
+
+Open on the specimen BOUNCE, already alive, with the line &quot;Type is no longer static. Disturb the field, release the tension, and watch it find its way home.&quot; Moving the pointer through the field pushes the particles. A control switches that field between repel and attract. Clicking the field, or pressing Enter, explodes the word. The springs then pull it back toward the letterforms. Pause freezes the simulation. Reset restores it.
+
+Three render modes draw the same particles: Dots, Lines and Threads, chosen with buttons or keys 1–3. A control room sets stiffness (opening at 65), damping (opening at 0.91) and force radius (opening at 150 px). A word field accepts A–Z and 0–9, up to 12 characters, and rebuilds the letterforms when the visitor types, or immediately on Enter. Live readouts show pointer position, point count, energy and frame rate. A keyboard help dialog explains the controls.
+
+The page must work by mouse, touch and keyboard, with visible focus. Reduced motion should calm the idle drift without removing the explode, the modes or the typed word. No external assets.</div>
+    <a class="file-name" href="elastic.txt" target="_blank" rel="noopener">elastic.txt</a>
+  </div>
+</article>
+<article class="card" id="study-03">
+  <a class="thumb" href="four-seasons.html" target="_blank" rel="noopener" aria-label="Open Four Seasons — A Fractal Tree">
+    <img src="thumbs/four-seasons.jpg" alt="Four Seasons — A Fractal Tree screenshot" width="1440" height="1000" loading="lazy" decoding="async">
+    <span class="preview-missing" hidden>Screenshot will appear after the gallery is published.<br><span>Open Four Seasons — A Fractal Tree ↗</span></span>
+  </a>
+  <div class="card-top">
+    <span class="num">03</span>
+    <div class="main"><h2><a href="four-seasons.html" target="_blank" rel="noopener">Four Seasons — A Fractal Tree</a></h2>
+    <p class="desc">One fractal tree and one year, on warm paper. A seed grows a recursive canopy. A season dial walks it from the first blush of March through leaf, colour and snow. Play the year and the tree keeps time by itself. A new seed grows a different tree. Drag the dial, use the arrow keys, or click the canopy to shake it.</p></div>
+    <div class="actions"><a class="btn btn-open" href="four-seasons.html" target="_blank" rel="noopener" aria-label="Open Four Seasons — A Fractal Tree">↗ Open</a>
+    <button class="btn btn-prompt" type="button" aria-expanded="false" aria-controls="prompt-03">☰ Prompt</button></div>
+  </div>
+  <div class="prompt-panel" id="prompt-03" hidden><h3>Original prompt</h3>
+    <div class="prompt-text">Build a single self-contained page titled &quot;Four Seasons — A Fractal Tree&quot;. Light paper #faf7ee, ink green #294139, softer green #607269. Serif display (Iowan Old Style, Palatino, Georgia) and a quiet sans for controls. The line under the title: &quot;One seed, a thousand small decisions. A whole year, always becoming.&quot;
+
+The subject is one recursive tree grown from a seed, drawn so the branching is visible and the canopy fills the view. It is not four separate pictures. A season dial moves continuously through spring, summer, autumn and winter, with the month named (it opens on March, spring). Spring brings the first blush of green and blossom, summer the full leaf, autumn the turn of colour, winter the bare wood and snow. &quot;Play the year&quot; advances the dial on its own. &quot;New seed&quot; grows a different tree. Dragging the dial, or the arrow keys, fine-tunes the season. Clicking the tree, or pressing Enter, shakes it.
+
+Show the seed identity and whether the tree is growing. Keep the motion organic: growth eases out, wind is a slow sway, snow drifts rather than flashes. On a phone the dial and the two controls stay reachable and the tree still fills the width. Reduced motion holds a settled tree that still changes season when asked. No external assets.</div>
+    <a class="file-name" href="four-seasons.txt" target="_blank" rel="noopener">four-seasons.txt</a>
+  </div>
+</article>
+<article class="card" id="study-04">
+  <a class="thumb" href="jumpgate.html" target="_blank" rel="noopener" aria-label="Open JUMPGATE — Hyperspace Transit">
+    <img src="thumbs/jumpgate.jpg" alt="JUMPGATE — Hyperspace Transit screenshot" width="1440" height="1000" loading="lazy" decoding="async">
+    <span class="preview-missing" hidden>Screenshot will appear after the gallery is published.<br><span>Open JUMPGATE — Hyperspace Transit ↗</span></span>
+  </a>
+  <div class="card-top">
+    <span class="num">04</span>
+    <div class="main"><h2><a href="jumpgate.html" target="_blank" rel="noopener">JUMPGATE — Hyperspace Transit</a></h2>
+    <p class="desc">A dark, high-contrast science-fiction jump sequence where star streaks stretch, a glowing wireframe tunnel rushes past and the horizon blooms white as the pilot holds the throttle, framed by a restrained monospace flight HUD.</p></div>
+    <div class="actions"><a class="btn btn-open" href="jumpgate.html" target="_blank" rel="noopener" aria-label="Open JUMPGATE — Hyperspace Transit">↗ Open</a>
+    <button class="btn btn-prompt" type="button" aria-expanded="false" aria-controls="prompt-04">☰ Prompt</button></div>
+  </div>
+  <div class="prompt-panel" id="prompt-04" hidden><h3>Original prompt</h3>
+    <div class="prompt-text">Build a cinematic, full-viewport hyperspace sequence on a single HTML canvas with a monospace HUD overlay. The palette is pure black (#000000) with electric blue (#3d8bff), pale ice blue (#7fc4ff), near-white (#f4f8ff) and a violet accent (#8a5cff). Letterbox bars of about 6vh sit top and bottom, a radial vignette darkens the edges, and a faint 1px scanline pattern in overlay blend mode gives the frame a projected-film texture.
+
+Stars: between 350 and 1400 points (scaled to viewport area) live in a 3D field with random x/y spread and z from 200 to 3000. Each frame they advance toward the camera by a z-speed proportional to the square of the normalised speed; they are projected with a 420px focal length and drawn as round-capped lines from their current position to a point further back along the same ray whose distance grows with speed, so streak length is proportional to velocity. About 12% of stars are violet, 55% blue, the rest white. The canvas is not cleared but faded with a translucent black rectangle whose opacity decreases as speed rises, leaving longer luminous trails. All drawing uses the &quot;lighter&quot; composite mode over a radial core glow at the vanishing point that swells from a faint 40px disc to a blinding white-blue bloom at maximum speed.
+
+Tunnel: 14 octagonal wireframe rings spaced along z recede toward the horizon, each slowly spinning (faster at speed), stroked in blue with a matching shadowBlur glow, with violet struts connecting every other ring to its neighbour. When a ring passes the camera it wraps to the far end.
+
+Interaction: holding the mouse button, a touch, or the spacebar sets the target speed to 1 and the speed eases toward it with an exponential approach (faster ramp up than decay); releasing lets it coast down. Above 75% speed a random per-frame screen shake grows to 6px and a chromatic split appears, drawing red- and blue-offset copies of each streak that separate by up to 6px scaled by projection depth. Crossing 93% triggers a brief white flash; the speed readout gains a white glow at 97%+.
+
+HUD: system-ui/ui-monospace, light-blue text with a soft blue text-shadow. Corners show vector, gate id, hull integrity (drops slightly at max), drive state (IDLE / BURN / COAST / MAX), live frame rate, star count, distance travelled in light-years, elapsed time and shake magnitude. Centered at the bottom is the big thin-weight speed number in &quot;c&quot; units (0.00–9.99) with a gradient progress bar and a stage label (sublight / warp entry / hyperspace / threshold). A centred SVG reticle has two counter-rotating dashed rings (14s and 22s), tick marks and a pulsing center dot. The title &quot;JUMPGATE&quot; in 0.5em-tracked ultralight uppercase sits at the top with a prompt line that fades once engaged. Reduced-motion users get no shake and static reticle rings.</div>
+    <a class="file-name" href="jumpgate.txt" target="_blank" rel="noopener">jumpgate.txt</a>
+  </div>
+</article>
+<article class="card" id="study-05">
+  <a class="thumb" href="luminote.html" target="_blank" rel="noopener" aria-label="Open Luminote — Piano with Falling Lights">
+    <img src="thumbs/luminote.jpg" alt="Luminote — Piano with Falling Lights screenshot" width="1440" height="1000" loading="lazy" decoding="async">
+    <span class="preview-missing" hidden>Screenshot will appear after the gallery is published.<br><span>Open Luminote — Piano with Falling Lights ↗</span></span>
+  </a>
+  <div class="card-top">
+    <span class="num">05</span>
+    <div class="main"><h2><a href="luminote.html" target="_blank" rel="noopener">Luminote — Piano with Falling Lights</a></h2>
+    <p class="desc">A three-octave piano made of light, from C3 to C6, on a dark stage. Every note leaves a falling glow. Free play is the open keyboard. Listen performs Ode to Joy, Für Elise, Twinkle Twinkle Little Star or Gymnopédie No. 1 at a chosen tempo. Learn lights the next key and waits. The keys answer the mouse, several fingers at once, and two rows of the computer keyboard.</p></div>
+    <div class="actions"><a class="btn btn-open" href="luminote.html" target="_blank" rel="noopener" aria-label="Open Luminote — Piano with Falling Lights">↗ Open</a>
+    <button class="btn btn-prompt" type="button" aria-expanded="false" aria-controls="prompt-05">☰ Prompt</button></div>
+  </div>
+  <div class="prompt-panel" id="prompt-05" hidden><h3>Original prompt</h3>
+    <div class="prompt-text">Build a single self-contained instrument called Luminote, &quot;Piano with falling lights&quot;. The stage is dark (#0a0a12, #101019, #161620) with warm key light #e8c59a and #f6dbb7 and pale type #f4f0e7. The sentence on the page: &quot;An instrument made of light.&quot;
+
+The keyboard is three octaves, C3 to C6, drawn as real white and black keys. Notes can sound together. Play with the mouse, with several fingers on a touch screen, or with the computer keyboard: black keys on the Q–P row, white keys on the A–L row and the row below, as a small help dialog explains. Every note releases a falling light on a visualizer above the keys. A visible sound control can mute the synthesized piano. Sound is produced in the browser with the Web Audio API.
+
+Three modes: Free play (&quot;Your stage, your light. Play anything.&quot;); Listen, which performs a chosen melody — Ode to Joy, Für Elise, Twinkle Twinkle Little Star, Gymnopédie No. 1 — at a tempo the visitor sets, with restart and pause; Learn, which lights the next key and waits for the visitor to play it. A control shows or hides note names.
+
+The first view should already be a piano, not a loading state. Reduced motion keeps the keys and the modes and calms the falling lights. No external fonts, samples, or libraries.</div>
+    <a class="file-name" href="luminote.txt" target="_blank" rel="noopener">luminote.txt</a>
+  </div>
+</article>
+<article class="card" id="study-06">
+  <a class="thumb" href="meridian.html" target="_blank" rel="noopener" aria-label="Open NGC 7741 Meridian — Observatory">
+    <img src="thumbs/meridian.jpg" alt="NGC 7741 Meridian — Observatory screenshot" width="1440" height="1000" loading="lazy" decoding="async">
+    <span class="preview-missing" hidden>Screenshot will appear after the gallery is published.<br><span>Open NGC 7741 Meridian — Observatory ↗</span></span>
+  </a>
+  <div class="card-top">
+    <span class="num">06</span>
+    <div class="main"><h2><a href="meridian.html" target="_blank" rel="noopener">NGC 7741 Meridian — Observatory</a></h2>
+    <p class="desc">A full-screen additive-blended particle galaxy with two logarithmic spiral arms, warm core, blue star-forming knots and red outer dust, rotating differentially beneath a restrained observatory HUD whose statistics count up on load. The viewer tilts and spins the disk by dragging, zooms by scrolling, and pauses with the spacebar.</p></div>
+    <div class="actions"><a class="btn btn-open" href="meridian.html" target="_blank" rel="noopener" aria-label="Open NGC 7741 Meridian — Observatory">↗ Open</a>
+    <button class="btn btn-prompt" type="button" aria-expanded="false" aria-controls="prompt-06">☰ Prompt</button></div>
+  </div>
+  <div class="prompt-panel" id="prompt-06" hidden><h3>Original prompt</h3>
+    <div class="prompt-text">Create a single self-contained HTML page that renders a rotating spiral galaxy made of tens of thousands of particles on a full-viewport 2D canvas, presented as a quiet astronomical observatory instrument. The page is pure black (#000000) with a very faint starfield and a dozen distant, softly blurred background galaxies (tilted ellipses drawn as radial gradients) pre-rendered to an offscreen canvas. A radial vignette darkens the corners.
+
+The galaxy itself is built from roughly 42,000 points (drop to ~14,000 when prefers-reduced-motion is set). Eighteen percent form a spherical bulge using Gaussian scatter; the remainder are distributed along two logarithmic spiral arms using r = a·e^(bθ) with b ≈ 0.28, an exponential density falloff in radius (mean 0.32 of the disk radius), and angular scatter that widens with radius so arms are crisp near the core and diffuse at the rim. Each particle stores radius, base angle, vertical height (disk thickness ~0.06 scaled by radius), size and brightness. Colors are mapped by radius: warm white/yellow in the core (#FFEBBE to #FFCD82), blue-white along the arms (#CDD7FF to #91C3FF), and faint red-magenta dust at the outer edge (#AA7882 to #D25058). About six percent of arm particles are &quot;hot&quot; oversized blue knots at full brightness.
+
+Rotation is differential: angular velocity ω = 0.35 / (0.25 + r), so the inner disk visibly outruns the outer arms and the spiral winds over time. Project the 3D disk to 2D with a yaw rotation about the disk normal followed by a tilt rotation about the screen X axis; depth slightly scales point size. Render with globalCompositeOperation &quot;lighter&quot; for additive glow, drawing every particle as a pre-rendered 32px radial-gradient sprite tinted per quantized color and cached in a Map. Above the disk, a &quot;nebula dust&quot; layer of ~90 large soft radial-gradient ellipses follows the arms (warm peach near the core, cobalt and wine-red farther out) at 6–9% alpha, plus a warm radial core glow.
+
+HUD typography: designation line in a tiny uppercase monospace with 0.32em tracking (#6D7787), the galaxy name &quot;NGC 7741 Meridian&quot; in a large serif (Iowan Old Style / Palatino / Georgia) with the word Meridian italic in amber (#FFD9A0) and a soft amber text-shadow, and an italic serif classification paragraph. The bottom-left stats strip (Particles, Distance in Mly, Diameter in kly, Tilt, Zoom) uses tabular monospace numerals with the first three counting up over ~3.2 seconds with a quartic ease-out. The HUD fades in over 2.4 seconds. Top-right holds a small SVG compass whose needle rotates with the yaw. Right edge has four round glass buttons (zoom in, zoom out, pause, reset) with blur backdrop, scaling to 1.12 on hover and glowing amber at the border.
+
+Interactions: pointer drag changes yaw (horizontal) and tilt (vertical, clamped between near face-on and near edge-on); mouse wheel and two-finger pinch zoom between 0.35× and 6× with eased approach; Space toggles rotation; reset returns to the default oblique view. The canvas must handle window resize and devicePixelRatio (capped at 2). Mood: contemplative, precise, slightly reverent — a planetarium display at midnight.</div>
+    <a class="file-name" href="meridian.txt" target="_blank" rel="noopener">meridian.txt</a>
+  </div>
+</article>
+<article class="card" id="study-07">
+  <a class="thumb" href="murmuration-at-dusk.html" target="_blank" rel="noopener" aria-label="Open Murmuration at dusk">
+    <img src="thumbs/murmuration-at-dusk.jpg" alt="Murmuration at dusk screenshot" width="1440" height="1000" loading="lazy" decoding="async">
+    <span class="preview-missing" hidden>Screenshot will appear after the gallery is published.<br><span>Open Murmuration at dusk ↗</span></span>
+  </a>
+  <div class="card-top">
+    <span class="num">07</span>
+    <div class="main"><h2><a href="murmuration-at-dusk.html" target="_blank" rel="noopener">Murmuration at dusk</a></h2>
+    <p class="desc">A wide marsh sky in the last minutes of light: plum-ink overhead sinking through mauve and coral to a pale apricot horizon, a low sun and its broken reflection in a thin strip of water, pylons and poplars tiny on the far bank, and a black reed bed swaying along the bottom edge. Into the empty sky a long ribbon of starlings streams from the right and gathers into a single breathing shape made of thousands of tiny flapping chevrons, lighter where the birds are far and darker where the flock folds over itself, stretching into ribbons and hourglasses and rippling with sudden dark waves when it turns. The viewer&#x27;s pointer is a peregrine; the flock parts around it, wraps behind it and closes again, and a click sends the falcon into a tucked dive that tears a hole straight through the birds. Left alone, the falcon hunts by itself, the light slowly fails, and the whole flock drains through a narrow neck into the reeds; after a few seconds of stillness a new evening begins. The only words are a tiny italic title, a live count of starlings, a hint that dissolves once the hunt starts, and two quiet controls.</p></div>
+    <div class="actions"><a class="btn btn-open" href="murmuration-at-dusk.html" target="_blank" rel="noopener" aria-label="Open Murmuration at dusk">↗ Open</a>
+    <button class="btn btn-prompt" type="button" aria-expanded="false" aria-controls="prompt-07">☰ Prompt</button></div>
+  </div>
+  <div class="prompt-panel" id="prompt-07" hidden><h3>Original prompt</h3>
+    <div class="prompt-text">A full-bleed simulation of a starling murmuration over a reed marsh at dusk, on Canvas 2D. Concept: thousands of simple birds becoming one dark, folding fabric in the sky; the viewer is the falcon.
+
+Mood: awe, hush, the last ten minutes of light. Palette: sky as a tall vertical gradient from pale apricot #F6C9A8 at the horizon through coral #E58F7B and mauve #6B4E71 to deep plum-ink #2A2438 at the top; birds, reeds and far treeline in near-black #0D0B12; a low sun disc and its reflection in a thin strip of marsh water in a paler apricot. This dusk gradient is the concept, not a default; keep it painterly with faint horizontal washes, a faint grain and a few long thin horizontal clouds that drift very slowly.
+
+Simulation: 2,500–3,600 boids on desktop (scale down automatically on small or slow devices, never below 1,200), using a uniform spatial grid for neighbour lookup, classic separation / alignment / cohesion with topological-ish neighbour limits (nearest ~7 sampled from the surrounding cells), plus a wider neighbourhood term taken from per-cell sums (shared heading, a pull to the local centre of mass, and a soft pressure that pushes birds down the density gradient when a region gets too crowded) so the flock holds together as one fabric without collapsing into a ball. A soft roosting attractor orbits slowly above the reed bed so the flock stays on screen; it periodically splits into two lobes along a rotating axis so the flock stretches into ribbons and hourglasses and then rejoins. Add a little coherent noise turbulence. Add fake depth: each bird has a z value (part its own, part a slow sheet that drifts through the flock) that scales its size (roughly 1–3px strokes) and darkness, and a soft density haze under the flock, so it reads as a volume whose density makes darker folds where it overlaps itself. Draw birds as tiny oriented chevrons (two short strokes that flap by alternating length), not dots. &quot;Waves of agitation&quot;: when birds turn sharply they briefly thicken and lengthen their strokes, and an excitable wave passes from bird to neighbour with a short delay and a refractory period, so alarms ripple visibly through the flock; now and then something unseen spooks one edge of it.
+
+Interaction: the pointer/finger is a peregrine: a small falcon silhouette glides toward the pointer position with inertia (a faint reticle marks the pointer itself, and the falcon circles it rather than stopping); birds within a radius flee and dodge sideways off its line of flight, so the flock splits, wraps and re-forms around it, the signature moment. A click/tap (or the space bar) makes the falcon stoop: wings tucked, a fast dive toward the pointer, or along its heading if the pointer is already beneath it, which punches a hole through the flock and leaves a thin streak and a faint ring. If the pointer is idle the falcon loiters high and makes occasional autonomous passes, some with a stoop, so the page is alive without input. Over about three minutes the light fades one step (sky darkens ~15%), then the flock gathers above the roost, funnels down through a narrow neck and pours into the reeds like liquid (the reeds shiver where birds land), the screen rests for a few seconds, and a new evening begins; a small control lets the viewer &quot;call them down&quot; or &quot;send them up&quot; at will, the latter erupting the whole flock out of the reed bed.
+
+Foreground: a reed bed silhouette along the bottom in two layers with individually swaying stems, drooping plumes, bulrush heads and leaves (sine sway with phase by x), a leaning fence post with sagging wire, two distant pylons with their wires and a clump of poplars on the far treeline for scale, and glints flickering in the sun&#x27;s reflection. Typography: almost none. Bottom-left in tiny letterspaced Georgia italic, cream at 80%: &quot;Murmuration at dusk&quot; and a live, quietly updating count line &quot;3,200 starlings · one falcon&quot; (it counts birds in view, and reads &quot;3,200 starlings in the reeds · one falcon, hungry&quot; while the flock roosts); a designed hint with a small falcon glyph, &quot;move to hunt · click to stoop&quot; (&quot;drag to hunt · tap to stoop&quot; on touch), that fades after first interaction. Sound toggle bottom-right (off by default): a soft rush of wings via band-passed noise with a fast flutter, whose volume and filter follow the flock&#x27;s average speed, its presence on screen, its proximity to the falcon and how many birds are fleeing.
+
+Entrance: the empty sky, then the flock streams in from the right as a long ribbon and balls up. Performance: typed arrays, batched paths per depth band, the static sky, the drifting clouds, the birds and the reeds on separate stacked layers, DPR capped at 2, pause when hidden, flock thinned automatically if frames run long. Reduced motion: 1,200 birds, everything at well under half speed, no stoop streak or ring and no autonomous attacks; a still composition with a gently drifting flock.</div>
+    <a class="file-name" href="murmuration-at-dusk.txt" target="_blank" rel="noopener">murmuration-at-dusk.txt</a>
+  </div>
+</article>
+<article class="card" id="study-08">
+  <a class="thumb" href="neon-rain.html" target="_blank" rel="noopener" aria-label="Open NEON RAIN — District 9 Night Market">
+    <img src="thumbs/neon-rain.jpg" alt="NEON RAIN — District 9 Night Market screenshot" width="1440" height="1000" loading="lazy" decoding="async">
+    <span class="preview-missing" hidden>Screenshot will appear after the gallery is published.<br><span>Open NEON RAIN — District 9 Night Market ↗</span></span>
+  </a>
+  <div class="card-top">
+    <span class="num">08</span>
+    <div class="main"><h2><a href="neon-rain.html" target="_blank" rel="noopener">NEON RAIN — District 9 Night Market</a></h2>
+    <p class="desc">A fictional District 9 night market on a full-viewport canvas: acid rain, neon signs, a wet street and a wire of invented headlines. The pointer shifts the camera in parallax. A click, or Enter, throws lightning and thunder across the block. Rain and audio are explicit controls. Corner telemetry keeps district time, weather and signal.</p></div>
+    <div class="actions"><a class="btn btn-open" href="neon-rain.html" target="_blank" rel="noopener" aria-label="Open NEON RAIN — District 9 Night Market">↗ Open</a>
+    <button class="btn btn-prompt" type="button" aria-expanded="false" aria-controls="prompt-08">☰ Prompt</button></div>
+  </div>
+  <div class="prompt-panel" id="prompt-08" hidden><h3>Original prompt</h3>
+    <div class="prompt-text">Create an immersive fictional cyberpunk street at night titled &quot;NEON RAIN — District 9 Night Market&quot;. One full-viewport canvas. Palette: ink #05010f, deep violet #1a0433, magenta #ff2a6d, cyan #05d9e8, yellow #f9f002, and a pale paper #e9f7ff for the small type. The HUD is a compact monospace instrument, not a stack of cards.
+
+Draw a night market in depth: layered skyline silhouettes, vertical neon signs, a wet street that reflects them, and heavy diagonal rain. Moving the pointer, or dragging on touch, shifts the camera in parallax. Clicking the sky, or pressing Enter, fires lightning and thunder. A control changes the rain. A control toggles audio. Audio must be a visible choice. Corner telemetry shows a district clock, street weather (&quot;acid rain&quot;), and a signal percentage. A bottom ticker scrolls fictional headlines in the voice of a night wire: curfews, vendors, a rogue drone, a lost courier android named Kiko. Nothing in the copy pretends to be a real place or a real news desk.
+
+Keep the frame full, including on a phone, with no page scroll. Pause heavy work when the tab is hidden. Reduced motion calms the rain and the camera without removing the street, the ticker or the lightning control. No external images, fonts, or libraries.</div>
+    <a class="file-name" href="neon-rain.txt" target="_blank" rel="noopener">neon-rain.txt</a>
+  </div>
+</article>
+<article class="card" id="study-09">
+  <a class="thumb" href="northern-lights-lake-inari.html" target="_blank" rel="noopener" aria-label="Open Northern Lights — Lake Inari, 68.9° N">
+    <img src="thumbs/northern-lights-lake-inari.jpg" alt="Northern Lights — Lake Inari, 68.9° N screenshot" width="1440" height="1000" loading="lazy" decoding="async">
+    <span class="preview-missing" hidden>Screenshot will appear after the gallery is published.<br><span>Open Northern Lights — Lake Inari, 68.9° N ↗</span></span>
+  </a>
+  <div class="card-top">
+    <span class="num">09</span>
+    <div class="main"><h2><a href="northern-lights-lake-inari.html" target="_blank" rel="noopener">Northern Lights — Lake Inari, 68.9° N</a></h2>
+    <p class="desc">A meditative full-screen canvas landscape in which layered noise-driven curtains of green and violet light drift over a black pine horizon and are mirrored in a still, faintly rippling lake, with twinkling stars, occasional meteors and slow snowfall, framed by a sparse serif caption and a single glass slider that controls how strongly the sky burns.</p></div>
+    <div class="actions"><a class="btn btn-open" href="northern-lights-lake-inari.html" target="_blank" rel="noopener" aria-label="Open Northern Lights — Lake Inari, 68.9° N">↗ Open</a>
+    <button class="btn btn-prompt" type="button" aria-expanded="false" aria-controls="prompt-09">☰ Prompt</button></div>
+  </div>
+  <div class="prompt-panel" id="prompt-09" hidden><h3>Original prompt</h3>
+    <div class="prompt-text">Build a single self-contained, full-viewport HTML page titled &quot;Northern Lights — Lake Inari, 68.9° N&quot; that renders a calm, realistic aurora borealis night scene entirely on a 2D canvas, with a minimal glass UI floating on top. The mood is hushed and immersive: a near-black indigo sky (#02030a at the zenith fading through #061021 to #0b1a30 at the horizon), a frozen lake occupying the bottom 30 % of the screen, a jagged black pine treeline (#02040a in front, #050a14 for a softer distant row) along the horizon, and curtains of light dominated by aurora green (#3cf5a0, hue ≈150–158) with violet (#a86bff, hue ≈285) and pink (hue ≈330) fringes at the top edges. Text is cool fog white (rgba(226,236,255,0.72)) with mint highlights (#c8ffe4).
+
+Aurora construction: render to a low-resolution offscreen canvas (about one third of the screen width) and upscale with smoothing so the light is naturally soft. Define four curtains, each with its own hue, saturation, drift speed and direction, spatial frequency, height and alpha. For every column of the offscreen canvas compute a brightness from a four-octave value-noise fBm sampled along x with a time offset, mixed with a slow horizontal sine sway and a slower &quot;ribbon&quot; sine, raised to a power of 1.8 so bright folds stay rare; compute a bottom edge that undulates around 72 % of the sky height and a top edge that reaches up by the curtain&#x27;s height scaled by noise and the intensity setting; then fill a 1.6-pixel-wide vertical linear gradient that is transparent at the top, mid-alpha in the middle, brightest just above the bottom edge and transparent again at the base. Composite curtains with &#x27;lighter&#x27; onto the offscreen canvas and draw that onto the sky with &#x27;screen&#x27;. Add a faint green glow band rising from the horizon.
+
+Sky details: a few hundred stars sized by area, most tiny, 8 % larger, 20 % warm-tinted (#ffe7c4) and the rest blue-white (#dfe9ff), each twinkling on its own sine phase and dimming slightly as intensity rises. Occasionally (about once every eight seconds) spawn a shooting star: a short white gradient streak that travels at a shallow angle and fades over roughly a second.
+
+Lake: paint a dark water gradient (#08121f → #020409), then reflect the aurora by drawing the offscreen aurora canvas in 4-pixel horizontal slices from the horizon downward, sampling upward from the bottom of the sky image (mirror, slightly compressed by 1.3×), offsetting each slice horizontally with two summed sines that grow with depth to create a wavy distortion, and fading alpha with depth. Draw the treeline mirrored the same sliced way with a weaker wobble so the silhouettes shimmer. Sprinkle a dozen thin, slowly wandering horizontal highlight streaks for ripple glints. Finally draw the treeline itself, generated once by walking across the width and stamping pine shapes made of a trunk plus four stacked triangles whose heights and spacing are driven by 1-D noise.
+
+Snow: a light field of small white discs (0.6–2.2 px) falling at 12–38 px/s with a gentle sinusoidal drift, recycled to the top when they leave the screen, toggleable.
+
+UI: top-left a monospace eyebrow &quot;Field observation · Kp 5&quot; with a pulsing green dot; top-right the live local clock. Bottom-left a serif caption block (Georgia / Iowan Old Style / Palatino) with the headline &quot;The sky breathing over Lake Inari&quot; (italic mint accent word), a short scientific paragraph explaining oxygen green and high-altitude violet emissions, and a monospace meta row (68.9° N 27.0° E, −23 °C, wind calm, cloud 0/8). Bottom row: a frosted pill (blurred dark glass, hairline mint border, lifts on hover) holding an &quot;Intensity&quot; range slider 0–100 (default 62) with a gradient track from mint through green to violet and a glowing white thumb that springs larger when dragged, the numeric output, and a &quot;Snow&quot; toggle pill with aria-pressed; bottom-right a tiny wavelength legend (Oxygen 557.7 nm / Nitrogen 427.8 nm). The caption fades up on load. A CSS vignette darkens the corners. Handle devicePixelRatio (capped at 2), debounce resize and rebuild stars, snow and treeline; under prefers-reduced-motion render a single static frame and skip the shooting stars and snowfall.</div>
+    <a class="file-name" href="northern-lights-lake-inari.txt" target="_blank" rel="noopener">northern-lights-lake-inari.txt</a>
+  </div>
+</article>
+<article class="card" id="study-10">
+  <a class="thumb" href="stocks.html" target="_blank" rel="noopener" aria-label="Open QUANTA Terminal — Simulated Market">
+    <img src="thumbs/stocks.jpg" alt="QUANTA Terminal — Simulated Market screenshot" width="1440" height="1000" loading="lazy" decoding="async">
+    <span class="preview-missing" hidden>Screenshot will appear after the gallery is published.<br><span>Open QUANTA Terminal — Simulated Market ↗</span></span>
+  </a>
+  <div class="card-top">
+    <span class="num">10</span>
+    <div class="main"><h2><a href="stocks.html" target="_blank" rel="noopener">QUANTA Terminal — Simulated Market</a></h2>
+    <p class="desc">A paper trading terminal for a fictional asset, AURX/USDS, of the invented company Aurex Labs. A candlestick chart pans and zooms across five ranges, with two moving averages. Beside it sit a live order book, a portfolio and a ticket for market or limit orders that never leave the browser. A ticker tape runs along the chrome. The whole board is labeled as a simulation.</p></div>
+    <div class="actions"><a class="btn btn-open" href="stocks.html" target="_blank" rel="noopener" aria-label="Open QUANTA Terminal — Simulated Market">↗ Open</a>
+    <button class="btn btn-prompt" type="button" aria-expanded="false" aria-controls="prompt-10">☰ Prompt</button></div>
+  </div>
+  <div class="prompt-panel" id="prompt-10" hidden><h3>Original prompt</h3>
+    <div class="prompt-text">Build a single self-contained trading terminal called QUANTA Terminal. It must be obviously simulated: a fictional market, no network, no real orders. The subject is one invented pair, AURX/USDS, &quot;Aurex Labs · Synthetic compute equity&quot;. Palette: background #0b0e11, panels #12161c and #171c23, hairlines #252b33, text #e9eef5, muted #7f8a99, up green #16c784, down red #ea3943, gold #f0b90b.
+
+The chrome has Terminal, Markets, Portfolio and Trade, a simulated index quote, and a ticker tape that can be paused. The main stage is an interactive candlestick chart for AURX/USDS with ranges 1H, 4H, 1D, 1W and 1M, and toggles for a 20-period and a 50-period moving average. Drag or the arrow keys pan. Scroll, or plus and minus, zooms. Double-click or a reset control returns the view. The chart states that it is a simulation.
+
+Beside the chart, an order book shows bids and asks with a spread, a grouping control, and a side filter. A ticket places paper buy or sell orders, market or limit, and says they are paper only. Portfolio and markets views stay inside the same terminal. On a phone the sections become a switcher rather than a crushed desktop grid.
+
+All prices are synthetic and keep moving while the page is open. Use tabular numerals. Reduced motion keeps the board usable and calms decorative pulses. No external data, fonts, or libraries.</div>
+    <a class="file-name" href="stocks.txt" target="_blank" rel="noopener">stocks.txt</a>
+  </div>
+</article>
+<article class="card" id="study-11">
+  <a class="thumb" href="volcan-chico.html" target="_blank" rel="noopener" aria-label="Open Volcán Chico — Small Volcano, Big Opinions">
+    <img src="thumbs/volcan-chico.jpg" alt="Volcán Chico — Small Volcano, Big Opinions screenshot" width="1440" height="1000" loading="lazy" decoding="async">
+    <span class="preview-missing" hidden>Screenshot will appear after the gallery is published.<br><span>Open Volcán Chico — Small Volcano, Big Opinions ↗</span></span>
+  </a>
+  <div class="card-top">
+    <span class="num">11</span>
+    <div class="main"><h2><a href="volcan-chico.html" target="_blank" rel="noopener">Volcán Chico — Small Volcano, Big Opinions</a></h2>
+    <p class="desc">A loud, flat-colour Memphis-Milano landing page for an invented hot sauce made by two cousins in a bus garage. Six colour fields (yellow, pink, teal, terrazzo cream, lava red, yellow) are separated by thick black rules and scrolling marquee strips; every block is strewn with outlined squiggles, triangles, dotted circles and striped slabs that slap on like stickers and then jitter on stepped loops. The wordmark is set letter by letter, each glyph rotated, outlined and hard-shadowed, next to a squat wax-capped flask with a smiling volcano on its label. The centrepiece is a chili-shaped thermometer: dragging its little face from 1 to 10 heats the whole page (faster jitter, wobbling sweating headlines, a rattling cap, steam at the edges, colour fields flipping to red and black) until the bottle blows its cap, confetti-lava rains across the viewport, a starburst shouts &quot;¡AY!&quot; and the slider springs back down on its own. Trading-card sauces, sauce-able pairings, a wonky origin note and an order pad that gets rubber-stamped round it out, all in a funny bilingual voice.</p></div>
+    <div class="actions"><a class="btn btn-open" href="volcan-chico.html" target="_blank" rel="noopener" aria-label="Open Volcán Chico — Small Volcano, Big Opinions">↗ Open</a>
+    <button class="btn btn-prompt" type="button" aria-expanded="false" aria-controls="prompt-11">☰ Prompt</button></div>
+  </div>
+  <div class="prompt-panel" id="prompt-11" hidden><h3>Original prompt</h3>
+    <div class="prompt-text">A landing page for an invented small-batch hot sauce brand, &quot;Volcán Chico&quot;, designed in a loud, joyful Memphis-Milano manner: squiggles, confetti triangles, terrazzo dots, thick black outlines, hard drop shadows, clashing colour blocks. Deliberately maximal; the opposite of a tasteful dark SaaS page.
+
+Palette (exact): lava orange-red #FF4B1F, banana yellow #FFD60A, teal #00A6A6, bubblegum pink #FF7BAC, ink black #111111, cream #FFF8E7. Light, saturated colour-field sections that change colour block by block. Flat colour only: no gradients except on the sauce liquid, no blur.
+
+Typography: enormous chunky display type in a heavy sans stack (Impact, &quot;Arial Black&quot;, &quot;Helvetica Neue&quot; black fallback), all caps, tightly leaded, with letters individually rotated a few degrees and offset black shadows; secondary type in a geometric sans (Futura/&quot;Century Gothic&quot;/&quot;Trebuchet MS&quot;); tiny labels in monospace like a price sticker. Headline: &quot;VOLCÁN CHICO&quot; with &quot;small volcano, big opinions&quot; beneath.
+
+Content and sections: 1) Hero: a big SVG bottle (squat flask, wax-dipped cap, label with a smiling little volcano) surrounded by animated Memphis shapes; hard-edged sticker &quot;FERMENTED 90 DAYS&quot;. 2) The three sauces as trading-card style panels: &quot;No. 1 Verde Tranquilo&quot; (tomatillo, serrano, lime leaf, 2,000 SHU-ish, described as &quot;a firm handshake&quot;), &quot;No. 2 Mango Disturbio&quot; (habanero, mango, allspice, &quot;a small civil disturbance&quot;), &quot;No. 3 La Erupción&quot; (ghost pepper, smoked pineapple, black garlic, &quot;call someone first&quot;). 3) &quot;How hot is hot?&quot;: the signature heat slider, with a second copy of the bottle beside it so the reaction and the eruption are in view, and a price-sticker readout naming each level. 4) &quot;Put it on&quot;: a grid of quick pairings with tiny SVG food icons (eggs, oysters, pizza slice, vanilla ice cream &quot;trust us&quot;, tacos, elote, mango, popcorn); tapping a tile splats sauce on its icon. 5) Origin story in a wonky text block: made in a converted bus garage in Oaxaca-inspired invented town &quot;San Lázaro del Humo&quot; by two cousins, Itzel and Beto. 6) Footer with a mock order form whose button says &quot;Send me the trouble&quot; and responds with a stamped &quot;PEDIDO RECIBIDO&quot; animation (no network).
+
+Signature moment: the heat slider, a custom-drawn thermometer-chili control from 1 to 10. As it rises the entire page reacts progressively: background shapes jitter faster, headline letters begin to wobble and sweat (SVG droplets slide down them), the bottle shakes and its cap rattles, colours invert towards red/black at 8+, steam squiggles rise from the edges, and at 10 the bottle erupts: a burst of confetti-lava shapes with ballistic physics fills the screen, the heading reads &quot;¡AY!&quot; for a moment, then the slider springs itself back down to level 2 and everything settles with a springy ease. Black marquee strips with bilingual one-liners divide the colour fields. Motion elsewhere: shapes drift and rotate on staggered loops with steps() and springy cubic-bezier(.34,1.56,.64,1) pops; cards tilt toward the cursor with a hard black shadow that shifts opposite; buttons depress into their shadow. Entrance: shapes slap onto the page one after another like stickers (scale from 1.6 with rotation, 40ms stagger), then the bottle drops in and bounces. The cursor on desktop is a small chili drawn in SVG. Reduced motion: static composition, slider still recolours but no shaking or burst. Voice: funny, bilingual sprinkles of Spanish, confident, never corporate.</div>
+    <a class="file-name" href="volcan-chico.txt" target="_blank" rel="noopener">volcan-chico.txt</a>
+  </div>
+</article></div>
+<p class="empty" id="empty" hidden>No studies match your search. Try another name, number, or phrase.</p>
+<noscript><p>All studies are listed below their screenshots. Enable JavaScript to search and expand prompts, or open the linked prompt text files.</p></noscript>
+<footer><span>HungerG 11-HTML Files</span><a href="https://github.com/MiaAI-Lab/HungerG-11-HTML-Files" target="_blank" rel="noopener">View repository ↗</a></footer>
+</main>
+<script>
+const cards=Array.from(document.querySelectorAll('.card'));
+const entries=cards.map(card=>({card,text:card.textContent.toLocaleLowerCase()}));
+document.querySelector('#q').addEventListener('input',event=>{
+ const terms=event.target.value.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
+ let count=0;
+ for(const entry of entries){const match=terms.every(term=>entry.text.includes(term));entry.card.hidden=!match;if(match)count++;}
+ document.querySelector('#count').innerHTML=`<b>${count}</b> ${count===1?'study':'studies'}`;
+ document.querySelector('#empty').hidden=count!==0;
+});
+document.querySelector('#list').addEventListener('click',event=>{
+ const button=event.target.closest('.btn-prompt');if(!button)return;
+ const expanded=button.getAttribute('aria-expanded')==='true';
+ button.setAttribute('aria-expanded',String(!expanded));
+ document.getElementById(button.getAttribute('aria-controls')).hidden=expanded;
+});
+function missingScreenshot(img){img.hidden=true;img.nextElementSibling.hidden=false;}
+for(const img of document.querySelectorAll('.thumb img')){
+ img.addEventListener('error',()=>missingScreenshot(img));
+ if(img.complete&&!img.naturalWidth)missingScreenshot(img);
+}
+</script>
+</body>
+</html>

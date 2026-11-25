@@ -1,0 +1,12 @@
+TITLE
+NEON RAIN — District 9 Night Market
+
+PROMPT
+Create an immersive fictional cyberpunk street at night titled "NEON RAIN — District 9 Night Market". One full-viewport canvas. Palette: ink #05010f, deep violet #1a0433, magenta #ff2a6d, cyan #05d9e8, yellow #f9f002, and a pale paper #e9f7ff for the small type. The HUD is a compact monospace instrument, not a stack of cards.
+
+Draw a night market in depth: layered skyline silhouettes, vertical neon signs, a wet street that reflects them, and heavy diagonal rain. Moving the pointer, or dragging on touch, shifts the camera in parallax. Clicking the sky, or pressing Enter, fires lightning and thunder. A control changes the rain. A control toggles audio. Audio must be a visible choice. Corner telemetry shows a district clock, street weather ("acid rain"), and a signal percentage. A bottom ticker scrolls fictional headlines in the voice of a night wire: curfews, vendors, a rogue drone, a lost courier android named Kiko. Nothing in the copy pretends to be a real place or a real news desk.
+
+Keep the frame full, including on a phone, with no page scroll. Pause heavy work when the tab is hidden. Reduced motion calms the rain and the camera without removing the street, the ticker or the lightning control. No external images, fonts, or libraries.
+
+DESCRIPTION
+A fictional District 9 night market on a full-viewport canvas: acid rain, neon signs, a wet street and a wire of invented headlines. The pointer shifts the camera in parallax. A click, or Enter, throws lightning and thunder across the block. Rain and audio are explicit controls. Corner telemetry keeps district time, weather and signal.

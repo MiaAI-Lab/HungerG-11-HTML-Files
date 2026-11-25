@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111018">
+  <meta name="description" content="ELASTIC — an interactive typography experiment. Letters become particles, springs, and filaments.">
+  <title>ELASTIC — Letterforms on Springs</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111018'/%3E%3Cpath d='M14 38c8-28 14 28 22 0s14 28 14 0' fill='none' stroke='%23ff2e88' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #111018;
+      --panel: #17151f;
+      --panel-raised: #1d1a26;
+      --line: #302b3b;
+      --line-soft: #24202e;
+      --text: #f3eef7;
+      --muted: #8d859b;
+      --dim: #625b70;
+      --magenta: #ff2e88;
+      --magenta-soft: rgba(255, 46, 136, .13);
+      --cyan: #29e7cd;
+      --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      --sans: "Arial Black", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--ink); }
+    body {
+      margin: 0;
+      min-height: 100svh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(ellipse at 16% -20%, rgba(255, 46, 136, .07), transparent 42%),
+        var(--ink);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 12px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    button, a, input { -webkit-tap-highlight-color: transparent; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, canvas:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 4px;
+    }
+    ::selection { background: var(--magenta); color: var(--ink); }
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .shell { width: min(1560px, calc(100% - 64px)); margin: 0 auto; }
+    .topbar {
+      height: 82px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line-soft);
+      gap: 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark { width: 33px; height: 33px; color: var(--magenta); }
+    .brand-name { font-size: 17px; font-weight: 700; letter-spacing: .22em; }
+    .brand-sub {
+      margin-left: 14px;
+      padding-left: 20px;
+      border-left: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.65;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 26px; }
+    .live-indicator { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 9px; letter-spacing: .12em; }
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 10px rgba(41, 231, 205, .65);
+      animation: live-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes live-pulse { 50% { opacity: .4; } }
+    .text-button {
+      border: 0;
+      padding: 7px 0;
+      background: none;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      transition: color .2s ease;
+    }
+    .text-button:hover { color: var(--text); }
+    .intro {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 32px;
+      padding: 31px 0 25px;
+    }
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 10px;
+      color: var(--magenta);
+      font-size: 9px;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { content: "+"; font-size: 14px; line-height: 0; }
+    h1 { margin: 0; font-size: clamp(20px, 2.2vw, 30px); font-weight: 400; letter-spacing: -.055em; }
+    h1 span { color: var(--muted); }
+    .intro-note { max-width: 340px; margin: 0; color: var(--muted); font-size: 10px; line-height: 1.8; text-align: right; }
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 286px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .22);
+    }
+    .specimen { min-width: 0; display: flex; flex-direction: column; }
+    .specimen-head {
+      height: 49px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line-soft);
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .specimen-title { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .specimen-title .index { color: var(--magenta); }
+    .specimen-title strong { color: var(--text); font-weight: 400; overflow: hidden; text-overflow: ellipsis; }
+    .specimen-actions { display: flex; align-items: center; gap: 17px; flex-shrink: 0; }
+    .pause-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 0;
+      padding: 6px 0;
+      background: none;
+      color: var(--muted);
+      font-size: 9px;
+      letter-spacing: .1em;
+    }
+    .pause-button:hover { color: var(--cyan); }
+    .pause-icon { width: 9px; height: 10px; display: inline-flex; justify-content: space-between; }
+    .pause-icon::before, .pause-icon::after { content: ""; width: 2px; height: 100%; background: currentColor; }
+    .pause-button[aria-pressed="true"] .pause-icon { width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 8px solid currentColor; }
+    .pause-button[aria-pressed="true"] .pause-icon::before, .pause-button[aria-pressed="true"] .pause-icon::after { display: none; }
+    .stage {
+      position: relative;
+      min-height: 420px;
+      height: clamp(440px, 56vh, 660px);
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        radial-gradient(ellipse at 50% 48%, rgba(255, 46, 136, .075), transparent 52%),
+        radial-gradient(circle at 1px 1px, rgba(143, 130, 163, .13) 1px, transparent 1.2px);
+      background-size: auto, 24px 24px;
+    }
+    .stage::before, .stage::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      pointer-events: none;
+      opacity: .32;
+    }
+    .stage::before { left: 50%; top: 18px; bottom: 18px; border-left: 1px dashed #3b3347; }
+    .stage::after { top: 50%; left: 18px; right: 18px; border-top: 1px dashed #3b3347; }
+    #letterfield { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+    .corner { position: absolute; z-index: 3; width: 13px; height: 13px; pointer-events: none; border-color: var(--dim); border-style: solid; }
+    .corner.tl { top: 13px; left: 13px; border-width: 1px 0 0 1px; }
+    .corner.tr { top: 13px; right: 13px; border-width: 1px 1px 0 0; }
+    .corner.bl { bottom: 13px; left: 13px; border-width: 0 0 1px 1px; }
+    .corner.br { bottom: 13px; right: 13px; border-width: 0 1px 1px 0; }
+    .stage-label {
+      position: absolute;
+      z-index: 3;
+      top: 21px;
+      left: 25px;
+      color: var(--dim);
+      font-size: 8px;
+      letter-spacing: .15em;
+      pointer-events: none;
+    }
+    .stage-coordinates { right: 25px; left: auto; }
+    .stage-hint {
+      position: absolute;
+      z-index: 3;
+      bottom: 22px;
+      left: 25px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 8px;
+      letter-spacing: .11em;
+      pointer-events: none;
+    }
+    .stage-hint svg { width: 14px; height: 14px; color: var(--magenta); }
+    .stage-mode { position: absolute; z-index: 3; right: 25px; bottom: 22px; color: var(--dim); font-size: 8px; letter-spacing: .12em; pointer-events: none; }
+    .empty-state {
+      position: absolute;
+      z-index: 4;
+      inset: 0;
+      display: none;
+      place-content: center;
+      text-align: center;
+      pointer-events: none;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 2;
+      letter-spacing: .13em;
+    }
+    .empty-state strong { display: block; color: var(--magenta); font-size: 13px; font-weight: 400; }
+    .stage.is-empty .empty-state { display: grid; }
+    .specimen-foot {
+      min-height: 43px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 10px 20px;
+      border-top: 1px solid var(--line-soft);
+      color: var(--dim);
+      font-size: 8px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .metrics { display: flex; align-items: center; gap: 22px; }
+    .metric { display: flex; gap: 7px; white-space: nowrap; }
+    .metric output { color: var(--muted); }
+    #motion-state { color: var(--cyan); }
+    .controls { border-left: 1px solid var(--line); background: #15131c; }
+    .controls-head { height: 49px; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid var(--line-soft); font-size: 9px; letter-spacing: .14em; }
+    .controls-head span:last-child { color: var(--dim); font-size: 8px; }
+    .control-section { padding: 19px 20px; border-bottom: 1px solid var(--line-soft); }
+    .control-label { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 11px; color: var(--muted); font-size: 8px; letter-spacing: .14em; text-transform: uppercase; }
+    .control-label .hint { color: var(--dim); font-size: 8px; letter-spacing: .04em; }
+    .word-wrap { position: relative; }
+    #word-input {
+      width: 100%;
+      height: 43px;
+      border: 1px solid var(--line);
+      border-radius: 0;
+      padding: 0 42px 0 12px;
+      background: var(--ink);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      caret-color: var(--magenta);
+      transition: border-color .2s ease;
+    }
+    #word-input:hover, #word-input:focus { border-color: #57445e; }
+    .word-enter { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--magenta); font-size: 15px; pointer-events: none; }
+    .mode-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .mode-button {
+      min-width: 0;
+      height: 65px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 8px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      transition: border-color .2s ease, background .2s ease, color .2s ease;
+    }
+    .mode-button svg { width: 29px; height: 17px; color: var(--dim); transition: color .2s ease; }
+    .mode-button:hover { border-color: #5a3c53; color: var(--text); }
+    .mode-button[aria-pressed="true"] { border-color: var(--magenta); background: var(--magenta-soft); color: var(--text); }
+    .mode-button[aria-pressed="true"] svg { color: var(--magenta); }
+    .force-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .force-copy strong { display: block; margin-bottom: 5px; color: var(--text); font-size: 10px; font-weight: 400; letter-spacing: .08em; }
+    .force-copy span { color: var(--dim); font-size: 8px; letter-spacing: .07em; }
+    .force-toggle {
+      width: 91px;
+      height: 31px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border: 1px solid var(--line);
+      border-radius: 2px;
+      padding: 0 9px;
+      background: var(--ink);
+      color: var(--magenta);
+      font-size: 8px;
+      letter-spacing: .08em;
+    }
+    .switch-track { width: 24px; height: 12px; border: 1px solid #57445e; border-radius: 10px; padding: 2px; }
+    .switch-knob { display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--magenta); transition: transform .2s ease, background .2s ease; }
+    .force-toggle[aria-checked="true"] { color: var(--cyan); }
+    .force-toggle[aria-checked="true"] .switch-track { border-color: #28685f; }
+    .force-toggle[aria-checked="true"] .switch-knob { transform: translateX(11px); background: var(--cyan); }
+    .slider-section { display: grid; gap: 20px; }
+    .slider-control + .slider-control { margin-top: 20px; }
+    .slider-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .slider-top label { color: var(--muted); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; }
+    .slider-top output { color: var(--text); font-size: 9px; font-variant-numeric: tabular-nums; }
+    input[type="range"] {
+      --progress: 50%;
+      display: block;
+      width: 100%;
+      height: 14px;
+      margin: 0;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      cursor: ew-resize;
+    }
+    input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: linear-gradient(to right, var(--magenta) var(--progress), var(--line) var(--progress)); }
+    input[type="range"]::-moz-range-track { height: 2px; background: var(--line); }
+    input[type="range"]::-moz-range-progress { height: 2px; background: var(--magenta); }
+    input[type="range"]::-webkit-slider-thumb { width: 10px; height: 10px; margin-top: -4px; appearance: none; -webkit-appearance: none; border: 2px solid var(--panel); border-radius: 50%; background: var(--magenta); box-shadow: 0 0 0 1px var(--magenta); }
+    input[type="range"]::-moz-range-thumb { width: 8px; height: 8px; border: 2px solid var(--panel); border-radius: 50%; background: var(--magenta); box-shadow: 0 0 0 1px var(--magenta); }
+    .control-actions { padding: 19px 20px 17px; }
+    .explode-button {
+      width: 100%;
+      height: 43px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid var(--magenta);
+      border-radius: 2px;
+      padding: 0 13px;
+      background: var(--magenta);
+      color: #160d14;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      transition: background .2s ease, box-shadow .2s ease, transform .15s ease;
+    }
+    .explode-button:hover { background: #ff519f; box-shadow: 0 0 24px rgba(255, 46, 136, .18); }
+    .explode-button:active { transform: scale(.98); }
+    .explode-button .burst { font-size: 17px; font-weight: 400; line-height: 0; }
+    .reset-button { width: 100%; margin-top: 10px; border: 0; padding: 6px; background: none; color: var(--dim); font-size: 8px; letter-spacing: .12em; text-transform: uppercase; }
+    .reset-button:hover { color: var(--text); }
+    .instructions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; padding: 23px 0 25px; }
+    .instruction { display: flex; align-items: flex-start; gap: 12px; color: var(--muted); font-size: 9px; line-height: 1.7; }
+    .instruction .number { color: var(--magenta); font-size: 8px; }
+    .instruction strong { display: block; margin-bottom: 2px; color: var(--text); font-weight: 400; text-transform: uppercase; letter-spacing: .08em; }
+    .page-foot { display: flex; justify-content: space-between; gap: 20px; padding: 15px 0 22px; border-top: 1px solid var(--line-soft); color: var(--dim); font-size: 8px; letter-spacing: .09em; text-transform: uppercase; }
+    .keyboard-help { position: fixed; z-index: 20; inset: 0; display: none; place-items: center; padding: 24px; background: rgba(8, 7, 12, .78); backdrop-filter: blur(8px); }
+    .keyboard-help.is-open { display: grid; }
+    .help-card { width: min(440px, 100%); border: 1px solid var(--line); background: var(--panel); padding: 27px; box-shadow: 0 24px 80px #0008; }
+    .help-card header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .help-card h2 { margin: 0; font-size: 12px; font-weight: 400; letter-spacing: .13em; }
+    .help-close { border: 0; background: none; color: var(--muted); font-size: 20px; }
+    .shortcut { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 11px 0; border-top: 1px solid var(--line-soft); color: var(--muted); font-size: 10px; }
+    kbd { min-width: 29px; padding: 4px 7px; border: 1px solid var(--line); background: var(--ink); color: var(--text); font: 9px var(--mono); text-align: center; }
+    @media (max-width: 1050px) {
+      .shell { width: calc(100% - 40px); }
+      .workspace { grid-template-columns: minmax(0, 1fr) 260px; }
+      .control-section, .control-actions { padding-left: 16px; padding-right: 16px; }
+      .controls-head { padding-left: 16px; padding-right: 16px; }
+      .metrics { gap: 13px; }
+      .metric.energy-metric { display: none; }
+    }
+    @media (max-width: 780px) {
+      .shell { width: calc(100% - 28px); }
+      .topbar { height: 68px; }
+      .brand-sub, .live-indicator { display: none; }
+      .intro { padding: 25px 0 21px; }
+      .intro-note { display: none; }
+      .workspace { grid-template-columns: 1fr; }
+      .stage { height: clamp(360px, 52vh, 520px); min-height: 360px; }
+      .controls { border-left: 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; }
+      .controls-head { grid-column: 1 / -1; }
+      .control-section { border-right: 1px solid var(--line-soft); }
+      .control-section:nth-of-type(3) { border-right: 0; }
+      .slider-section { grid-row: span 2; }
+      .control-actions { display: flex; flex-direction: column; justify-content: center; }
+      .specimen-foot { flex-wrap: wrap; }
+      .instructions { gap: 16px; }
+    }
+    @media (max-width: 520px) {
+      .shell { width: calc(100% - 20px); }
+      .topbar-right { gap: 12px; }
+      .brand-name { font-size: 14px; }
+      .brand-mark { width: 28px; height: 28px; }
+      .text-button { font-size: 8px; }
+      .intro { padding-top: 22px; }
+      h1 { font-size: 20px; }
+      .specimen-head { padding: 0 13px; }
+      .specimen-actions { gap: 10px; }
+      .stage { min-height: 340px; height: 46vh; }
+      .stage-label { left: 19px; font-size: 7px; }
+      .stage-coordinates { left: auto; right: 19px; }
+      .stage-hint { left: 19px; bottom: 19px; font-size: 7px; letter-spacing: .05em; }
+      .stage-mode { right: 19px; bottom: 19px; font-size: 7px; }
+      .specimen-foot { padding: 10px 13px; font-size: 7px; }
+      .metrics { width: 100%; justify-content: space-between; gap: 8px; }
+      .controls { grid-template-columns: 1fr; }
+      .controls-head, .control-section, .control-actions { grid-column: 1; grid-row: auto; }
+      .control-section { border-right: 0; padding: 17px; }
+      .control-actions { padding: 17px; }
+      .mode-button { height: 59px; }
+      .slider-section { gap: 0; }
+      .instructions { grid-template-columns: 1fr; gap: 13px; padding: 21px 3px; }
+      .instruction { font-size: 8px; }
+      .page-foot { font-size: 7px; line-height: 1.7; }
+      .page-foot span:last-child { text-align: right; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand" aria-label="Elastic, typography physics lab">
+        <svg class="brand-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true">
+          <path d="M4 22C8 3 12 33 18 14S27 33 32 11" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="4" cy="22" r="2" fill="currentColor"/><circle cx="32" cy="11" r="2" fill="currentColor"/>
+        </svg>
+        <span class="brand-name">ELASTIC</span>
+        <span class="brand-sub">Typography<br>physics lab</span>
+      </div>
+      <div class="topbar-right">
+        <span class="live-indicator"><span class="live-dot"></span>SIMULATION LIVE</span>
+        <button class="text-button" id="help-button" type="button" aria-haspopup="dialog">[ ? ] KEYBOARD</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Experiment Nº 001</p>
+          <h1 id="page-title">Letterforms <span>on springs.</span></h1>
+        </div>
+        <p class="intro-note">Type is no longer static. Disturb the field,<br>release the tension, and watch it find its way home.</p>
+      </section>
+
+      <section class="workspace" aria-label="Interactive elastic typography playground">
+        <div class="specimen">
+          <div class="specimen-head">
+            <div class="specimen-title"><span class="index">01 /</span><span>SPECIMEN</span><span aria-hidden="true">—</span><strong id="specimen-word">BOUNCE</strong></div>
+            <div class="specimen-actions">
+              <button class="pause-button" id="pause-button" type="button" aria-pressed="false" title="Pause or resume the simulation (Space)">
+                <span class="pause-icon" aria-hidden="true"></span><span id="pause-label">PAUSE</span>
+              </button>
+            </div>
+          </div>
+          <div class="stage" id="stage">
+            <canvas id="letterfield" tabindex="0" role="img" aria-label="Interactive BOUNCE letterform made of spring particles. Move the pointer to disturb it, click to explode, or press Enter to explode."></canvas>
+            <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+            <span class="stage-label">FIELD / <span id="field-mode-label">REPEL</span></span>
+            <span class="stage-label stage-coordinates" id="coordinates">X 000 · Y 000</span>
+            <div class="stage-hint">
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 2l9 6-4 1-2 4L3 2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+              MOVE TO DISTURB · CLICK TO EXPLODE
+            </div>
+            <span class="stage-mode" id="stage-mode-label">MODE / DOTS</span>
+            <div class="empty-state" id="empty-state"><strong>THE FIELD IS EMPTY</strong>TYPE A WORD TO BRING IT TO LIFE</div>
+          </div>
+          <div class="specimen-foot">
+            <span id="motion-state">AT REST</span>
+            <div class="metrics">
+              <span class="metric">PTS <output id="point-count">0</output></span>
+              <span class="metric">GRID <output id="density-value">—</output></span>
+              <span class="metric energy-metric">ENERGY <output id="energy-value">0.00</output></span>
+              <span class="metric"><output id="fps-value">60</output> FPS</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="controls" aria-label="Simulation controls">
+          <div class="controls-head"><span>CONTROL ROOM</span><span>V.01</span></div>
+          <div class="control-section">
+            <label class="control-label" for="word-input"><span>Word / 12 characters</span><span class="hint">A–Z 0–9</span></label>
+            <div class="word-wrap">
+              <input id="word-input" type="text" value="BOUNCE" maxlength="12" placeholder="TYPE HERE" autocomplete="off" spellcheck="false" aria-describedby="word-note">
+              <span class="word-enter" aria-hidden="true">↵</span>
+            </div>
+            <span class="sr-only" id="word-note">The letterforms update automatically after typing. Press Enter to update immediately.</span>
+          </div>
+          <div class="control-section">
+            <div class="control-label"><span>Render mode</span><span class="hint">KEYS 1–3</span></div>
+            <div class="mode-list" role="group" aria-label="Render mode">
+              <button class="mode-button" type="button" data-mode="dots" aria-pressed="true">
+                <svg viewBox="0 0 30 18" fill="currentColor" aria-hidden="true"><circle cx="4" cy="9" r="2"/><circle cx="11" cy="5" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="21" cy="6" r="2"/><circle cx="26" cy="11" r="2"/></svg>
+                Dots
+              </button>
+              <button class="mode-button" type="button" data-mode="lines" aria-pressed="false">
+                <svg viewBox="0 0 30 18" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><path d="M3 12l6-7 6 7 6-8 6 7M3 12h24"/><circle cx="3" cy="12" r="1.4" fill="currentColor"/><circle cx="9" cy="5" r="1.4" fill="currentColor"/><circle cx="15" cy="12" r="1.4" fill="currentColor"/><circle cx="21" cy="4" r="1.4" fill="currentColor"/><circle cx="27" cy="11" r="1.4" fill="currentColor"/></svg>
+                Lines
+              </button>
+              <button class="mode-button" type="button" data-mode="threads" aria-pressed="false">
+                <svg viewBox="0 0 30 18" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><path d="M3 13c2-9 4 9 6 0s4 9 6 0 4 9 6 0 4 9 6 0"/><circle cx="3" cy="13" r="1.5" fill="currentColor"/><circle cx="27" cy="13" r="1.5" fill="currentColor"/></svg>
+                Threads
+              </button>
+            </div>
+          </div>
+          <div class="control-section">
+            <div class="force-row">
+              <div class="force-copy"><strong>POINTER FIELD</strong><span id="force-description">PUSH PARTICLES AWAY</span></div>
+              <button class="force-toggle" id="force-toggle" type="button" role="switch" aria-checked="false" aria-label="Attract particles with the pointer">
+                <span id="force-value">REPEL</span><span class="switch-track" aria-hidden="true"><span class="switch-knob"></span></span>
+              </button>
+            </div>
+          </div>
+          <div class="control-section slider-section">
+            <div class="slider-control">
+              <div class="slider-top"><label for="stiffness">Stiffness</label><output id="stiffness-value" for="stiffness">65</output></div>
+              <input id="stiffness" type="range" min="15" max="160" step="1" value="65">
+            </div>
+            <div class="slider-control">
+              <div class="slider-top"><label for="damping">Damping</label><output id="damping-value" for="damping">0.91</output></div>
+              <input id="damping" type="range" min="0.78" max="0.98" step="0.01" value="0.91">
+            </div>
+            <div class="slider-control">
+              <div class="slider-top"><label for="radius">Force radius</label><output id="radius-value" for="radius">150 PX</output></div>
+              <input id="radius" type="range" min="60" max="280" step="5" value="150">
+            </div>
+          </div>
+          <div class="control-actions">
+            <button class="explode-button" id="explode-button" type="button"><span>EXPLODE WORD</span><span class="burst" aria-hidden="true">✳</span></button>
+            <button class="reset-button" id="reset-button" type="button">[ R ] RESET ALL</button>
+          </div>
+        </aside>
+      </section>
+
+      <section class="instructions" aria-label="How to interact">
+        <div class="instruction"><span class="number">01</span><div><strong>Disturb</strong>Move your pointer through the letterfield.</div></div>
+        <div class="instruction"><span class="number">02</span><div><strong>Release</strong>Let go. The springs remember every home.</div></div>
+        <div class="instruction"><span class="number">03</span><div><strong>Disassemble</strong>Click anywhere to scatter and reassemble.</div></div>
+      </section>
+    </main>
+
+    <footer class="page-foot"><span>Built from pixels. Held together by tension.</span><span>Magenta / rest · Cyan / velocity</span></footer>
+  </div>
+
+  <div class="keyboard-help" id="keyboard-help" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="help-card">
+      <header><h2 id="help-title">KEYBOARD / SHORTCUTS</h2><button class="help-close" id="help-close" type="button" aria-label="Close keyboard help">×</button></header>
+      <div class="shortcut"><span>Dots / Lines / Threads</span><span><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd></span></div>
+      <div class="shortcut"><span>Explode the word</span><kbd>E</kbd></div>
+      <div class="shortcut"><span>Pause / resume</span><kbd>SPACE</kbd></div>
+      <div class="shortcut"><span>Reset everything</span><kbd>R</kbd></div>
+      <div class="shortcut"><span>Close this panel</span><kbd>ESC</kbd></div>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const INK = '#111018';
+      const MAGENTA = '#ff2e88';
+      const CYAN = '#29e7cd';
+      const DISPLAY_FONT = '"Arial Black", "Helvetica Neue", Helvetica, Arial, sans-serif';
+      const FIXED_STEP = 1 / 60;
+      const MAX_STEPS = 4;
+      const MAX_POINTS = 7200;
+      const MAX_LINKS = 19000;
+      const $ = (id) => document.getElementById(id);
+
+      const canvas = $('letterfield');
+      const ctx = canvas.getContext('2d', { alpha: true });
+      const stage = $('stage');
+      const sampler = document.createElement('canvas');
+      const sampleCtx = sampler.getContext('2d', { willReadFrequently: true });
+      const wordInput = $('word-input');
+      const pauseButton = $('pause-button');
+      const forceToggle = $('force-toggle');
+      const help = $('keyboard-help');
+      const modeButtons = [...document.querySelectorAll('.mode-button')];
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      const settings = { stiffness: 65, damping: 0.91, radius: 150, attract: false };
+      const pointer = { x: -1000, y: -1000, active: false, down: false, id: null, startX: 0, startY: 0, moved: false };
+      let width = 1;
+      let height = 1;
+      let dpr = 1;
+      let sampleGap = 5;
+      let points = [];
+      let links = [];
+      let mode = 'dots';
+      let paused = false;
+      let dirty = true;
+      let lastTime = performance.now();
+      let accumulator = 0;
+      let simTime = 0;
+      let explosionTime = -10000;
+      let statsTime = 0;
+      let frames = 0;
+      let measuredFps = 60;
+      let resizeFrame = 0;
+      let inputTimer = 0;
+      let currentWord = 'BOUNCE';
+      let returnFocus = null;
+
+      const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+      const random = (min, max) => min + Math.random() * (max - min);
+
+      function fitFontSize(text, maxWidth, maxHeight) {
+        let size = Math.min(maxHeight * 1.28, maxWidth / Math.max(text.length * 0.34, 1));
+        size = Math.max(20, size);
+        sampleCtx.font = `900 ${size}px ${DISPLAY_FONT}`;
+        const metrics = sampleCtx.measureText(text);
+        const glyphHeight = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent || size * 0.72;
+        return Math.min(size, size * maxWidth / Math.max(metrics.width, 1), size * maxHeight / Math.max(glyphHeight, 1));
+      }
+
+      function pointBudget() {
+        const area = width * height;
+        const mobile = window.innerWidth <= 780;
+        const target = mobile ? 2900 : 5200;
+        return Math.round(clamp(target * clamp(area / 390000, 0.48, 1.25), 1250, MAX_POINTS));
+      }
+
+      function buildNeighbourLinks() {
+        links = [];
+        if (points.length < 2) return;
+        const cellSize = Math.max(7, sampleGap * 2.15);
+        const grid = new Map();
+        const degrees = new Uint8Array(points.length);
+        const maxDegree = mode === 'lines' ? 4 : 3;
+        const key = (x, y) => `${x},${y}`;
+
+        for (let i = 0; i < points.length; i++) {
+          const point = points[i];
+          const gx = Math.floor(point.hx / cellSize);
+          const gy = Math.floor(point.hy / cellSize);
+          for (let oy = -1; oy <= 1; oy++) {
+            for (let ox = -1; ox <= 1; ox++) {
+              const bucket = grid.get(key(gx + ox, gy + oy));
+              if (!bucket) continue;
+              for (const j of bucket) {
+                if (degrees[i] >= maxDegree || degrees[j] >= maxDegree || links.length >= MAX_LINKS) continue;
+                const other = points[j];
+                const dx = point.hx - other.hx;
+                const dy = point.hy - other.hy;
+                const distanceSq = dx * dx + dy * dy;
+                if (distanceSq > cellSize * cellSize || distanceSq < 0.1) continue;
+                links.push(i, j);
+                degrees[i]++;
+                degrees[j]++;
+              }
+            }
+          }
+          const bucketKey = key(gx, gy);
+          if (!grid.has(bucketKey)) grid.set(bucketKey, []);
+          grid.get(bucketKey).push(i);
+        }
+      }
+
+      function rebuildLetters(word = currentWord, animate = true) {
+        currentWord = word.trim().toUpperCase();
+        const rect = stage.getBoundingClientRect();
+        width = Math.max(1, rect.width);
+        height = Math.max(1, rect.height);
+        dpr = Math.min(window.devicePixelRatio || 1, width < 600 ? 1.5 : 2);
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        if (!currentWord) {
+          points = [];
+          links = [];
+          pointer.active = false;
+          $('specimen-word').textContent = '—';
+          $('point-count').textContent = '0';
+          $('density-value').textContent = '—';
+          stage.classList.add('is-empty');
+          canvas.dataset.word = '';
+          canvas.dataset.points = '0';
+          canvas.setAttribute('aria-label', 'The elastic letterfield is empty. Type a word to bring it to life.');
+          dirty = true;
+          updateStats(true);
+          return;
+        }
+
+        sampler.width = Math.round(width);
+        sampler.height = Math.round(height);
+        sampleCtx.setTransform(1, 0, 0, 1, 0, 0);
+        sampleCtx.clearRect(0, 0, sampler.width, sampler.height);
+        sampleCtx.fillStyle = '#ffffff';
+        sampleCtx.textAlign = 'center';
+        sampleCtx.textBaseline = 'alphabetic';
+
+        const horizontalPadding = width < 520 ? 24 : Math.max(42, width * 0.065);
+        const maxTextWidth = Math.max(40, width - horizontalPadding * 2);
+        const maxTextHeight = height * (width < 520 ? 0.43 : 0.49);
+        const fontSize = fitFontSize(currentWord, maxTextWidth, maxTextHeight);
+        sampleCtx.font = `900 ${fontSize}px ${DISPLAY_FONT}`;
+        const metrics = sampleCtx.measureText(currentWord);
+        const ascent = metrics.actualBoundingBoxAscent || fontSize * 0.74;
+        const descent = metrics.actualBoundingBoxDescent || fontSize * 0.02;
+        const baseline = height * 0.49 + (ascent - descent) / 2;
+        sampleCtx.fillText(currentWord, width / 2, baseline);
+
+        const pixels = sampleCtx.getImageData(0, 0, sampler.width, sampler.height).data;
+        const budget = pointBudget();
+        let gap = clamp(Math.sqrt((maxTextWidth * maxTextHeight * 0.48) / budget), width < 520 ? 3.2 : 3.6, width < 520 ? 6.5 : 8);
+        let candidates = [];
+        let attempts = 0;
+
+        while (attempts < 8) {
+          candidates = [];
+          for (let y = Math.floor(height * 0.16); y < height * 0.82; y += gap) {
+            const rowOffset = (Math.round(y / gap) % 2) * gap * 0.5;
+            for (let x = Math.floor(horizontalPadding * 0.55); x < width - horizontalPadding * 0.55; x += gap) {
+              const sx = Math.min(sampler.width - 1, Math.max(0, Math.round(x + rowOffset)));
+              const sy = Math.min(sampler.height - 1, Math.max(0, Math.round(y)));
+              if (pixels[(sy * sampler.width + sx) * 4 + 3] > 110) {
+                candidates.push({ hx: sx, hy: sy });
+              }
+            }
+          }
+          if (candidates.length <= budget || gap >= 10) break;
+          gap *= Math.sqrt(candidates.length / budget) * 1.025;
+          attempts++;
+        }
+
+        if (candidates.length > budget) {
+          const stride = candidates.length / budget;
+          candidates = candidates.filter((_, index) => Math.floor(index * stride) !== Math.floor((index - 1) * stride));
+        }
+
+        sampleGap = gap;
+        points = candidates.map((home, index) => {
+          const angle = (index * 2.399963229728653) % (Math.PI * 2);
+          const spread = animate && !reducedMotion.matches ? random(2, 12) : 0;
+          return {
+            hx: home.hx,
+            hy: home.hy,
+            x: home.hx + Math.cos(angle) * spread,
+            y: home.hy + Math.sin(angle) * spread,
+            vx: animate && !reducedMotion.matches ? random(-10, 10) : 0,
+            vy: animate && !reducedMotion.matches ? random(-10, 10) : 0,
+            phase: Math.random() * Math.PI * 2,
+            size: random(0.72, 1.22)
+          };
+        });
+        buildNeighbourLinks();
+        pointer.active = false;
+        explosionTime = -10000;
+        $('specimen-word').textContent = currentWord;
+        $('point-count').textContent = points.length.toLocaleString('en-US');
+        $('density-value').textContent = `${gap.toFixed(1)} PX`;
+        canvas.setAttribute('aria-label', `Interactive ${currentWord} letterform made of ${points.length} spring particles. Move the pointer to disturb it, click to explode, or press Enter to explode.`);
+        stage.classList.toggle('is-empty', false);
+        canvas.dataset.word = currentWord;
+        canvas.dataset.points = String(points.length);
+        canvas.dataset.gap = gap.toFixed(2);
+        dirty = true;
+        updateStats(true);
+      }
+
+      function resizeCanvas() {
+        const rect = stage.getBoundingClientRect();
+        if (Math.abs(rect.width - width) < 2 && Math.abs(rect.height - height) < 2) return;
+        rebuildLetters(currentWord, false);
+      }
+
+      function scheduleResize() {
+        cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(resizeCanvas);
+      }
+
+      function velocityRatio(point) {
+        const speed = Math.hypot(point.vx, point.vy);
+        return clamp((speed - 45) / 380, 0, 1);
+      }
+
+      function particleColor(point, alpha = 1) {
+        const mix = velocityRatio(point);
+        const r = Math.round(255 + (41 - 255) * mix);
+        const g = Math.round(46 + (231 - 46) * mix);
+        const b = Math.round(136 + (205 - 136) * mix);
+        return `rgba(${r},${g},${b},${alpha})`;
+      }
+
+      function springPath(point) {
+        const dx = point.hx - point.x;
+        const dy = point.hy - point.y;
+        const length = Math.hypot(dx, dy);
+        if (length < 3) return null;
+        const ux = dx / length;
+        const uy = dy / length;
+        const coils = clamp(Math.round(length / 8), 2, 9);
+        const amplitude = clamp(length * 0.075, 1.2, 4.5);
+        const lead = Math.min(4, length * 0.15);
+        const coilLength = Math.max(0, length - lead * 2);
+        ctx.beginPath();
+        ctx.moveTo(point.x + ux * lead, point.y + uy * lead);
+        for (let step = 0; step <= coils * 2; step++) {
+          const t = step / (coils * 2);
+          const offset = step === 0 || step === coils * 2 ? 0 : (step % 2 ? amplitude : -amplitude);
+          ctx.lineTo(point.x + ux * (lead + coilLength * t) - uy * offset, point.y + uy * (lead + coilLength * t) + ux * offset);
+        }
+        return true;
+      }
+
+      function drawPointerField() {
+        if (!pointer.active) return;
+        const radius = settings.radius;
+        const color = settings.attract ? '41,231,205' : '255,46,136';
+        const gradient = ctx.createRadialGradient(pointer.x, pointer.y, 0, pointer.x, pointer.y, radius);
+        gradient.addColorStop(0, `rgba(${color},0.045)`);
+        gradient.addColorStop(0.72, `rgba(${color},0.018)`);
+        gradient.addColorStop(1, `rgba(${color},0)`);
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(pointer.x, pointer.y, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = `rgba(${color},0.22)`;
+        ctx.lineWidth = 0.7;
+        ctx.setLineDash([2, 6]);
+        ctx.beginPath();
+        ctx.arc(pointer.x, pointer.y, radius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.strokeStyle = `rgba(${color},0.7)`;
+        ctx.beginPath();
+        ctx.moveTo(pointer.x - 5, pointer.y);
+        ctx.lineTo(pointer.x + 5, pointer.y);
+        ctx.moveTo(pointer.x, pointer.y - 5);
+        ctx.lineTo(pointer.x, pointer.y + 5);
+        ctx.stroke();
+      }
+
+      function drawDots() {
+        const stride = Math.max(1, Math.floor(points.length / 3500));
+        ctx.fillStyle = MAGENTA;
+        ctx.shadowColor = MAGENTA;
+        ctx.shadowBlur = 7;
+        ctx.globalAlpha = 0.92;
+        ctx.beginPath();
+        for (let i = 0; i < points.length; i += stride) {
+          const point = points[i];
+          const radius = Math.max(1.05, sampleGap * 0.29) * point.size;
+          ctx.moveTo(point.x + radius, point.y);
+          ctx.arc(point.x, point.y, radius, 0, Math.PI * 2);
+        }
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+
+        ctx.strokeStyle = 'rgba(255,46,136,0.13)';
+        ctx.lineWidth = 0.55;
+        ctx.beginPath();
+        for (let i = 0; i < links.length; i += 2) {
+          const a = points[links[i]];
+          const b = points[links[i + 1]];
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+        }
+        ctx.stroke();
+
+        for (let i = 0; i < points.length; i += stride) {
+          const point = points[i];
+          const mix = velocityRatio(point);
+          if (mix < 0.08) continue;
+          ctx.fillStyle = particleColor(point, 0.35 + mix * 0.65);
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, (1.1 + mix * 0.75) * point.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function drawLines() {
+        ctx.lineWidth = 0.72;
+        ctx.strokeStyle = 'rgba(255,46,136,0.34)';
+        ctx.beginPath();
+        for (let i = 0; i < links.length; i += 2) {
+          const a = points[links[i]];
+          const b = points[links[i + 1]];
+          const speed = Math.hypot(a.vx + b.vx, a.vy + b.vy) * 0.5;
+          if (speed > 120) continue;
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+        }
+        ctx.stroke();
+
+        ctx.strokeStyle = 'rgba(41,231,205,0.52)';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        for (let i = 0; i < links.length; i += 2) {
+          const a = points[links[i]];
+          const b = points[links[i + 1]];
+          const speed = Math.hypot(a.vx + b.vx, a.vy + b.vy) * 0.5;
+          if (speed <= 120) continue;
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+        }
+        ctx.stroke();
+
+        ctx.fillStyle = MAGENTA;
+        ctx.beginPath();
+        for (const point of points) {
+          ctx.moveTo(point.x + 1, point.y);
+          ctx.arc(point.x, point.y, 1, 0, Math.PI * 2);
+        }
+        ctx.fill();
+
+        for (const point of points) {
+          const mix = velocityRatio(point);
+          if (mix < 0.08) continue;
+          ctx.fillStyle = particleColor(point, 0.4 + mix * 0.6);
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, 1 + mix * 0.55, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      function drawThreads() {
+        const stride = Math.max(1, Math.ceil(points.length / 1150));
+        ctx.lineWidth = 0.55;
+        for (let i = 0; i < points.length; i += stride) {
+          const point = points[i];
+          const length = Math.hypot(point.hx - point.x, point.hy - point.y);
+          if (length < 4) continue;
+          ctx.strokeStyle = particleColor(point, length > 40 ? 0.48 : 0.24);
+          springPath(point);
+          ctx.stroke();
+        }
+        ctx.fillStyle = 'rgba(255,46,136,0.28)';
+        ctx.beginPath();
+        for (let i = 0; i < points.length; i += stride * 2) {
+          const point = points[i];
+          ctx.moveTo(point.hx + 0.7, point.hy);
+          ctx.arc(point.hx, point.hy, 0.7, 0, Math.PI * 2);
+        }
+        ctx.fill();
+        drawDots();
+      }
+
+      function render() {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, width, height);
+        drawPointerField();
+        if (mode === 'lines') drawLines();
+        else if (mode === 'threads') drawThreads();
+        else drawDots();
+        dirty = false;
+      }
+
+      function simulate(step) {
+        simTime += step;
+        const spring = settings.stiffness;
+        const damping = Math.pow(settings.damping, step * 60);
+        const radiusSq = settings.radius * settings.radius;
+        const direction = settings.attract ? -1 : 1;
+        let totalSpeed = 0;
+        let totalDisplacement = 0;
+
+        for (const point of points) {
+          const dx = point.hx - point.x;
+          const dy = point.hy - point.y;
+          point.vx += dx * spring * step;
+          point.vy += dy * spring * step;
+
+          if (pointer.active) {
+            const px = point.x - pointer.x;
+            const py = point.y - pointer.y;
+            const distanceSq = px * px + py * py;
+            if (distanceSq < radiusSq) {
+              const distance = Math.sqrt(distanceSq);
+              const falloff = 1 - distance / settings.radius;
+              const force = falloff * falloff * 3400 * (pointer.down ? 1.45 : 1);
+              if (distance > 0.5) {
+                point.vx += (px / distance) * force * direction * step;
+                point.vy += (py / distance) * force * direction * step;
+              } else {
+                const angle = point.phase + simTime;
+                point.vx += Math.cos(angle) * force * step;
+                point.vy += Math.sin(angle) * force * step;
+              }
+            }
+          }
+
+          point.vx *= damping;
+          point.vy *= damping;
+          point.x += point.vx * step;
+          point.y += point.vy * step;
+          const speed = Math.hypot(point.vx, point.vy);
+          if (speed > 1250) {
+            point.vx *= 1250 / speed;
+            point.vy *= 1250 / speed;
+          }
+          totalSpeed += Math.min(speed, 1250);
+          totalDisplacement += Math.hypot(point.hx - point.x, point.hy - point.y);
+        }
+        canvas.dataset.meanSpeed = points.length ? (totalSpeed / points.length).toFixed(2) : '0';
+        canvas.dataset.displacement = points.length ? (totalDisplacement / points.length).toFixed(2) : '0';
+        dirty = true;
+      }
+
+      function updateStats(force = false) {
+        const now = performance.now();
+        frames++;
+        if (!force && now - statsTime < 350) return;
+        const fps = statsTime ? Math.round(frames * 1000 / (now - statsTime)) : measuredFps;
+        if (statsTime) measuredFps = Math.round(measuredFps * 0.35 + fps * 0.65);
+        statsTime = now;
+        frames = 0;
+        const speed = Number(canvas.dataset.meanSpeed || 0);
+        const displacement = Number(canvas.dataset.displacement || 0);
+        const state = paused ? 'PAUSED' : now - explosionTime < 1500 ? 'REASSEMBLING' : pointer.active && speed > 45 ? 'FIELD ACTIVE' : speed > 16 || displacement > 5 ? 'IN MOTION' : 'AT REST';
+        $('motion-state').textContent = state;
+        $('energy-value').textContent = (speed / 100).toFixed(2);
+        $('fps-value').textContent = String(clamp(measuredFps, 0, 120));
+        canvas.dataset.state = state;
+      }
+
+      function frame(now) {
+        const elapsed = Math.min((now - lastTime) / 1000, 0.08);
+        lastTime = now;
+        if (!paused && !document.hidden) {
+          accumulator += elapsed;
+          let steps = 0;
+          while (accumulator >= FIXED_STEP && steps < MAX_STEPS) {
+            simulate(FIXED_STEP);
+            accumulator -= FIXED_STEP;
+            steps++;
+          }
+          if (steps === MAX_STEPS) accumulator = 0;
+        } else {
+          accumulator = 0;
+        }
+        if (dirty) render();
+        updateStats();
+        requestAnimationFrame(frame);
+      }
+
+      function explodeAt(x = width / 2, y = height / 2) {
+        if (!points.length || paused) return;
+        for (const point of points) {
+          let dx = point.x - x;
+          let dy = point.y - y;
+          let distance = Math.hypot(dx, dy);
+          if (distance < 4) {
+            const angle = Math.random() * Math.PI * 2;
+            dx = Math.cos(angle);
+            dy = Math.sin(angle);
+            distance = 1;
+          }
+          const power = random(260, 690) * (0.72 + Math.min(distance / Math.max(width, height), 0.8));
+          point.vx += (dx / distance) * power + random(-90, 90);
+          point.vy += (dy / distance) * power + random(-90, 90);
+        }
+        explosionTime = performance.now();
+        canvas.dataset.explosions = String(Number(canvas.dataset.explosions || 0) + 1);
+        dirty = true;
+        updateStats(true);
+      }
+
+      function setMode(nextMode) {
+        if (!['dots', 'lines', 'threads'].includes(nextMode)) return;
+        mode = nextMode;
+        for (const button of modeButtons) button.setAttribute('aria-pressed', String(button.dataset.mode === mode));
+        $('stage-mode-label').textContent = `MODE / ${mode.toUpperCase()}`;
+        canvas.dataset.mode = mode;
+        buildNeighbourLinks();
+        dirty = true;
+      }
+
+      function setAttract(attract) {
+        settings.attract = attract;
+        forceToggle.setAttribute('aria-checked', String(attract));
+        forceToggle.setAttribute('aria-label', attract ? 'Repel particles with the pointer' : 'Attract particles with the pointer');
+        $('force-value').textContent = attract ? 'ATTRACT' : 'REPEL';
+        $('force-description').textContent = attract ? 'PULL PARTICLES CLOSER' : 'PUSH PARTICLES AWAY';
+        $('field-mode-label').textContent = attract ? 'ATTRACT' : 'REPEL';
+        canvas.dataset.force = attract ? 'attract' : 'repel';
+        dirty = true;
+      }
+
+      function togglePause() {
+        paused = !paused;
+        pauseButton.setAttribute('aria-pressed', String(paused));
+        $('pause-label').textContent = paused ? 'RESUME' : 'PAUSE';
+        canvas.dataset.paused = String(paused);
+        lastTime = performance.now();
+        accumulator = 0;
+        dirty = true;
+        updateStats(true);
+      }
+
+      function syncSlider(id, outputId, format) {
+        const input = $(id);
+        const update = () => {
+          const value = Number(input.value);
+          settings[id] = value;
+          $(outputId).textContent = format(value);
+          const progress = (value - Number(input.min)) / (Number(input.max) - Number(input.min)) * 100;
+          input.style.setProperty('--progress', `${progress}%`);
+          canvas.dataset[id] = String(value);
+        };
+        input.addEventListener('input', update);
+        update();
+      }
+
+      function setWordFromInput(immediate = false) {
+        clearTimeout(inputTimer);
+        const update = () => {
+          const cleaned = wordInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12);
+          wordInput.value = cleaned;
+          if (!cleaned) {
+            points = [];
+            links = [];
+            currentWord = '';
+            $('specimen-word').textContent = '—';
+            $('point-count').textContent = '0';
+            $('density-value').textContent = '—';
+            stage.classList.add('is-empty');
+            canvas.dataset.word = '';
+            canvas.dataset.points = '0';
+            dirty = true;
+            updateStats(true);
+            return;
+          }
+          rebuildLetters(cleaned, true);
+        };
+        if (immediate) update();
+        else inputTimer = window.setTimeout(update, 180);
+      }
+
+      function resetAll() {
+        wordInput.value = 'BOUNCE';
+        $('stiffness').value = '65';
+        $('damping').value = '0.91';
+        $('radius').value = '150';
+        for (const id of ['stiffness', 'damping', 'radius']) $(id).dispatchEvent(new Event('input'));
+        if (paused) togglePause();
+        setAttract(false);
+        setMode('dots');
+        rebuildLetters('BOUNCE', true);
+      }
+
+      function pointerPosition(event) {
+        const rect = canvas.getBoundingClientRect();
+        return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      }
+
+      canvas.addEventListener('pointerenter', (event) => {
+        const position = pointerPosition(event);
+        pointer.x = position.x;
+        pointer.y = position.y;
+        pointer.active = event.pointerType !== 'touch';
+        dirty = true;
+      });
+
+      canvas.addEventListener('pointermove', (event) => {
+        const position = pointerPosition(event);
+        pointer.x = position.x;
+        pointer.y = position.y;
+        pointer.active = true;
+        if (pointer.down && Math.hypot(position.x - pointer.startX, position.y - pointer.startY) > 7) pointer.moved = true;
+        $('coordinates').textContent = `X ${String(Math.round(position.x)).padStart(3, '0')} · Y ${String(Math.round(position.y)).padStart(3, '0')}`;
+        dirty = true;
+      });
+
+      canvas.addEventListener('pointerdown', (event) => {
+        if (event.button !== 0 && event.pointerType === 'mouse') return;
+        const position = pointerPosition(event);
+        pointer.x = position.x;
+        pointer.y = position.y;
+        pointer.active = true;
+        pointer.down = true;
+        pointer.id = event.pointerId;
+        pointer.startX = position.x;
+        pointer.startY = position.y;
+        pointer.moved = false;
+        canvas.setPointerCapture(event.pointerId);
+        canvas.focus({ preventScroll: true });
+        dirty = true;
+      });
+
+      canvas.addEventListener('pointerup', (event) => {
+        if (pointer.id !== event.pointerId) return;
+        if (!pointer.moved) explodeAt(pointer.x, pointer.y);
+        pointer.down = false;
+        pointer.id = null;
+        pointer.active = event.pointerType !== 'touch';
+        if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+        dirty = true;
+      });
+
+      canvas.addEventListener('pointercancel', () => {
+        pointer.down = false;
+        pointer.id = null;
+        pointer.active = false;
+        dirty = true;
+      });
+
+      canvas.addEventListener('pointerleave', () => {
+        if (!pointer.down) {
+          pointer.active = false;
+          $('coordinates').textContent = 'X 000 · Y 000';
+          dirty = true;
+        }
+      });
+
+      wordInput.addEventListener('input', () => setWordFromInput(false));
+      wordInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          setWordFromInput(true);
+        }
+      });
+      modeButtons.forEach((button) => button.addEventListener('click', () => setMode(button.dataset.mode)));
+      forceToggle.addEventListener('click', () => setAttract(!settings.attract));
+      pauseButton.addEventListener('click', togglePause);
+      $('explode-button').addEventListener('click', () => explodeAt());
+      $('reset-button').addEventListener('click', resetAll);
+
+      syncSlider('stiffness', 'stiffness-value', (value) => String(value));
+      syncSlider('damping', 'damping-value', (value) => value.toFixed(2));
+      syncSlider('radius', 'radius-value', (value) => `${value} PX`);
+
+      function openHelp() {
+        returnFocus = document.activeElement;
+        help.classList.add('is-open');
+        $('help-close').focus();
+      }
+
+      function closeHelp() {
+        help.classList.remove('is-open');
+        if (returnFocus instanceof HTMLElement) returnFocus.focus();
+      }
+
+      $('help-button').addEventListener('click', openHelp);
+      $('help-close').addEventListener('click', closeHelp);
+      help.addEventListener('click', (event) => { if (event.target === help) closeHelp(); });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && help.classList.contains('is-open')) {
+          closeHelp();
+          return;
+        }
+        if (help.classList.contains('is-open')) {
+          if (event.key === 'Tab') {
+            const focusable = [...help.querySelectorAll('button')];
+            if (focusable.length === 1) {
+              event.preventDefault();
+              focusable[0].focus();
+            }
+          }
+          return;
+        }
+        const isTyping = event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target.isContentEditable;
+        const isNativeButtonKey = event.target instanceof HTMLButtonElement && (event.code === 'Space' || event.key === 'Enter');
+        if (isTyping || isNativeButtonKey || event.ctrlKey || event.metaKey || event.altKey) return;
+        if (event.key === '1') setMode('dots');
+        else if (event.key === '2') setMode('lines');
+        else if (event.key === '3') setMode('threads');
+        else if (event.key.toLowerCase() === 'e') explodeAt();
+        else if (event.key.toLowerCase() === 'r') resetAll();
+        else if (event.key === '?') openHelp();
+        else if (event.code === 'Space') {
+          event.preventDefault();
+          togglePause();
+        } else if (event.key === 'Enter' && event.target === canvas) {
+          event.preventDefault();
+          explodeAt();
+        }
+      });
+
+      if ('ResizeObserver' in window) new ResizeObserver(scheduleResize).observe(stage);
+      window.addEventListener('resize', scheduleResize, { passive: true });
+      document.addEventListener('visibilitychange', () => { lastTime = performance.now(); accumulator = 0; });
+      reducedMotion.addEventListener('change', () => { dirty = true; });
+
+      setMode('dots');
+      setAttract(false);
+      rebuildLetters('BOUNCE', true);
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
